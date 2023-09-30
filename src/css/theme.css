@@ -1,0 +1,210 @@
+@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@600&display=swap");
+
+body {
+    margin: 0;
+    line-height: normal;
+    font-family: var(--font-raleway);
+}
+
+:root {
+    /* fonts */
+    --button-font: Raleway;
+    --font-raleway: Raleway;
+
+    /* font sizes */
+    --button-font-size: 16px;
+
+    /* Colors */
+    --c-white: #fff;
+    --c-primary: #5ece7b;
+    --c-primary-variant: #9ee2b0;
+    --c-light: #f1f2f3;
+    --c-text-muted: #72757e;
+    --c-secondary: #1d1f22;
+    --c-secondary-variant: #43464e;
+    --c-link: #43464E;
+
+    /* Paddings */
+    --padding-x: 16px;
+    --padding-y: 32px;
+
+    /* Effects */
+    --button-box-shadow-button: 0px 4px 4px rgba(29, 31, 34, 0.25);
+}
+
+.color-primary {
+    color: #5ECE7B;
+}
+.btn {
+    text-align: center;
+    border-radius: 0px;
+}
+
+.btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--c-primary, #5ECE7B);
+    --bs-btn-border-color: var(--c-primary, #5ECE7B);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--c-primary-variant, #9ee2b0);;
+    --bs-btn-hover-border-color: var(--c-primary, #5ECE7B);;
+    --bs-btn-focus-shadow-rgb: 49, 132, 253;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--c-primary, #5ECE7B);;
+    --bs-btn-active-border-color: var(--c-primary-variant, #9ee2b0);;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: var(--c-primary, #5ECE7B);
+    --bs-btn-disabled-border-color: var(--c-primary, #5ECE7B);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--c-primary, #5ECE7B);;
+    --bs-btn-border-color: var(--c-primary, #5ECE7B);;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--c-primary, #5ECE7B);;
+    --bs-btn-hover-border-color: var(--c-primary, #5ECE7B);;
+    --bs-btn-focus-shadow-rgb: 13, 110, 253;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--c-primary, #5ECE7B);;
+    --bs-btn-active-border-color: var(--c-primary, #5ECE7B);;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: var(--c-primary, #5ECE7B);;
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: var(--c-primary, #5ECE7B);;
+    --bs-gradient: none;
+}
+
+
+.button-primary {
+    background: var(--c-primary, #5ECE7B);
+    color: var(--c-white);
+}
+
+.btn.active,
+.btn.show,
+.btn:first-child:active,
+:not(.btn-check)+.btn:active {
+    background: var(--c-primary-variant, #5ECE7B);
+    color: var(--c-white);
+}
+
+.button-primary:hover {
+
+    background: var(--c-primary, #5ECE7B);
+    color: var(--c-white);
+    box-shadow: var(--button-box-shadow-button);
+}
+
+
+.primary-disabled {
+    background: var(--c-light, #72757e);
+    color: var(--c-text-muted, #FFF);
+
+
+}
+
+.button-secondary {
+    background: var(--c-secondary, #5ECE7B);
+    color: var(--c-white);
+}
+
+.button-secondary:hover {
+    box-shadow: var(--button-box-shadow-button);
+}
+
+.button-text {
+    font-size: 16px;
+    font-family: Raleway;
+    font-weight: 600;
+    text-transform: uppercase;
+    line-height: 19.20px;
+    word-wrap: break-word
+}
+
+.primary-outlined {
+    box-sizing: border-box;
+    background-color: var(--c-white, #fff);
+    border: 2px solid var(--c-primary, #5ECE7B);
+    color: var(--c-secondary, #1d1f22);
+
+
+}
+
+.primary-outlined:hover {
+    box-shadow: var(--button-box-shadow-button);
+}
+
+.shadow-main {
+    box-shadow: 0px 4px 35px 0px rgba(168, 172, 176, 0.19);
+}
+
+.form-label {
+    color: var(--c-text, #1D1F22);
+    /* --input-label-font */
+    font-family: Raleway;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 0.1px;
+}
+
+.input {
+    outline: 0;
+    border-width: 0 0 2px;
+    transition: border-color 0.5s ease-in-out;
+}
+
+.input:focus {
+    border-color: var(--c-primary);
+    outline: none;
+    box-shadow: none;
+}
+
+.form-control {
+    box-shadow: none;
+    /* border: var(--bs-border-width) solid var(--bs-border-color); */
+    border-radius: 0;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.form-control:focus {
+    
+    border-color: var(--c-primary-variant);
+    outline: 0;
+    box-shadow: none;
+}
+
+
+
+.form-check {
+    display: flex;
+    gap: 20px;
+    font-style: normal;
+    font-weight: 100;
+    align-items: center;
+}
+
+.form-check-input {
+    width: 1.5em;
+    height: 1.5em;
+    box-shadow: none;
+}
+
+.form-check-input:checked {
+    background-color: var(--c-primary);
+    border-color: var(--c-primary-variant);
+}
+
+.form-check-input:focus {
+    border-color: var(--c-primary);
+    outline: 0;
+    box-shadow: 0 0 0 .25rem rgba(13, 253, 93, 0.25);
+}
+
+
+
+a{
+    color: var(--c-link);
+}
