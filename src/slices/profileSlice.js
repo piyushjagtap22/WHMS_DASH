@@ -11,7 +11,8 @@ const profileSlice = createSlice({
     reducers: {
         // Define actions to update profile data
         setProfileInfo: (state, action) => {
-            state.userInfo = action.payload;
+            console.log(action.payload)
+            state.profileInfo = action.payload;
         },
         // Add more actions as needed
     },

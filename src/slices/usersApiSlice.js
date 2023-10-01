@@ -9,18 +9,9 @@ export const register = (data) => axios.post(`${USERS_URL}/signup`, data);
 
 export const verify = (data) => axios.post(`${USERS_URL}/verifycode`, data);
 
-// export const getUserData = (token) => axios.post(`${USERS_URL}/getuser`, {}, {
-//   headers: {
-//     Authorization: `Bearer ${token}`,
-//   },
-// });
+export const forgotPassword = (data) => axios.post(`${USERS_URL}/forget-password`, data);
 
-export const updateUser = (data, token) => {
-  // Make sure to pass the 'token' as an argument to this function
-  return axios.post(`http://localhost:3000/api/profile/update-profile`, data, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  });
-};
+
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL
@@ -46,9 +37,4 @@ axiosInstance.interceptors.response.use((response) => {
 
   return Promise.reject(error)
 })
-
-
-export const getUserData = (token) => axiosInstance.get(`/api/profile/getuser`, {
-  headers: { 'Authorization': `Bearer ${token}` }
-});
 

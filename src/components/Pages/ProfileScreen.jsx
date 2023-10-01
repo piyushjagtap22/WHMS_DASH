@@ -3,75 +3,61 @@ import { Button, Form } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import FormContainer from '../../components/FormContainer';
-import { setToken } from '../../slices/authSlice';
-import { updateUser } from '../../slices/usersApiSlice';
-import { setProfileInfo } from '../../slices/profileSlice';
+import { updateUser } from '../../slices/profileApiSlice';
 
 const ProfileScreen = () => {
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [age, setAge] = useState('');
-  const [weight, setWeight] = useState('');
-  const [gender, setGender] = useState('');
-  const [height, setHeight] = useState('');
-  const [authId, setAuthId] = useState('');
   const dispatch = useDispatch();
-  const { userInfo, token } = useSelector((state) => state.auth); // Get userInfo from the Redux store
-
-  useEffect(() => {
-    // Set the initial values for name and email based on userInfo
-
-    if (userInfo) {
-      console.log(userInfo);
-      setName(userInfo.name);
-      setEmail(userInfo.email);
-      setAuthId(userInfo.uid);
-    }
-  }, [userInfo]);
+  const { userInfo, token } = useSelector((state) => state.auth);
+  const { profileInfo } = useSelector((state) => state.profile);
+  const [age, setAge] = useState(profileInfo?.age || '');
+  const [weight, setWeight] = useState(profileInfo?.weight || '');
+  const [gender, setGender] = useState(profileInfo?.gender || '');
+  const [height, setHeight] = useState(profileInfo?.height || '');
 
   const submitHandler = async (e) => {
     e.preventDefault();
 
     try {
-      console.log('1');
       const res = await updateUser(
         {
-          authId,
           age,
           weight,
           gender,
           height,
         },
         token
-      ).then((res) => {
-        console.log(res.status);
-        if (res.status === 200) {
-          console.log('TODO : Alert to say Updated profile');
-        } else if (res.data.status === 409) {
-          console.log('Display user already Exists, please Sign in');
-        } else {
-          console.log(res);
-        }
-      });
+      );
+
+      if (res.status === 200) {
+        toast.success('Profile updated successfully.');
+      } else if (res.status === 409) {
+        toast.error('Display user already exists, please sign in.');
+      } else {
+        toast.error('Unexpected error, please sign in again.');
+      }
     } catch (err) {
-      console.log(err?.data?.message || err.error);
-      toast.error(err?.data?.message || err.error);
+      if (err.response && err.response.status === 409) {
+        toast.error('Display user already exists, please sign in.');
+      } else {
+        console.error(err);
+        toast.error(err?.data?.message || err.message);
+      }
     }
   };
 
   return (
     <FormContainer>
-      <h3>Hello {name}!</h3>
+      <h3>Hello {userInfo.name}!</h3>
       <h1>Update Profile</h1>
 
       <Form onSubmit={submitHandler}>
         <Form.Group className='my-2' controlId='name'>
           <Form.Label>Name</Form.Label>
-          <Form.Control type='name' value={name} disabled></Form.Control>
+          <Form.Control type='name' value={userInfo.name} disabled />
         </Form.Group>
         <Form.Group className='my-2' controlId='email'>
           <Form.Label>Email Address</Form.Label>
-          <Form.Control type='email' value={email} disabled></Form.Control>
+          <Form.Control type='email' value={userInfo.email} disabled />
         </Form.Group>
 
         <Form.Group className='my-2' controlId='age'>

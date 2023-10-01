@@ -25,11 +25,11 @@ function LoginScreen() {
   }, [navigate, token]);
 
   const submitHandler = async (e) => {
-    setIsLoading(true);
+    // setIsLoading(true);
     e.preventDefault();
     try {
       const res = await login({ email, password }).then((res) => {
-        console.log(res);
+        console.log('In Login');
         if (res.status === 200) {
           console.log(res.data.user.uid);
           dispatch(setUserId({ ...res.data.user.uid }));
@@ -38,7 +38,6 @@ function LoginScreen() {
               ...{ accessToken: res.data.user.stsTokenManager.accessToken },
             })
           );
-          // dispatch(setEmailId({ ...{ email } }))
           navigate('/home');
         } else {
           console.log('Error Handling');
@@ -46,9 +45,13 @@ function LoginScreen() {
         }
       });
     } catch (err) {
-      console.log(err);
-      console.log(err?.data?.message || err.error);
-      toast.error(err?.data?.message || err.error);
+      if (err.response.status === 403) {
+        toast.info('Please Verify Mail before login');
+        console.log('Please Verify Mail before login');
+      } else {
+        console.log(err.response.status);
+        toast.error('Internal server Error');
+      }
     }
   };
 

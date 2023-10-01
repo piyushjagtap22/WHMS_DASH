@@ -1,8 +1,9 @@
 import { Button, Card, Container } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getUserData } from '../../slices/usersApiSlice';
+import { getUserData, getProfileData } from '../../slices/profileApiSlice';
 import { setUserInfo } from '../../slices/authSlice';
+import { setProfileInfo } from '../../slices/profileSlice';
 
 const Hero = () => {
   const dispatch = useDispatch();
@@ -12,6 +13,16 @@ const Hero = () => {
       await getUserData(token).then((res) => {
         dispatch(setUserInfo({ ...res.data }));
       });
+
+      await getProfileData(token)
+        .then((res) => {
+          console.log(res);
+          dispatch(setProfileInfo({ ...res.data }));
+        })
+        .catch((error) => {
+          // Handle errors here
+          console.error('Error fetching profile data:', error);
+        });
     })();
   }, []);
 

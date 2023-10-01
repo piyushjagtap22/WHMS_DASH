@@ -31,20 +31,28 @@ const RegisterScreen = () => {
     try {
       const res = await register({ displayName, email, password }).then(
         (res) => {
+          console.log(res);
           if (res.status === 201) {
             console.log('TODO : Alert to say verify email');
             navigate('/login');
-          }
-          if (res.data.status === 409) {
-            console.log('Display user already Exists, please Sign in');
+            toast.info('Please Verify your Email, using mail received');
+          } else if (res.status === 409) {
+            toast.error('User already Exists, please Sign in');
+            console.log('User already Exists, please Sign in');
           } else {
+            toast.error('Unexpected Error');
             console.log(res.data.payload);
           }
         }
       );
     } catch (err) {
-      console.log(err?.data?.message || err.error);
-      toast.error(err?.data?.message || err.error);
+      if (err.response.status === 409) {
+        toast.info('User already Exists, please Sign in');
+        console.log('User already Exists, please Sign in');
+      } else {
+        console.log(err.response.status);
+        toast.error('Internal server Error');
+      }
     }
   };
 
