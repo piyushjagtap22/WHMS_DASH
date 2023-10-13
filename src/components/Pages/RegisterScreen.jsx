@@ -43,8 +43,8 @@ const RegisterScreen = () => {
         }
       );
     } catch (err) {
-      console.log(err?.data?.message || err.error);
-      toast.error(err?.data?.message || err.error);
+      console.error(err);
+      toast.error(err?.response?.data?.error || err.error);
     }
   };
 
