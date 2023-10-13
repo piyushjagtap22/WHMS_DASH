@@ -29,13 +29,14 @@ function LoginScreen() {
     e.preventDefault();
     try {
       const res = await login({ email, password }).then((res) => {
-        console.log(res);
+        // console.log(res.data.token);
+        // console.log(res.data.uid);
         if (res.status === 200) {
-          console.log(res.data.user.uid);
-          dispatch(setUserId({ ...res.data.user.uid }));
+          // console.log(res.data.user.uid);
+          dispatch(setUserId({ ...res.data.uid }));
           dispatch(
             setToken({
-              ...{ accessToken: res.data.user.stsTokenManager.accessToken },
+              ...{ accessToken: res.data.token },
             })
           );
           // dispatch(setEmailId({ ...{ email } }))
