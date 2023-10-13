@@ -1,9 +1,11 @@
+// authSlice.js
 import { createSlice } from '@reduxjs/toolkit';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebase';
 
 const initialState = {
-  token: localStorage.getItem('accessToken')
-    ? localStorage.getItem('accessToken')
-    : null,
+  token: localStorage.getItem('accessToken') ? localStorage.getItem('accessToken') : null,
+  AuthUser: null,
 };
 
 const authSlice = createSlice({
@@ -17,25 +19,31 @@ const authSlice = createSlice({
       state.userId = action.payload.id;
     },
     setToken: (state, action) => {
-      console.log(action.payload['accessToken'])
-      state.token = action.payload['accessToken']
-      // console.log(action.payload['refreshToken'])
-      // state.refreshToken = action.payload['refreshToken']
-      localStorage.setItem('accessToken', action.payload['accessToken']);
-      // localStorage.setItem('refreshToken', action.payload['refreshToken']);
+      state.token = action.payload.accessToken;
+      localStorage.setItem('accessToken', action.payload.accessToken);
     },
-    logout: (state, action) => {
+    logout: (state) => {
       state.token = null;
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
     },
-    setUserInfo: (state, action) => {
-      console.log(action.payload.user)
-      state.userInfo = action.payload.user;
-    }
+    setAuthUser: (state, action) => {
+      state.AuthUser = action.payload;
+    },
   },
 });
 
-export const { setToken, logout, setUserId, setEmailId, setUserInfo } = authSlice.actions;
+export const { setToken, logout, setUserId, setEmailId, setAuthUser } = authSlice.actions;
+
+// Add an asynchronous action to initialize AuthUser based on Firebase auth state
+export const initializeAuthUser = () => (dispatch) => {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      dispatch(setAuthUser(user.toJSON()));
+    } else {
+      dispatch(setAuthUser(null));
+    }
+  });
+};
 
 export default authSlice.reducer;

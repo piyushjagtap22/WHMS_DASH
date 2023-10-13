@@ -1,20 +1,7 @@
 import { Button, Card, Container } from 'react-bootstrap';
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getUserData } from '../../slices/usersApiSlice';
-import { setUserInfo } from '../../slices/authSlice';
+import React from 'react';
 
 const Hero = () => {
-  const dispatch = useDispatch();
-  useEffect(() => {
-    (async function () {
-      const token = localStorage.getItem('accessToken');
-      await getUserData(token).then((res) => {
-        dispatch(setUserInfo({ ...res.data }));
-      });
-    })();
-  }, []);
-
   return (
     <div className=' py-5'>
       <Container className='d-flex justify-content-center w-100'>

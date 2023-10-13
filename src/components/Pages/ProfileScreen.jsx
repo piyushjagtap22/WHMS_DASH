@@ -16,18 +16,18 @@ const ProfileScreen = () => {
   const [height, setHeight] = useState('');
   const [authId, setAuthId] = useState('');
   const dispatch = useDispatch();
-  const { userInfo, token } = useSelector((state) => state.auth); // Get userInfo from the Redux store
+  const { AuthUser } = useSelector((state) => state.auth); // Get userInfo from the Redux store
 
   useEffect(() => {
     // Set the initial values for name and email based on userInfo
 
-    if (userInfo) {
-      console.log(userInfo);
-      setName(userInfo.name);
-      setEmail(userInfo.email);
-      setAuthId(userInfo.uid);
+    if (AuthUser) {
+      console.log(AuthUser);
+      setName(AuthUser.displayName);
+      setEmail(AuthUser.email);
+      setAuthId(AuthUser.uid);
     }
-  }, [userInfo]);
+  }, [AuthUser]);
 
   const submitHandler = async (e) => {
     e.preventDefault();

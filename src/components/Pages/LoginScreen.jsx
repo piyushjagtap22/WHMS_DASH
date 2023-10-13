@@ -3,56 +3,78 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { setUserId, setEmailId, setToken } from '../../slices/authSlice';
-import { login } from '../../slices/usersApiSlice'; // Import the axios API functions
 import Loader from '../Loader';
 import FormContainer from '../FormContainer';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import {
+  OAuthProvider,
+  getAdditionalUserInfo,
+  signInWithRedirect,
+  linkWithPopup,
+  linkWithRedirect,
+} from 'firebase/auth';
+
+const provider = new GoogleAuthProvider();
+const appleAuthProvider = new OAuthProvider('apple.com'); // TODO Create an Apple ID provider
 
 function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const { token } = useSelector((state) => state.auth);
-
+  // Check if the user is authenticated
+  const isAuthenticated = useSelector((state) => state.auth.AuthUser);
   useEffect(() => {
-    if (token) {
+    console.log(isAuthenticated);
+    // Check if the user is authenticated when the component loads
+    if (isAuthenticated) {
       navigate('/home');
     }
-  }, [navigate, token]);
+  }, [isAuthenticated, navigate]);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const submitHandler = async (e) => {
     setIsLoading(true);
     e.preventDefault();
-    try {
-      const res = await login({ email, password }).then((res) => {
-        // console.log(res.data.token);
-        // console.log(res.data.uid);
-        if (res.status === 200) {
-          // console.log(res.data.user.uid);
-          dispatch(setUserId({ ...res.data.uid }));
-          dispatch(
-            setToken({
-              ...{ accessToken: res.data.token },
-            })
-          );
-          // dispatch(setEmailId({ ...{ email } }))
-          navigate('/home');
-        } else {
-          console.log('Error Handling');
-          console.log(res);
-        }
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        console.log(userCredential);
+        navigate('/home');
+      })
+      .catch((err) => {
+        console.log(err);
       });
-    } catch (err) {
-      console.log(err);
-      console.log(err?.data?.message || err.error);
-      toast.error(err?.data?.message || err.error);
+  };
+
+  // Function to handle Google sign-in
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      // You can handle the user object as needed, e.g., dispatch it to the Redux store.
+      console.log(user);
+      navigate('/home');
+    } catch (error) {
+      console.error(error);
     }
   };
 
+  // Function to handle Apple ID sign-in
+  const handleAppleSignIn = async () => {
+    try {
+      await signInWithRedirect(auth, appleAuthProvider);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  if (isAuthenticated) {
+    navigate('/home');
+  }
   return (
     <FormContainer>
       <h1>LOGIN</h1>
@@ -90,6 +112,28 @@ function LoginScreen() {
         <Button className='py-3 mt-5 w-100' disabled={isLoading} type='submit'>
           LOGIN
         </Button>
+
+        <div className='mt-3'>
+          <Button
+            className='py-3 w-100'
+            disabled={isLoading}
+            type='button'
+            onClick={handleGoogleSignIn} // Call the Google sign-in function
+          >
+            Sign In with Google
+          </Button>
+        </div>
+
+        <div className='mt-3'>
+          <Button
+            className='py-3 w-100'
+            disabled={isLoading}
+            type='button'
+            onClick={handleAppleSignIn} // Call the Apple ID sign-in function
+          >
+            Sign In with Apple ID
+          </Button>
+        </div>
       </Form>
 
       {isLoading && <Loader />}
