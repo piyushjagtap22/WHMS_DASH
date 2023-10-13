@@ -16,6 +16,7 @@ import ProfileScreen from "./components/Pages/ProfileScreen.jsx";
 import RegisterScreen from "./components/Pages/RegisterScreen.jsx";
 import VerifyScreen from "./components/Pages/VerifyScreen.jsx";
 import PrivateRoute from './components/PrivateRoute.jsx';
+import AdminScreen from "./components/Pages/adminScreen.jsx";
 import "./index.css";
 import store from "./store.js";
 
@@ -30,6 +31,7 @@ const router = createBrowserRouter(
       <Route path='' element={<PrivateRoute />}>
         <Route path='/profile' element={<ProfileScreen />} />
         <Route path='/home' element={<HomeScreen />} />
+        <Route path='/admin' element={<AdminScreen />} />
       </Route>
     </Route>
   )
