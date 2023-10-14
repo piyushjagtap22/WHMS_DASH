@@ -15,15 +15,16 @@ import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
 } from 'firebase/auth';
+import OtpInput from 'otp-input-react';
 
 const RegisterScreen = () => {
-  const auth1 = getAuth();
-  window.recaptchaVerifier = new RecaptchaVerifier(
-    auth1,
-    'recaptcha-container',
-    {}
-  );
-
+  // const auth1 = getAuth();
+  // window.recaptchaVerifier = new RecaptchaVerifier(
+  //   auth1,
+  //   'recaptcha-container',
+  //   {}
+  // );
+  const [otp, setOtp] = useState('');
   const appVerifier = window.recaptchaVerifier;
   const [displayName, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -83,28 +84,28 @@ const RegisterScreen = () => {
   // );
 
   const handlePhoneSignUp = async () => {
-    try {
-      // Initiate the phone number sign-up
-      // const appVerifier = window.recaptchaVerifier;
-      const phoneCredential = await signInWithPhoneNumber(
-        auth1,
-        phoneNumber,
-        appVerifier
-      )
-        .then((confirmationResult) => {
-          window.confirmationResult = confirmationResult;
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      // You can handle the phone sign-up success here
-      console.log('Phone sign-up successful:', phoneCredential);
-
-      // Navigate to a verification screen where the user enters the verification code.
-      // navigate('/verify-phone', { state: { phoneCredential } });
-    } catch (error) {
-      console.error('Phone sign-up error:', error);
-    }
+    console.log('hello');
+    //   try {
+    //     // Initiate the phone number sign-up
+    //     // const appVerifier = window.recaptchaVerifier;
+    //     const phoneCredential = await signInWithPhoneNumber(
+    //       auth1,
+    //       phoneNumber,
+    //       appVerifier
+    //     )
+    //       .then((confirmationResult) => {
+    //         window.confirmationResult = confirmationResult;
+    //       })
+    //       .catch((err) => {
+    //         console.log(err);
+    //       });
+    //     // You can handle the phone sign-up success here
+    //     console.log('Phone sign-up successful:', phoneCredential);
+    //     // Navigate to a verification screen where the user enters the verification code.
+    //     // navigate('/verify-phone', { state: { phoneCredential } });
+    //   } catch (error) {
+    //     console.error('Phone sign-up error:', error);
+    //   }
   };
 
   return (
@@ -175,6 +176,15 @@ const RegisterScreen = () => {
           </Button>
         </div>
       </Form>
+      <OtpInput
+        onChange={setOtp}
+        OTPLength={6}
+        otpType='number'
+        disabled={false}
+        autoFocus
+        // className
+      />
+      <button>Verify Otp</button>
 
       <Row className='mx-auto py-5'>
         <Col>
