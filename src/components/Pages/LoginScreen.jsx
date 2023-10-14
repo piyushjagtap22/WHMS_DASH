@@ -7,7 +7,12 @@ import Loader from '../Loader';
 import FormContainer from '../FormContainer';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  sendEmailVerification,
+} from 'firebase/auth';
 import {
   OAuthProvider,
   getAdditionalUserInfo,
@@ -42,8 +47,24 @@ function LoginScreen() {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
+        console.log(userCredential.toJSON());
+        if (!userCredential.emailVerified) {
+          toast.info('Please Verify Account');
+          sendEmailVerification(userCredential)
+            .then(() => {
+              signOut(auth).catch((err) => {
+                console.log(err);
+              });
+              toast.info(
+                'A verification email has been sent to your email address. Please check your inbox.'
+              );
+            })
+            .catch((error) => {
+              console.error('Error sending email verification:', error);
+            });
+        }
         console.log(userCredential);
-        navigate('/home');
+        // navigate('/home');
       })
       .catch((err) => {
         console.log(err);

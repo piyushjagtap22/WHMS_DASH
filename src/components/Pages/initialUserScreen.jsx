@@ -6,7 +6,7 @@ import FormContainer from '../FormContainer';
 import { SetUsers } from '../../slices/superAdminSlice';
 import { getAllUsers } from '../../slices/superAdminApiSlice';
 
-const AdminScreen = () => {
+const InitialUserScreen = () => {
   const [users, setUsers] = useState([]);
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.auth);
@@ -37,16 +37,9 @@ const AdminScreen = () => {
   console.log('Hello there');
   return (
     <div>
-      Hello Admin
+      Hello initial User
       <h1>User Management</h1>
       <table>
-        <thead>
-          <tr>
-            <th>User Name</th>
-            <th>Is Admin</th>
-            <th>Action</th>
-          </tr>
-        </thead>
         {/* <tbody>
           {users.map((user) => (
             <tr key={user.id}>
@@ -65,4 +58,4 @@ const AdminScreen = () => {
   );
 };
 
-export default AdminScreen;
+export default InitialUserScreen;

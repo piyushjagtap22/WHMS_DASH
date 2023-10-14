@@ -17,6 +17,9 @@ import RegisterScreen from './components/Pages/RegisterScreen.jsx';
 import VerifyScreen from './components/Pages/VerifyScreen.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import AdminScreen from './components/Pages/adminScreen.jsx';
+import UserScreen from './components/Pages/userScreen.jsx';
+import SuperAdminScreen from './components/Pages/superAdminScreen.jsx';
+import InitialUserScreen from './components/Pages/initialUserScreen.jsx';
 import './index.css';
 import store from './store.js';
 
@@ -30,6 +33,8 @@ const router = createBrowserRouter(
         <Route path='/profile' element={<ProfileScreen />} />
         <Route path='/home' element={<HomeScreen />} />
         <Route path='/admin' element={<AdminScreen />} />
+        <Route path='/superadmin' element={<SuperAdminScreen />} />
+        <Route path='/user' element={<UserScreen />} />
       </Route>
     </Route>
   )

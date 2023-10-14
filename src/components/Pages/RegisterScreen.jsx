@@ -5,37 +5,35 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import FormContainer from '../../components/FormContainer';
 import '../../css/theme.css';
-import { setUserId, logout } from '../../slices/authSlice';
-import { register } from '../../slices/usersApiSlice';
 import Loader from '../Loader';
-import { auth } from '../../firebase';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signOut,
+  sendEmailVerification,
+} from 'firebase/auth';
 import {
   getAuth,
   RecaptchaVerifier,
   signInWithPhoneNumber,
 } from 'firebase/auth';
-import OtpInput from 'otp-input-react';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+
+import { auth } from '../../firebase';
 
 const RegisterScreen = () => {
-  // const auth1 = getAuth();
-  // window.recaptchaVerifier = new RecaptchaVerifier(
-  //   auth1,
-  //   'recaptcha-container',
-  //   {}
-  // );
+  const [showOTP, setShowOTP] = useState(false);
   const [otp, setOtp] = useState('');
-  const appVerifier = window.recaptchaVerifier;
+  const [ph, setPh] = useState('');
   const [displayName, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState(''); // Add state for phone number
 
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLoading = false;
-  // const [register, { isLoading }] = useRegisterMutation();
-
+  const phoneAuth = getAuth();
   const { token } = useSelector((state) => state.auth);
   useEffect(() => {
     if (token) {
@@ -51,9 +49,20 @@ const RegisterScreen = () => {
       .then((userCredential) => {
         // After user creation, set the display name
         const user = userCredential.user;
-
         return updateProfile(user, { displayName }).then(() => {
+          sendEmailVerification(user)
+            .then(() => {
+              toast.info(
+                'A verification email has been sent to your email address. Please check your inbox.'
+              );
+            })
+            .catch((error) => {
+              console.error('Error sending email verification:', error);
+            });
           toast.info('User Created, Please Verify Mail then Login');
+          signOut(auth).catch((err) => {
+            console.log(err);
+          });
           navigate('/login');
         });
       })
@@ -69,45 +78,55 @@ const RegisterScreen = () => {
       });
   };
 
-  // const res = await register({ displayName, email, password }).then(
-  //   (res) => {
-  //     if (res.status === 201) {
-  //       console.log('TODO : Alert to say verify email');
-  //       navigate('/login');
-  //     }
-  //     if (res.data.status === 409) {
-  //       console.log('Display user already Exists, please Sign in');
-  //     } else {
-  //       console.log(res.data.payload);
-  //     }
-  //   }
-  // );
+  function onCaptchaVerify() {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        phoneAuth,
+        'recaptcha-container',
+        {
+          size: 'invisible',
+          callback: (response) => {
+            onSignup();
+          },
+          'expired-callback': () => {},
+        }
+      );
+    }
+  }
 
-  const handlePhoneSignUp = async () => {
-    console.log('hello');
-    //   try {
-    //     // Initiate the phone number sign-up
-    //     // const appVerifier = window.recaptchaVerifier;
-    //     const phoneCredential = await signInWithPhoneNumber(
-    //       auth1,
-    //       phoneNumber,
-    //       appVerifier
-    //     )
-    //       .then((confirmationResult) => {
-    //         window.confirmationResult = confirmationResult;
-    //       })
-    //       .catch((err) => {
-    //         console.log(err);
-    //       });
-    //     // You can handle the phone sign-up success here
-    //     console.log('Phone sign-up successful:', phoneCredential);
-    //     // Navigate to a verification screen where the user enters the verification code.
-    //     // navigate('/verify-phone', { state: { phoneCredential } });
-    //   } catch (error) {
-    //     console.error('Phone sign-up error:', error);
-    //   }
-  };
-
+  function onSignup() {
+    // seetLoading(true);
+    onCaptchaVerify();
+    const formatPh = '+' + ph;
+    console.log(formatPh);
+    const appVerifier = window.recaptchaVerifier;
+    signInWithPhoneNumber(phoneAuth, formatPh, appVerifier)
+      .then((confirmationResult) => {
+        window.confirmationResult = confirmationResult;
+        setShowOTP(true);
+        toast.success('OTP sent Succesfully');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+  function onOTPVerify(displayName) {
+    window.confirmationResult
+      .confirm(otp)
+      .then(async (res) => {
+        // After OTP verification, set the display name and navigate to '/home'
+        return updateProfile(res.user, { displayName })
+          .then(() => {
+            navigate('/home');
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
   return (
     <FormContainer>
       <h1>Register</h1>
@@ -170,21 +189,31 @@ const RegisterScreen = () => {
             type='button'
             variant='outline-primary'
             className='w-100 py-3'
-            onClick={handlePhoneSignUp}
           >
             Sign Up with Phone Number
           </Button>
         </div>
       </Form>
-      <OtpInput
-        onChange={setOtp}
-        OTPLength={6}
-        otpType='number'
-        disabled={false}
-        autoFocus
-        // className
-      />
-      <button>Verify Otp</button>
+
+      <div id='recaptcha-container'></div>
+
+      {showOTP ? (
+        <>
+          Enter OTP
+          <input
+            type='text'
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+          ></input>
+          <button onClick={onOTPVerify(displayName)}>Verify Otp</button>
+        </>
+      ) : (
+        <>
+          Verify Number
+          <PhoneInput country={'in'} value={ph} onChange={setPh} />
+          <button onClick={onSignup}>Send Code Via SMS</button>
+        </>
+      )}
 
       <Row className='mx-auto py-5'>
         <Col>
