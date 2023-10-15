@@ -173,47 +173,74 @@ const RegisterScreen = () => {
           Register
         </Button>
         <Form.Group className='my-3' controlId='phone'>
-          <Form.Label className='my-3'>Phone Number</Form.Label>
-          <div id='recaptcha-container'></div>
+          {/* <Form.Label className='my-3'>Phone Number</Form.Label>
+          <div id='recaptcha-container'></div> */}
 
-          <Form.Control
+          {/* <Form.Control
             className='input  my-2'
             type='tel'
             placeholder='Enter phone number'
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
+          ></Form.Control> */}
+        </Form.Group>
+
+        <div id='recaptcha-container'></div>
+        {showOTP ? (
+        <>
+          <Form.Group className='my-3' controlId='password'>
+          <Form.Label className='my-3'>OTP</Form.Label>
+          <Form.Control
+            className='input  my-2'
+            type='text'
+            placeholder='Enter OTP'
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
           ></Form.Control>
         </Form.Group>
-        <div className='mt-3'>
           <Button
+            onClick={onOTPVerify(displayName)}
             type='button'
             variant='outline-primary'
             className='w-100 py-3'
           >
-            Sign Up with Phone Number
+            Verify Otp
           </Button>
-        </div>
-      </Form>
-
-      <div id='recaptcha-container'></div>
-
-      {showOTP ? (
-        <>
-          Enter OTP
-          <input
-            type='text'
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-          ></input>
-          <button onClick={onOTPVerify(displayName)}>Verify Otp</button>
         </>
       ) : (
         <>
-          Verify Number
-          <PhoneInput country={'in'} value={ph} onChange={setPh} />
-          <button onClick={onSignup}>Send Code Via SMS</button>
+          <Form.Group className='my-3' controlId='password'>
+          <Form.Label className='my-3'>Register Using Phone</Form.Label>
+          <PhoneInput className='input  my-2' country={'in'} value={ph} onChange={setPh} />
+        </Form.Group>
+          
+          <div className='mt-3'>
+          <Button
+            onClick={onSignup}
+            type='button'
+            variant='outline-primary'
+            className='w-100 py-3'
+          >
+            Send Code via sms
+          </Button>
+        </div>
         </>
       )}
+        {/* <div className='mt-3'>
+          <Button
+            onClick={onSignup}
+            type='button'
+            variant='outline-primary'
+            className='w-100 py-3'
+          >
+            Send Code via sms
+          </Button>
+        </div> */}
+      </Form>
+
+      
+
+      
 
       <Row className='mx-auto py-5'>
         <Col>
