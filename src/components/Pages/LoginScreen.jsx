@@ -87,7 +87,12 @@ function LoginScreen() {
   // Function to handle Apple ID sign-in
   const handleAppleSignIn = async () => {
     try {
-      await signInWithRedirect(auth, appleAuthProvider);
+      //await signInWithRedirect(auth, appleAuthProvider);
+      const result = await signInWithPopup(auth, appleAuthProvider);
+      const user = result.user;
+      // You can handle the user object as needed, e.g., dispatch it to the Redux store.
+      console.log(user);
+      navigate('/home');
     } catch (error) {
       console.error(error);
     }
