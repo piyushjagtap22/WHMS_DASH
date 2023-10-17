@@ -15,6 +15,7 @@ import {
   linkWithPopup,
   linkWithRedirect,
 } from 'firebase/auth';
+import { async } from '@firebase/util';
 
 const provider = new GoogleAuthProvider();
 const appleAuthProvider = new OAuthProvider('apple.com'); // TODO Create an Apple ID provider
@@ -64,9 +65,14 @@ function LoginScreen() {
   };
 
   // Function to handle Apple ID sign-in
-  const handleAppleSignIn = async () => {
+  const handleAppleSignIn = async() => {
+    // const provider = new OAuthProvider('apple.com');
     try {
-      await signInWithRedirect(auth, appleAuthProvider);
+      const result = await signInWithPopup(auth, appleAuthProvider);
+      const user = result.user;
+      // You can handle the user object as needed, e.g., dispatch it to the Redux store.
+      console.log(user);
+      navigate('/home');
     } catch (error) {
       console.error(error);
     }
