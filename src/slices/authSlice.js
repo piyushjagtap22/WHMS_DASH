@@ -4,7 +4,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
 
 const initialState = {
-  token: localStorage.getItem('accessToken') ? localStorage.getItem('accessToken') : null,
+  Role: 'initial',
   AuthUser: null,
 };
 
@@ -30,10 +30,13 @@ const authSlice = createSlice({
     setAuthUser: (state, action) => {
       state.AuthUser = action.payload;
     },
+    setRole: (state, action) => {
+      state.Role = action.payload
+    }
   },
 });
 
-export const { setToken, logout, setUserId, setEmailId, setAuthUser } = authSlice.actions;
+export const { setToken, logout, setUserId, setEmailId, setAuthUser, setRole } = authSlice.actions;
 
 // Add an asynchronous action to initialize AuthUser based on Firebase auth state
 export const initializeAuthUser = () => (dispatch) => {
