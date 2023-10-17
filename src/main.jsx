@@ -20,6 +20,8 @@ import AdminScreen from './components/Pages/adminScreen.jsx';
 import UserScreen from './components/Pages/userScreen.jsx';
 import SuperAdminScreen from './components/Pages/superAdminScreen.jsx';
 import InitialUserScreen from './components/Pages/initialUserScreen.jsx';
+import Dashboard from './components/Pages/dashboard.jsx';
+import Layout from './components/Pages/Layout.jsx';
 import './index.css';
 import store from './store.js';
 
@@ -35,6 +37,8 @@ const router = createBrowserRouter(
         <Route path='/admin' element={<AdminScreen />} />
         <Route path='/superadmin' element={<SuperAdminScreen />} />
         <Route path='/user' element={<UserScreen />} />
+        <Route path='/dashboard' element={<Dashboard/>}/>
+          
       </Route>
     </Route>
   )
