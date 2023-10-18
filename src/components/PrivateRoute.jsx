@@ -1,40 +1,25 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux'; // Import useDispatch
-import { InvalidTokenError } from 'jwt-decode';
-import React, { useEffect, useState } from 'react';
-import { auth } from '../firebase';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { setAuthUser } from '../slices/authSlice';
-import Loader from './Loader';
-
+// PrivateRoute.jsx
+import { Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Navigate } from 'react-router-dom';
 const PrivateRoute = () => {
-  const dispatch = useDispatch();
-  const [initializing, setInitializing] = useState(true);
-
-  useEffect(() => {
-    const listen = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        dispatch(setAuthUser(user.toJSON()));
-      } else {
-        dispatch(setAuthUser(null));
-      }
-      setInitializing(false); // Authentication state initialization is complete
-    });
-
-    return () => {
-      listen();
-    };
-  }, []);
-
   const AuthUser = useSelector((state) => state.auth.AuthUser);
 
-  if (initializing) {
-    // Display a loading indicator while initializing
-    return <></>;
+  if (!AuthUser) {
+    // If not logged in, you can redirect to the welcome page or login
+    return <Navigate to='/login' replace />;
   }
 
-  // After initialization, check the value of AuthUser
-  return AuthUser ? <Outlet /> : <Navigate to='/login' replace />;
+  const role = 'superadmin';
+
+  return (
+    <div>
+      {role === 'admin' && <Navigate to='/admin' replace />}
+      {role === 'superadmin' && <Navigate to='/superadmin' replace />}
+      {role === 'user' && <Navigate to='/user' replace />}
+      <Outlet/>
+    </div>
+  );
 };
 
 export default PrivateRoute;
