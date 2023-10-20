@@ -4,8 +4,12 @@ import { Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import Navbar from './Navbar'
 import Sidebar from '../SideBar'
+<<<<<<< Updated upstream
 import Header from './Header'
 
+=======
+import Header from "./Header"
+>>>>>>> Stashed changes
 
 const Layout = () => {
     const isNonMobile = useMediaQuery("(min-width: 600px)");
@@ -23,7 +27,11 @@ const Layout = () => {
         isSideBarOpen={isSideBarOpen}
         setIsSideBarOpen={setIsSideBarOpen}
         />
+<<<<<<< Updated upstream
         <Header/>
+=======
+        <Header />
+>>>>>>> Stashed changes
         <Outlet/>
       </Box>
     </Box>

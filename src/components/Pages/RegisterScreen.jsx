@@ -10,6 +10,7 @@ import { register } from '../../slices/usersApiSlice';
 import Loader from '../Loader';
 import { auth } from '../../firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import axios from 'axios';
 import {
   getAuth,
   RecaptchaVerifier,
@@ -37,15 +38,15 @@ const RegisterScreen = () => {
   // const [register, { isLoading }] = useRegisterMutation();
 
   const { token } = useSelector((state) => state.auth);
-  useEffect(() => {
-    if (token) {
-      navigate('/home');
-    }
-  }, [navigate, token]);
+  // useEffect(() => {
+  //   console.log("runimng");
+  //   // if (token) {
+  //   //   navigate('/home');
+  //   // }
+  // }, [navigate, token]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
-
     // Create a user with email and password
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
@@ -53,7 +54,28 @@ const RegisterScreen = () => {
         const user = userCredential.user;
 
         return updateProfile(user, { displayName }).then(() => {
-          toast.info('User Created, Please Verify Mail then Login');
+        const postdata = {
+          name:displayName
+        }
+        toast.info('User Created, Please Verify Mail then Login');
+
+        const headers = {
+          'Authorization': `Bearer ${user.stsTokenManager.accessToken}`,
+          'Content-Type': 'application/json', // Adjust content type as needed
+        };
+        const url = "http://localhost:3000/api/auth/create-mongo-user"
+        axios.post(url, postdata,{ headers })
+          .then(response => {
+            // Handle the successful response here
+            console.log(response.data);
+            toast.info('Creating Mongo User');
+          })
+          .catch(error => {
+            // Handle errors here
+            console.error(error);
+            toast.info('Mongo User Creation failed');
+          });
+          
           navigate('/login');
         });
       })
