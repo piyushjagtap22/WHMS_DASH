@@ -2,6 +2,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
+import { getMongoUser } from './usersApiSlice';
 
 const initialState = {
   token: localStorage.getItem('accessToken') ? localStorage.getItem('accessToken') : null,
@@ -30,18 +31,29 @@ const authSlice = createSlice({
     setAuthUser: (state, action) => {
       state.AuthUser = action.payload;
     },
+    setMongoUser: (state, action) => {
+      console.log(action.payload)
+      state.MongoUser = action.payload;
+    }
   },
 });
 
-export const { setToken, logout, setUserId, setEmailId, setAuthUser } = authSlice.actions;
+export const { setToken, logout, setUserId, setEmailId, setAuthUser, setMongoUser } = authSlice.actions;
 
 // Add an asynchronous action to initialize AuthUser based on Firebase auth state
-export const initializeAuthUser = () => (dispatch) => {
-  onAuthStateChanged(auth, (user) => {
+export const initializeAuthUser = () => async (dispatch) => {
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
       dispatch(setAuthUser(user.toJSON()));
+      await getMongoUser(user.stsTokenManager.accessToken).then((res) => {
+        if (res.status == 200) {
+          console.log(res.data)
+          dispatch(setMongoUser(res.data));
+        }
+      });
     } else {
       dispatch(setAuthUser(null));
+      dispatch(setMongoUser(null));
     }
   });
 };

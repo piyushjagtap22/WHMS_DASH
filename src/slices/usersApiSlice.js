@@ -52,3 +52,7 @@ export const getUserData = (token) => axiosInstance.get(`/api/profile/getuser`, 
   headers: { 'Authorization': `Bearer ${token}` }
 });
 
+export const getMongoUser = (token) => axios.get(`${USERS_URL}/get-mongo-user`, {
+  headers: { 'Authorization': `Bearer ${token}` }
+});
+
