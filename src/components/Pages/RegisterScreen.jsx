@@ -8,8 +8,10 @@ import '../../css/theme.css';
 import { setUserId, logout } from '../../slices/authSlice';
 import { register } from '../../slices/usersApiSlice';
 import Loader from '../Loader';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import axios from 'axios';
 import {
   getAuth,
@@ -17,6 +19,9 @@ import {
   signInWithPhoneNumber,
 } from 'firebase/auth';
 import OtpInput from 'otp-input-react';
+
+const provider = new GoogleAuthProvider();
+// const appleAuthProvider = new OAuthProvider('apple.com'); // TODO Create an Apple ID provider
 
 const RegisterScreen = () => {
   // const auth1 = getAuth();
@@ -58,7 +63,9 @@ const RegisterScreen = () => {
           name:displayName
         }
         toast.info('User Created, Please Verify Mail then Login');
-
+        
+        
+        //creating intial user endpoint in mongo db 
         const headers = {
           'Authorization': `Bearer ${user.stsTokenManager.accessToken}`,
           'Content-Type': 'application/json', // Adjust content type as needed
@@ -90,6 +97,75 @@ const RegisterScreen = () => {
         }
       });
   };
+
+    // Function to handle Google sign-in
+    const handleGoogleSignIn = async () => {
+      try {
+        let userExist = false;
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        // You can handle the user object as needed, e.g., dispatch it to the Redux store.
+        console.log("check user",user.stsTokenManager.accessToken);
+  
+        // check mongo-user exist in db or not      --> using email
+          // Check if the user exists in the MongoDB database
+          const url = `http://localhost:3000/api/user/findUserByEmail/${user.email}`;
+          axios
+            .get(url)
+            .then(response => {
+              // Handle the successful response here
+              console.log("bunny", response);
+              
+              if (response.data.message.toUpperCase() == "USER NOT FOUND") {
+                  // User doesn't exist, create a new user
+                  const postdata = {
+                    name: user.displayName
+                  };
+                  const headers = {
+                    'Authorization': `Bearer ${user.stsTokenManager.accessToken}`,
+                    'Content-Type': 'application/json'
+                  };
+                  const createUserUrl = "http://localhost:3000/api/auth/create-mongo-user";
+          
+                  axios.post(createUserUrl, postdata, { headers })
+                    .then(createResponse => {
+                      console.log(createResponse.data);
+                      toast.info('Creating Mongo User');
+                      navigate('/home');
+                    })
+                    .catch(createError => {
+                      console.error(createError);
+                      toast.error('Mongo User Creation failed');
+                    });
+              } else {
+                 // User already exists
+                 toast.info('User already exists');
+                 navigate('/home');
+              }
+            })
+            .catch(error => {
+              console.log("nai milka", error.response.status);
+              console.error(error);
+            });
+        } catch (error) {
+          console.error(error);
+        }
+    };
+  
+    // Function to handle Apple ID sign-in
+    const handleAppleSignIn = async() => {
+      toast.info('Feature will be coming soon');
+      // const provider = new OAuthProvider('apple.com');
+      // try {
+      //   const result = await signInWithPopup(auth, appleAuthProvider);
+      //   const user = result.user;
+      //   // You can handle the user object as needed, e.g., dispatch it to the Redux store.
+      //   console.log(user);
+      //   navigate('/home');
+      // } catch (error) {
+      //   console.error(error);
+      // }
+    };
 
   // const res = await register({ displayName, email, password }).then(
   //   (res) => {
@@ -175,6 +251,27 @@ const RegisterScreen = () => {
         >
           Register
         </Button>
+        <div className='mt-3'>
+          <Button
+            className='py-3 w-100'
+            disabled={isLoading}
+            type='button'
+            onClick={handleGoogleSignIn} // Call the Google sign-in function
+          >
+            Sign In with Google
+          </Button>
+        </div>
+
+        <div className='mt-3'>
+          <Button
+            className='py-3 w-100'
+            disabled={isLoading}
+            type='button'
+            onClick={handleAppleSignIn} // Call the Apple ID sign-in function
+          >
+            Sign In with Apple ID
+          </Button>
+        </div>
         <Form.Group className='my-3' controlId='phone'>
           <Form.Label className='my-3'>Phone Number</Form.Label>
           <div id='recaptcha-container'></div>
@@ -197,6 +294,7 @@ const RegisterScreen = () => {
             Sign Up with Phone Number
           </Button>
         </div>
+        
       </Form>
       <OtpInput
         onChange={setOtp}

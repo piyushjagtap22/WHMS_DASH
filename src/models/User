@@ -1,0 +1,13 @@
+// const express = require('express');
+// const mongoose = require('mongoose');
+
+// const { Schema } = mongoose;
+// // Mongoose Schema for User
+// const UserSchema = new Schema({
+//     email: { type: String, required: true }
+
+// });
+
+// const User = mongoose.model('user', UserSchema);
+
+// export defaultUser;
