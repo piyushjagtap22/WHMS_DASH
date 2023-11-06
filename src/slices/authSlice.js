@@ -51,7 +51,9 @@ export const initializeAuthUser = () => (dispatch) => {
 export const callUserApi = (user) => async (dispatch) => {
   try {
     const url = `http://localhost:3000/api/user/findUserByEmail/${user.email}`;
+    console.log("chala rha hu api calluserapi ke andr",url)
     const response = await axios.get(url);
+    
     // Dispatch the result to the store
     // dispatch(checkUserExists(user.email));
     return response;

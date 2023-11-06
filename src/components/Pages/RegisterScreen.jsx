@@ -110,11 +110,11 @@ const RegisterScreen = () => {
           console.log(response2);
 
           toast.info('Creating Mongo User');
-          navigate('/home');
+          navigate('/unallocatedUser');
         } else {
           // User already exists
-          toast.info('User already exists');
-          navigate('/home');
+          toast.info('User already exists please login');
+          navigate('/login');
         }
       } catch (error) {
         console.error(error);

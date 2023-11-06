@@ -11,6 +11,7 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 import HomeScreen from './components/Pages/HomeScreen.jsx';
+import UnallocatedUser from './components/Pages/unallocatedUser.jsx';
 import LoginScreen from './components/Pages/LoginScreen.jsx';
 import ProfileScreen from './components/Pages/ProfileScreen.jsx';
 import RegisterScreen from './components/Pages/RegisterScreen.jsx';
@@ -31,6 +32,7 @@ const router = createBrowserRouter(
     <Route path='/' element={<App />}>
       <Route path='' element={<Layout/>}>
         <Route path='/login' element={<LoginScreen />} />
+        <Route path='/unallocatedUser' element={<UnallocatedUser />} />
         <Route path='/register' element={<RegisterScreen />} />{' '}
         <Route path='/verify' element={<VerifyScreen />} />
         <Route path='' element={<PrivateRoute />}>

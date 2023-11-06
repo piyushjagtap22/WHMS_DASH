@@ -10,6 +10,7 @@ import { auth } from '../../firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { callUserApi } from '../../slices/authSlice';
 import { createUser } from '../../slices/authSlice';
+import { getUserData } from "../../slices/usersApiSlice";
 import axios from 'axios';
 import {
   OAuthProvider,
@@ -45,9 +46,19 @@ function LoginScreen() {
     setIsLoading(true);
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then(async(userCredential) => {
         console.log(userCredential);
-        navigate('/home');
+        // console.log(userCredential.user.accessToken);?
+        const response = await dispatch(callUserApi(userCredential.user));
+        
+        const rolesList = response.data.existingUser.roles
+        if(rolesList.includes("unallocated")){
+          navigate('/unallocatedUser');
+        }else{
+          console.log("rolelist",rolesList);
+          navigate('/home');
+        }
+
       })
       .catch((err) => {
         console.log(err);
@@ -74,11 +85,20 @@ function LoginScreen() {
           console.log(response2);
 
           toast.info('Creating Mongo User');
-          navigate('/home');
+          navigate('/unallocatedUser');
+
         } else {
           // User already exists
           toast.info('logged in sucessfully');
-          navigate('/home');
+          
+          const rolesList = response.data.existingUser.roles
+          if(rolesList.includes("unallocated")){
+            navigate('/unallocatedUser');
+          }else{
+            console.log("rolelist",rolesList);
+            navigate('/home');
+          }
+
         }
       } catch (error) {
         console.error(error);

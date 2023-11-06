@@ -2,17 +2,20 @@ import { Container, Nav, NavDropdown, Navbar } from 'react-bootstrap';
 import { FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { LinkContainer } from 'react-router-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 
 const Header = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const AuthUser = useSelector((state) => state.auth.AuthUser);
   const userSignOut = () => {
     signOut(auth)
       .then(() => {
         console.log('Succesfully Signed Out');
+        navigate('/login');
       })
       .catch((err) => {
         console.log(err);
