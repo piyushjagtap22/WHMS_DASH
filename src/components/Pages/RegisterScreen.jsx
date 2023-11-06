@@ -13,6 +13,8 @@ import { auth } from '../../firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import axios from 'axios';
+import { callUserApi } from '../../slices/authSlice';
+import { createUser } from '../../slices/authSlice';
 import {
   getAuth,
   RecaptchaVerifier,
@@ -58,31 +60,21 @@ const RegisterScreen = () => {
         // After user creation, set the display name
         const user = userCredential.user;
 
-        return updateProfile(user, { displayName }).then(() => {
-        const postdata = {
-          name:displayName
-        }
+        return updateProfile(user, { displayName }).then(async() => {
+        
         toast.info('User Created, Please Verify Mail then Login');
-        
-        
-        //creating intial user endpoint in mongo db 
-        const headers = {
-          'Authorization': `Bearer ${user.stsTokenManager.accessToken}`,
-          'Content-Type': 'application/json', // Adjust content type as needed
-        };
-        const url = "http://localhost:3000/api/auth/create-mongo-user"
-        axios.post(url, postdata,{ headers })
-          .then(response => {
-            // Handle the successful response here
-            console.log(response.data);
+        // User doesn't exist, create a new user
+          try{
+            const response2 = await dispatch(createUser(user));
+            console.log(response2);
             toast.info('Creating Mongo User');
-          })
-          .catch(error => {
-            // Handle errors here
+            console.log("Creating Mongo User");
+          }catch(error){
             console.error(error);
             toast.info('Mongo User Creation failed');
-          });
-          
+            console.log("Creation user failed");
+          }
+          console.log("navigationg to login");
           navigate('/login');
         });
       })
@@ -106,50 +98,27 @@ const RegisterScreen = () => {
         const user = result.user;
         // You can handle the user object as needed, e.g., dispatch it to the Redux store.
         console.log("check user",user.stsTokenManager.accessToken);
-  
-        // check mongo-user exist in db or not      --> using email
+
+        // check mongo-user exist in db or not      ------> using email
           // Check if the user exists in the MongoDB database
-          const url = `http://localhost:3000/api/user/findUserByEmail/${user.email}`;
-          axios
-            .get(url)
-            .then(response => {
-              // Handle the successful response here
-              console.log("bunny", response);
-              
-              if (response.data.message.toUpperCase() == "USER NOT FOUND") {
-                  // User doesn't exist, create a new user
-                  const postdata = {
-                    name: user.displayName
-                  };
-                  const headers = {
-                    'Authorization': `Bearer ${user.stsTokenManager.accessToken}`,
-                    'Content-Type': 'application/json'
-                  };
-                  const createUserUrl = "http://localhost:3000/api/auth/create-mongo-user";
-          
-                  axios.post(createUserUrl, postdata, { headers })
-                    .then(createResponse => {
-                      console.log(createResponse.data);
-                      toast.info('Creating Mongo User');
-                      navigate('/home');
-                    })
-                    .catch(createError => {
-                      console.error(createError);
-                      toast.error('Mongo User Creation failed');
-                    });
-              } else {
-                 // User already exists
-                 toast.info('User already exists');
-                 navigate('/home');
-              }
-            })
-            .catch(error => {
-              console.log("nai milka", error.response.status);
-              console.error(error);
-            });
-        } catch (error) {
-          console.error(error);
+          const response = await dispatch(callUserApi(user));
+
+        if (response.data.message.toUpperCase() == "USER NOT FOUND") {
+          // User doesn't exist, create a new user
+          const response2 = await createUser(response)
+        
+          console.log(response2);
+
+          toast.info('Creating Mongo User');
+          navigate('/home');
+        } else {
+          // User already exists
+          toast.info('User already exists');
+          navigate('/home');
         }
+      } catch (error) {
+        console.error(error);
+      }
     };
   
     // Function to handle Apple ID sign-in

@@ -2,6 +2,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
+import axios from 'axios';
+// import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 const initialState = {
   token: localStorage.getItem('accessToken') ? localStorage.getItem('accessToken') : null,
@@ -45,5 +47,34 @@ export const initializeAuthUser = () => (dispatch) => {
     }
   });
 };
+
+export const callUserApi = (user) => async (dispatch) => {
+  try {
+    const url = `http://localhost:3000/api/user/findUserByEmail/${user.email}`;
+    const response = await axios.get(url);
+    // Dispatch the result to the store
+    // dispatch(checkUserExists(user.email));
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+export const createUser = (user) => async (dispatch) => {
+  console.log("create user runningh");
+  
+  const postdata = {
+    name: user.displayName,
+  };
+  const headers = {
+    'Authorization': `Bearer ${user.stsTokenManager.accessToken}`,
+    'Content-Type': 'application/json',
+  };
+  const createUserUrl = "http://localhost:3000/api/auth/create-mongo-user";
+  const response = await axios.post(createUserUrl, postdata, { headers });
+  return response;
+};
+
 
 export default authSlice.reducer;
