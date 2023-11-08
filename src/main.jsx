@@ -24,14 +24,18 @@ import initialUserScreen from './components/Pages/initialUserScreen.jsx';
 import UserScreen from './components/Pages/UserScreen.jsx';
 import './index.css';
 import store from './store.js';
+// Bootstrap CSS
+import "bootstrap/dist/css/bootstrap.min.css";
+// Bootstrap Bundle JS
+import "bootstrap/dist/js/bootstrap.bundle.min";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
-      <Route path='' element={<Layout/>}>
-        <Route path='/login' element={<LoginScreen />} />
+      <Route path='/login' element={<LoginScreen />} />
         <Route path='/register' element={<RegisterScreen />} />{' '}
         <Route path='/verify' element={<VerifyScreen />} />
+      <Route path='' element={<Layout/>}>
         <Route path='' element={<PrivateRoute />}>
         <Route path='/profile' element={<ProfileScreen />} />
         <Route path='/home' element={<HomeScreen />} />

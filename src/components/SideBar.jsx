@@ -47,44 +47,9 @@ const Sidebar = ({
         setActive(pathname.substring(1));
     }, [pathname])
 
-    return <Box component="nav">
-      {isSideBarOpen && (
-        <Drawer
-        open = {isSideBarOpen}
-        onClose={() => setIsSideBarOpen(false)}
-        variant="persistent"
-        anchor="left"
-        sx={{
-            width: drawerWidth,
-            "& .MuiDrawer-paper": {
-              color: theme.palette.secondary[200],
-              backgroundColor: theme.palette.background.alt,
-              boxSixing: "border-box",
-              borderWidth: isNonMobile ? 0 : "2px",
-              width: drawerWidth,
-            },
-          }}
-          >
-            <Box width="100%">
-                <Box m="1.5rem 2rem 2rem 3rem">
-                    <FlexBetween color={theme.palette.secondary.main}>
-                        <Box display="flex" alignItems="center" gap="0.5rem">
-                            <Typography variant="h4" fontWeight="bold">
-                                WHMS
-                            </Typography>
-                        </Box>
-                        {!isNonMobile && (
-                            <IconButton onClick={()=> setIsSideBarOpen(!isSideBarOpen)}>
-                                <ChevronLeft/>
-                            </IconButton>
-                        )}
-                    </FlexBetween>
-                </Box>
-            </Box>
-          </Drawer>
-
-      )}   
-    </Box>;
+    return (
+        <></>
+    )
 };
 
 export default Sidebar;

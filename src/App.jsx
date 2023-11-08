@@ -23,7 +23,7 @@ function App() {
     <>
       {/* <Header></Header> */}
       <ToastContainer />
-      <Container className='my-2'>
+      <Container >
         <Outlet></Outlet>
       </Container>
       <ThemeProvider theme={theme}>
