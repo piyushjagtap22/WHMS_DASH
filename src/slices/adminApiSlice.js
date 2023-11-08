@@ -28,9 +28,10 @@ export const getUnallocatedUsers = (token) => {
     });
 }
 
-export const getAdminUsers = (token) => {
+export const getAdminUsers = (token, data) => {
     // pass token as an argument to this function
-    return axios.get(`${ADMIN_URL}/get-added-users`, {
+    return axios.get(`${ADMIN_URL}/get-added-users`, data, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
 }
+

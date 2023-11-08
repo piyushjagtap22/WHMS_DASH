@@ -47,7 +47,6 @@ axiosInstance.interceptors.response.use((response) => {
   return Promise.reject(error)
 })
 
-
 export const getUserData = (token) => axiosInstance.get(`/api/profile/getuser`, {
   headers: { 'Authorization': `Bearer ${token}` }
 });
