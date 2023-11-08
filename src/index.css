@@ -1,39 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Rubik:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
 
 html,
 body,
 #root,
 .app {
-    height: 100%;
-    width: 100%;
-    font-family: "Inter", sans-serif;
+  height: 100%;
+  width: 100%;
+  font-family: "Inter", sans-serif;
 }
 
-/* .navbar {
-    display: flex;
-    width: 1275px;
-    padding: var(--20, 15px) var(--28, 28px);
-    align-items: center;
-    gap: 312px;
-    border-bottom: 1px solid var(--black-10, rgba(255, 255, 255, 0.518));
-    background-color: black;
+::-webkit-scrollbar {
+  width: 10px;
 }
 
-.container-fluid {
-    display: flex;
-    align-items: center;
-    align-content: center;
-    gap: 8px var(--8, 8px);
-    flex-wrap: wrap;
+/* Track */
+::-webkit-scrollbar-track {
+  background: #7a7f9d;
 }
 
-.navbar-brand {
-    color: var(--black-40, rgba(255, 255, 255, 0.40));
-    text-align: center;
-    font-feature-settings: 'cv11' on, 'cv01' on, 'ss01' on;
-    font-family: Inter;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 20px;
-} */
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #21295c;
+}
+
+/* Handle on Hover */
+::-webkit-scrollbar-track:hover {
+  background: #21295c;
+}
