@@ -6,28 +6,31 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useEffect } from 'react';
 import store from './store';
-import { initializeAuthUser } from './slices/authSlice'; 
+import { initializeAuthUser } from './slices/authSlice';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import { useSelector } from 'react-redux';
-import { themeSettings } from './theme';
+import { themeSettings } from './theme'; // Make sure this import is correct
 
 function App() {
   const mode = useSelector((state) => state.mode.mode);
   console.log(mode);
+
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
+
   useEffect(() => {
     store.dispatch(initializeAuthUser());
   }, []);
+
   return (
     <>
-      {/* <Header></Header> */}
-      <ToastContainer />
-      <Container className='my-2'>
-        <Outlet></Outlet>
-      </Container>
       <ThemeProvider theme={theme}>
-        <CssBaseline/>
+        <CssBaseline />
+        {/* <Header></Header> */}
+        <ToastContainer />
+        <Container className='my-2'>
+          <Outlet />
+        </Container>
       </ThemeProvider>
     </>
   );

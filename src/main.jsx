@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, { useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 
@@ -17,11 +17,11 @@ import RegisterScreen from './components/Pages/RegisterScreen.jsx';
 import VerifyScreen from './components/Pages/VerifyScreen.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import AdminScreen from './components/Pages/adminScreen.jsx';
-import Dashboard from './components/Pages/dashboard.jsx';
+import Dashboard from './components/Pages/Dashboard.jsx';
 import Layout from './components/Pages/Layout.jsx';
 import SuperAdminScreen from './components/Pages/superAdminScreen.jsx';
 import initialUserScreen from './components/Pages/initialUserScreen.jsx';
-import UserScreen from './components/Pages/UserScreen.jsx';
+import UserScreen from './components/Pages/userScreen.jsx';
 import './index.css';
 import store from './store.js';
 import { createTheme } from '@mui/material/styles';
@@ -32,17 +32,17 @@ const theme = createTheme(themeSettings('dark'));
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
-        <Route path='/login' element={<LoginScreen />} />
-        <Route path='/register' element={<RegisterScreen />} />{' '}
-        <Route path='/verify' element={<VerifyScreen />} />
-        <Route path='' element={<Layout/>}>
+      <Route path='/login' element={<LoginScreen />} />
+      <Route path='/register' element={<RegisterScreen />} />{' '}
+      <Route path='/verify' element={<VerifyScreen />} />
+      <Route path='' element={<Layout />}>
         <Route path='' element={<PrivateRoute />}>
-        <Route path='/profile' element={<ProfileScreen />} />
-        <Route path='/home' element={<HomeScreen />} />
-        <Route path='/admin' element={<AdminScreen />} />
-        <Route path='/superadmin' element={<SuperAdminScreen />} />
-        <Route path='/user' element={<UserScreen />} />
-          <Route path='/dashboard' element={<Dashboard/>}/>
+          <Route path='/profile' element={<ProfileScreen />} />
+          <Route path='/home' element={<HomeScreen />} />
+          <Route path='/admin' element={<AdminScreen />} />
+          <Route path='/superadmin' element={<SuperAdminScreen />} />
+          <Route path='/user' element={<UserScreen />} />
+          <Route path='/dashboard' element={<Dashboard />} />
         </Route>
       </Route>
     </Route>
