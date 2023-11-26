@@ -10,6 +10,7 @@ const PrivateRoute = () => {
     // If not logged in, you can redirect to the welcome page or login
     return <Navigate to='/login' replace />;
   }
+
   let role;
   if (MongoUser && MongoUser.InitialUserSchema) {
     console.log(MongoUser);
@@ -22,6 +23,7 @@ const PrivateRoute = () => {
     <div>
       {role === 'admin' && <Navigate to='/admin' replace />}
       {role === 'superadmin' && <Navigate to='/superadmin' replace />}
+      {role === 'superadmin2' && <Navigate to='/superadmin2' replace />}
       {role === 'user' && <Navigate to='/user' replace />}
       {role === 'unallocated' && <Navigate to='/newuser' replace />}
       <Outlet />

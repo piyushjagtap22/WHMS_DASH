@@ -65,7 +65,7 @@ function LoginScreen() {
   };
 
   // Function to handle Apple ID sign-in
-  const handleAppleSignIn = async() => {
+  const handleAppleSignIn = async () => {
     // const provider = new OAuthProvider('apple.com');
     try {
       const result = await signInWithPopup(auth, appleAuthProvider);
@@ -78,9 +78,9 @@ function LoginScreen() {
     }
   };
 
-  if (isAuthenticated) {
-    navigate('/home');
-  }
+  // if (isAuthenticated) {
+  //   navigate('/home'); // line 82
+  // }
   return (
     <FormContainer>
       <h1>LOGIN</h1>
