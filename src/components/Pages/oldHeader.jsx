@@ -9,6 +9,7 @@ import { auth } from '../../firebase';
 const Header = () => {
   const [name, setName] = useState('');
   const AuthUser = useSelector((state) => state.auth.AuthUser);
+  const MongoUser = useSelector((state) => state.auth.MongoUser);
   const userSignOut = () => {
     signOut(auth)
       .then(() => {
@@ -18,11 +19,13 @@ const Header = () => {
         console.log(err);
       });
   };
+
   useEffect(() => {
     if (AuthUser && AuthUser.displayName) {
       setName(AuthUser.displayName);
     }
-  }, [AuthUser]);
+    console.log(MongoUser);
+  }, [AuthUser, MongoUser]);
 
   return (
     <header className='shadow-sm'>
