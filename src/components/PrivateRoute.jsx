@@ -15,7 +15,7 @@ const PrivateRoute = () => {
   return (
     <div>
       {role === 'admin' && <Navigate to='/admin' replace />}
-      {role === 'superadmin' && <Navigate to='/superadmin' replace />}
+      {role === 'superadmin' && <Navigate to='/dashboard' replace />}
       {role === 'user' && <Navigate to='/user' replace />}
       <Outlet/>
     </div>

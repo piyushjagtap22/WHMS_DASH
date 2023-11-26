@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   LightModeOutlined,
   DarkModeOutlined,
@@ -7,9 +7,9 @@ import {
   SettingsOutlined,
   ArrowDropDownOutlined,
 } from "@mui/icons-material";
-import FlexBetween from "../FlexBetween"
+import FlexBetween from "../FlexBetween.jsx"
 import { useDispatch } from "react-redux";
-import { setMode } from "../../slices/modeSlice"
+import { setMode } from "../../slices/modeSlice.js";
 import profileImage from "../../assets/profile.jpeg";
 import {
   AppBar,
@@ -23,28 +23,8 @@ import {
   MenuItem,
   useTheme,
 } from "@mui/material";
-import { signOut } from 'firebase/auth';
-import { auth } from '../../firebase';
-import { useSelector } from 'react-redux';
 
-const Navbar = ({ user, isSideBarOpen, setIsSideBarOpen }) => {
-  const [name, setName] = useState('');
-  const AuthUser = useSelector((state) => state.auth.AuthUser);
-  const userSignOut = () => {
-    signOut(auth)
-      .then(() => {
-        console.log('Succesfully Signed Out');
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-  useEffect(() => {
-    if (AuthUser && AuthUser.displayName) {
-      setName(AuthUser.displayName);
-    }
-  }, [AuthUser]);
-
+const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const dispatch = useDispatch();
   const theme = useTheme();
 
@@ -64,11 +44,11 @@ const Navbar = ({ user, isSideBarOpen, setIsSideBarOpen }) => {
       <Toolbar sx={{ justifyContent: "space-between" }}>
         {/* LEFT SIDE */}
         <FlexBetween>
-          <IconButton onClick={()=> setIsSideBarOpen(!isSideBarOpen)}>
+          <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
             <MenuIcon />
           </IconButton>
           <FlexBetween
-            backgroundColor={theme.palette.neutral}
+            backgroundColor={theme.palette.background.alt}
             borderRadius="9px"
             gap="3rem"
             p="0.1rem 1.5rem"
@@ -90,13 +70,12 @@ const Navbar = ({ user, isSideBarOpen, setIsSideBarOpen }) => {
             )}
           </IconButton>
           <IconButton>
-            <SettingsOutlined onClick={handleClick}
-            sx={{ fontSize: "25px", }} />
+            <SettingsOutlined sx={{ fontSize: "25px" }} />
           </IconButton>
 
           <FlexBetween>
-            {/* <Button
-              
+            <Button
+              onClick={handleClick}
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -120,26 +99,26 @@ const Navbar = ({ user, isSideBarOpen, setIsSideBarOpen }) => {
                   fontSize="0.85rem"
                   sx={{ color: theme.palette.secondary[100] }}
                 >
-                  Shivanshu
+                  {/* {user.name} */}
                 </Typography>
                 <Typography
                   fontSize="0.75rem"
                   sx={{ color: theme.palette.secondary[200] }}
                 >
-                  Developer
+                  {/* {user.occupation} */}
                 </Typography>
               </Box>
               <ArrowDropDownOutlined
                 sx={{ color: theme.palette.secondary[300], fontSize: "25px" }}
               />
-            </Button> */}
+            </Button>
             <Menu
               anchorEl={anchorEl}
               open={isOpen}
               onClose={handleClose}
               anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             >
-              <MenuItem onClick={userSignOut}>Log Out</MenuItem>
+              <MenuItem onClick={handleClose}>Log Out</MenuItem>
             </Menu>
           </FlexBetween>
         </FlexBetween>
