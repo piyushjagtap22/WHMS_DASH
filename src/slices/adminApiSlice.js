@@ -5,7 +5,8 @@ const axiosInstance = axios.create({
 })
 
 
-const ADMIN_URL = "http://localhost:3000" + '/api/admin';
+console.log(import.meta.env.VITE_API_URL) // 123
+const ADMIN_URL = import.meta.env.VITE_API_URL + '/api/admin';
 
 export const AddUsersToAdmin = (data, token) => {
     // pass token as an argument to this function
