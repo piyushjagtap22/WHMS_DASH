@@ -25,6 +25,27 @@ import {
   removeAdmin,
 } from './../../slices/superAdminApiSlice';
 import { useDispatch, useSelector } from "react-redux";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Dashboard = () => {
   const [data, setUsers] = useState([]);
@@ -56,10 +77,7 @@ const Dashboard = () => {
       }
     };
     fetchData();
-  }, [dispatch, token]);
-
-
-  const columns = [
+  }, [dispatch, token]);  const columns = [
     {
       field: "_id",
       headerName: "Device ID",
@@ -79,7 +97,6 @@ const Dashboard = () => {
       field: "phone",
       headerName: "Phone",
       flex: 0.4,
-      
     },
     {
       field: "profile_exist",
@@ -93,23 +110,61 @@ const Dashboard = () => {
     },
     {
       field: "role",
-      headerName: "Activity",
-      flex: 0.3,
-    },
-    {
-      field: "role1",
       headerName: "BP",
       flex: 0.3,
     },
-    {
-      field: "role2",
-      headerName: "Duration",
-      flex: 0.3,
-    },
-   
-    
-    
   ];
+
+  const labels = ["jan", "feb", "Mar", "Apr", "May", "Jun", "jul"];
+
+  const options = {
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        grid: {
+          color: theme.palette.primary[600],
+        },
+        ticks: {
+          callback: (value) => {
+            if (value === 0) return value;
+            return value + "M";
+          },
+        },
+      },
+    },
+    elements: {
+      line: {
+        tension: 0.3,
+      },
+    },
+  };
+
+ const data2 = {
+  labels,
+  datasets: [
+    {
+      label: "React",
+      data: [32, 42, 51, 37, 51, 65, 40],
+      backgroundColor: "green",
+      borderColor: "green",
+    },
+    {
+      label: "Angular",
+      data: [37, 42, 41, 50, 31, 44, 40],
+      backgroundColor: "#F44236",
+      borderColor: "#F44236",
+    },
+  ],
+};
 
   return (
     <Box m="1.5rem 2.5rem">
@@ -143,22 +198,23 @@ const Dashboard = () => {
         }}
       >
         {/* ROW 1 */}
-        
-        
+
+
         <Box
-          gridColumn="span 12"
+          gridColumn="span 8"
           gridRow="span 2"
           backgroundColor={theme.palette.background.alt}
           p="1rem"
           borderRadius="0.55rem"
         >
-          <Typography variant="h6" sx={{ color: theme.palette.secondary[100] }}>
-            Heart Rate
-          </Typography>
           {/* <OverviewChart view="sales" isDashboard={true} /> */}
+          {/* <div style={{ width: 600, height: 300 }}> */}
+          
+      <Line options={options} data={data2} />
+    {/* </div> */}
         </Box>
-        
-        
+
+
 
         {/* ROW 2 */}
         <Box
@@ -170,11 +226,10 @@ const Dashboard = () => {
               borderRadius: "5rem",
             },
             "& .MuiDataGrid-cell": {
-              borderBottom: `0.3px solid ${theme.palette.background.primary}`,
-              
+              borderBottom: "none",
             },
             "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: theme.palette.background.primary,
+              backgroundColor: theme.palette.background.alt,
               color: theme.palette.secondary[100],
               borderBottom: "none",
             },
@@ -184,34 +239,32 @@ const Dashboard = () => {
             "& .MuiDataGrid-footerContainer": {
               backgroundColor: theme.palette.background.alt,
               color: theme.palette.secondary[100],
-              borderTop: "1px solid grey",
+              borderTop: "none",
             },
             "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-              backgroundColor: "black",
               color: `${theme.palette.secondary[200]} !important`,
-            },
-            "& .superadmin": {
-              backgroundColor: 'rgba(157, 255, 118, 0.49)',
             },
           }}
         >
-          
           <DataGrid
             // loading={isLoading || !data}
-            
             getRowId={(row) => row._id}
             rows={(data) || []}
             columns={columns}
-            checkboxSelection
-            initialState={{
-              pinnedColumns: {
-                left: ['_id'],
-              },
-            }}
           />
         </Box>
-        
+
       </Box>
+      {/* <LineChart width={600} height={300} data={data1}>
+      <Line type="monotone" dataKey="react" stroke="#2196F3" strokeWidth={4} />
+
+      <Line type="monotone" dataKey="vue" stroke="#FFCA29" strokeWidth={4} />
+      <CartesianGrid stroke="#ccc" />
+      <XAxis dataKey="name" />
+      <YAxis dataKey="" />
+      <Tooltip />
+      <Legend />
+    </LineChart> */}
     </Box>
   );
 };

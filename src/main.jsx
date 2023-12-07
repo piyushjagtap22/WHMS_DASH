@@ -28,6 +28,7 @@ import { createTheme } from '@mui/material/styles';
 import { useSelector } from 'react-redux';
 import { themeSettings } from './theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
+import DefaultPage from './components/Pages/DefaultPage.jsx';
 const theme = createTheme(themeSettings('dark'));
 //
 const router = createBrowserRouter(
@@ -44,6 +45,7 @@ const router = createBrowserRouter(
           <Route path='/superadmin' element={<SuperAdminScreen />} />
           <Route path='/user' element={<UserScreen />} />
           <Route path='/dashboard' element={<Dashboard />} />
+          <Route path='/Default' element={<DefaultPage />} />
           <Route path='/newuser' element={<InitialUserScreen />} />
         </Route>
       </Route>

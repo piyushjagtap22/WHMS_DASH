@@ -39,7 +39,7 @@ const navItems = [
     icon: <HomeOutlined />,
   },
   {
-    text: 'Analytics & Reports',
+    text: 'Default',
     icon: <ShoppingCartOutlined />,
   },
   {
