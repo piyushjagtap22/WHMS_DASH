@@ -28,9 +28,8 @@ function App() {
       </Container> */}
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Container className='my-2'>
+        
           <Outlet />
-        </Container>
       </ThemeProvider>
     </>
   );
