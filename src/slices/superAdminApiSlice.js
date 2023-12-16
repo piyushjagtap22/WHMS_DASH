@@ -4,7 +4,7 @@ const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_URL
 })
 
-const SUPERADMIN_URL = "http://localhost:3000" + '/api/superadmin';
+const SUPERADMIN_URL = import.meta.env.VITE_API_URL + '/api/superadmin';
 
 export const createAdmin = (data, token) => {
     // pass token as an argument to this function
