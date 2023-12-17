@@ -22,6 +22,7 @@ import Layout from './components/Pages/Layout.jsx';
 import SuperAdminScreen from './components/Pages/superAdminScreen.jsx';
 import InitialUserScreen from './components/Pages/initialUserScreen.jsx';
 import UserScreen from './components/Pages/userScreen.jsx';
+import SensorPage from './components/sensorPage.jsx';
 import './index.css';
 import store from './store.js';
 import { createTheme } from '@mui/material/styles';
@@ -36,6 +37,7 @@ const router = createBrowserRouter(
       <Route path='/login' element={<LoginScreen />} />
       <Route path='/register' element={<RegisterScreen />} />{' '}
       <Route path='/verify' element={<VerifyScreen />} />
+      <Route path='/sensorpage' element={<SensorPage />} />
       <Route path='' element={<PrivateRoute />}>
         <Route path='' element={<Layout />}>
           <Route path='/profile' element={<ProfileScreen />} />
