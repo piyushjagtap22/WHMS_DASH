@@ -159,6 +159,11 @@ function LoginScreen() {
           <Link to={`/register`}>Register</Link>
         </Col>
       </Row>
+      <Row className='mx-auto my-3'>
+        <Col>
+          <Link to={`/sensorpage`}>Sensor Page</Link>
+        </Col>
+      </Row>
     </FormContainer>
   );
 }
