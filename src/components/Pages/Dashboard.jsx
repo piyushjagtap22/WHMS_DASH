@@ -3,27 +3,14 @@ import FlexBetween from '../FlexBetween';
 import Header from '../Header';
 import * as Realm from 'realm-web';
 import {
-  DownloadOutlined,
-  Email,
-  PointOfSale,
-  PersonAdd,
-  Traffic,
-} from '@mui/icons-material';
-import {
   Box,
-  Button,
-  Typography,
   useTheme,
   useMediaQuery,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import BreakdownChart from '../BreakdownChart';
-import OverviewChart from '../OverviewChart';
 // import { useGetUserQuery } from "state/api";
 import {
-  createAdmin,
   getAllUsers,
-  removeAdmin,
 } from './../../slices/superAdminApiSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -36,7 +23,6 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -308,24 +294,12 @@ const Dashboard = () => {
         >
           {/* ROW 1 */}
 
-          <Box
-            gridColumn='span 8'
-            gridRow='span 2'
-            backgroundColor={theme.palette.background.alt}
-            p='1rem'
-            borderRadius='0.55rem'
-          >
-            {/* <OverviewChart view="sales" isDashboard={true} /> */}
-            {/* <div style={{ width: 600, height: 300 }}> */}
-
-            <Line options={options} data={data2} />
-            {/* </div> */}
-          </Box>
+          
 
           {/* ROW 2 */}
           <Box
             gridColumn='span 12'
-            gridRow='span 3'
+            gridRow='span 4'
             sx={{
               '& .MuiDataGrid-root': {
                 border: 'none',
