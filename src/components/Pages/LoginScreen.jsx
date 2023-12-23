@@ -27,7 +27,8 @@ function LoginScreen() {
   // Check if the user is authenticated
   const isAuthenticated = useSelector((state) => state.auth.AuthUser);
   useEffect(() => {
-    console.log(isAuthenticated);
+    // console.log(isAuthenticated);
+    // console.log(isAuthenticated['stsTokenManager']);
     // Check if the user is authenticated when the component loads
     if (isAuthenticated) {
       navigate('/home');

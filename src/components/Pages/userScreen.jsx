@@ -9,7 +9,6 @@ import { getAllUsers } from '../../slices/superAdminApiSlice';
 const UserScreen = () => {
   const [users, setUsers] = useState([]);
   const dispatch = useDispatch();
-  const { token } = useSelector((state) => state.auth);
   const { userInfo } = useSelector((state) => state.superAdmin);
   console.log(userInfo);
   const submitHandler = async (e) => {
@@ -34,10 +33,14 @@ const UserScreen = () => {
     //     }
     // }
   };
+  const token = useSelector(
+    (state) => state.auth.AuthUser.stsTokenManager.accessToken
+  );
   console.log('Hello there');
   return (
     <div>
-      Hello User
+      Hello User:
+      <p>{token}</p>
       <h1>User Management</h1>
       <table>
         {/* <tbody>

@@ -1,30 +1,31 @@
-import React, { useEffect, useState } from "react";
-import FlexBetween from "../FlexBetween";
-import Header from "../Header";
+import React, { useEffect, useState } from 'react';
+import FlexBetween from '../FlexBetween';
+import Header from '../Header';
+import * as Realm from 'realm-web';
 import {
   DownloadOutlined,
   Email,
   PointOfSale,
   PersonAdd,
   Traffic,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 import {
   Box,
   Button,
   Typography,
   useTheme,
   useMediaQuery,
-} from "@mui/material";
+} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import BreakdownChart from "../BreakdownChart";
-import OverviewChart from "../OverviewChart";
+import BreakdownChart from '../BreakdownChart';
+import OverviewChart from '../OverviewChart';
 // import { useGetUserQuery } from "state/api";
 import {
   createAdmin,
   getAllUsers,
   removeAdmin,
 } from './../../slices/superAdminApiSlice';
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -34,8 +35,8 @@ import {
   Title,
   Tooltip,
   Legend,
-} from "chart.js";
-import { Line } from "react-chartjs-2";
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -47,27 +48,41 @@ ChartJS.register(
   Legend
 );
 
+const app = new Realm.App({ id: 'sensor_realtimedb-ujgdc' });
+
 const Dashboard = () => {
   const [data, setUsers] = useState([]);
   const theme = useTheme();
   const dispatch = useDispatch();
-  const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
+  const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
   const { userInfo } = useSelector((state) => state.superAdmin);
   const token = useSelector(
     (state) => state.auth.AuthUser.stsTokenManager.accessToken
   );
+  const [user, setUser] = useState();
+  const [events, setEvents] = useState([]);
+  const [realTimeData, setRealTimeData] = useState([]);
+  const [newRealTimeData, setNewRealTimeData] = useState([]);
+
   // const {data } = useGetUserQuery();
-  console.log(userInfo + "userInfo");
+  console.log(userInfo + 'userInfo');
+
   useEffect(() => {
     // Fetch user data when the component mounts
     const fetchData = async () => {
       try {
         console.log('in fetchdata');
         const response = await getAllUsers(token);
-        console.log(response + "R ");
+        // console.log(response + 'R ');
         if (response.status === 200) {
-          setUsers(response.data);
-          console.log(response.data);
+          // Add a unique id property to each row
+          const rowsWithId = response.data.map((row) => ({
+            ...row,
+            id: row._id, // Assuming _id is a unique identifier
+          }));
+          setUsers(rowsWithId);
+          setRealTimeData(rowsWithId);
+          // console.log(response.data);
         } else {
           // Handle any errors or show a message
         }
@@ -77,45 +92,136 @@ const Dashboard = () => {
       }
     };
     fetchData();
-  }, [dispatch, token]);  const columns = [
+    const login = async () => {
+      try {
+        const mongodb = app.currentUser.mongoClient('mongodb-atlas');
+        const collection = mongodb.db('test').collection('realtimesensordocs');
+        const changeStream = collection.watch();
+        const user = await app.logIn(Realm.Credentials.anonymous());
+        setUser(user);
+
+        // Set up a change stream with a filter on the sensor_id field
+        // const pipeline = [
+        //   {
+        //     $match: {
+        //       'fullDocument.sensor_id': '233', // Change 'sensor_id' to the actual field name
+        //     },
+        //   },
+        // ];
+
+        // const changeStream = collection.watch();
+        // console.log(changeStream);
+        for await (const change of changeStream) {
+          console.log(change);
+          setNewRealTimeData((prevData) => {
+            const index = prevData.findIndex(
+              (item) => item._id === change.documentKey._id.toString()
+            );
+
+            const realTimeUpdate = {
+              _id: change.documentKey._id.toString(),
+              heartSensor: change.fullDocument.heartSensor.value,
+              timeStamp: change.fullDocument.heartSensor.timeStamp,
+            };
+
+            setRealTimeData((prevData) => {
+              const index = prevData.findIndex(
+                (item) => item._id === realTimeUpdate._id
+              );
+
+              if (index !== -1) {
+                const updatedData = [...prevData];
+                updatedData[index] = realTimeUpdate;
+                return updatedData;
+              } else {
+                // If the data for this item doesn't exist in the previous state, add it
+                return [...prevData, realTimeUpdate];
+              }
+            });
+
+            // Return the updated events array
+            return prevData; // Corrected from prevEvents to prevData
+          });
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    login();
+  }, [dispatch, token, realTimeData]); // Add changeStream and realTimeData to the dependency array
+
+  const columns = [
     {
-      field: "_id",
-      headerName: "Device ID",
+      field: '_id',
+      headerName: 'Device ID',
       flex: 0.5,
     },
     {
-      field: "name",
-      headerName: "User",
+      field: 'name',
+      headerName: 'User',
       flex: 0.4,
     },
     {
-      field: "email",
-      headerName: "email",
+      field: 'heartSensor',
+      headerName: 'Heart Sensor',
+      flex: 0.4,
+      valueGetter: (params) => {
+        // Get the real-time value from the state based on _id
+        const realTimeValue = realTimeData.find(
+          (item) => item._id === params.row._id
+        );
+
+        // Display the real-time value if available, else display the default value
+        return realTimeValue
+          ? realTimeValue.heartSensor
+          : params.row.heartSensor.value;
+      },
+    },
+    // {
+    //   field: 'timeStamp',
+    //   headerName: 'Time Stamp',
+    //   flex: 0.4,
+    //   valueGetter: (params) => {
+    //     // Get the real-time value from the state based on _id
+    //     const realTimeValue = realTimeData.find(
+    //       (item) => item._id === params.row._id
+    //     );
+
+    //     // Display the real-time value if available, else display the default value
+    //     return realTimeValue
+    //       ? realTimeValue.timeStamp
+    //       : params.row.heartSensor.timeStamp;
+    //   },
+    // },
+    {
+      field: 'email',
+      headerName: 'email',
       flex: 0.4,
     },
     {
-      field: "phone",
-      headerName: "Phone",
+      field: 'phone',
+      headerName: 'Phone',
       flex: 0.4,
     },
     {
-      field: "profile_exist",
-      headerName: "Profile exist",
+      field: 'profile_exist',
+      headerName: 'Profile exist',
       flex: 0.4,
     },
     {
-      field: "roles",
-      headerName: "Role",
+      field: 'roles',
+      headerName: 'Role',
       flex: 0.3,
     },
     {
-      field: "role",
-      headerName: "BP",
+      field: 'role',
+      headerName: 'BP',
       flex: 0.3,
     },
   ];
 
-  const labels = ["jan", "feb", "Mar", "Apr", "May", "Jun", "jul"];
+  const labels = ['jan', 'feb', 'Mar', 'Apr', 'May', 'Jun', 'jul'];
 
   const options = {
     plugins: {
@@ -136,7 +242,7 @@ const Dashboard = () => {
         ticks: {
           callback: (value) => {
             if (value === 0) return value;
-            return value + "M";
+            return value + 'M';
           },
         },
       },
@@ -148,30 +254,31 @@ const Dashboard = () => {
     },
   };
 
- const data2 = {
-  labels,
-  datasets: [
-    {
-      label: "React",
-      data: [32, 42, 51, 37, 51, 65, 40],
-      backgroundColor: "green",
-      borderColor: "green",
-    },
-    {
-      label: "Angular",
-      data: [37, 42, 41, 50, 31, 44, 40],
-      backgroundColor: "#F44236",
-      borderColor: "#F44236",
-    },
-  ],
-};
+  const data2 = {
+    labels,
+    datasets: [
+      {
+        label: 'React',
+        data: [32, 42, 51, 37, 51, 65, 40],
+        backgroundColor: 'green',
+        borderColor: 'green',
+      },
+      {
+        label: 'Angular',
+        data: [37, 42, 41, 50, 31, 44, 40],
+        backgroundColor: '#F44236',
+        borderColor: '#F44236',
+      },
+    ],
+  };
 
   return (
-    <Box m="1.5rem 2.5rem">
-      <FlexBetween>
-        <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
+    <>
+      <Box m='1.5rem 2.5rem'>
+        <FlexBetween>
+          <Header title='DASHBOARD' subtitle='Welcome to your dashboard' />
 
-        {/* <Box>
+          {/* <Box>
           <Button
             sx={{
               backgroundColor: theme.palette.secondary.light,
@@ -185,77 +292,70 @@ const Dashboard = () => {
             Download Reports
           </Button>
         </Box> */}
-      </FlexBetween>
-
-      <Box
-        mt="20px"
-        display="grid"
-        gridTemplateColumns="repeat(12, 1fr)"
-        gridAutoRows="160px"
-        gap="20px"
-        sx={{
-          "& > div": { gridColumn: isNonMediumScreens ? undefined : "span 12" },
-        }}
-      >
-        {/* ROW 1 */}
-
+        </FlexBetween>
 
         <Box
-          gridColumn="span 8"
-          gridRow="span 2"
-          backgroundColor={theme.palette.background.alt}
-          p="1rem"
-          borderRadius="0.55rem"
-        >
-          {/* <OverviewChart view="sales" isDashboard={true} /> */}
-          {/* <div style={{ width: 600, height: 300 }}> */}
-          
-      <Line options={options} data={data2} />
-    {/* </div> */}
-        </Box>
-
-
-
-        {/* ROW 2 */}
-        <Box
-          gridColumn="span 12"
-          gridRow="span 3"
+          mt='20px'
+          display='grid'
+          gridTemplateColumns='repeat(12, 1fr)'
+          gridAutoRows='160px'
+          gap='20px'
           sx={{
-            "& .MuiDataGrid-root": {
-              border: "none",
-              borderRadius: "5rem",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: theme.palette.background.alt,
-              color: theme.palette.secondary[100],
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: theme.palette.background.alt,
-            },
-            "& .MuiDataGrid-footerContainer": {
-              backgroundColor: theme.palette.background.alt,
-              color: theme.palette.secondary[100],
-              borderTop: "none",
-            },
-            "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-              color: `${theme.palette.secondary[200]} !important`,
+            '& > div': {
+              gridColumn: isNonMediumScreens ? undefined : 'span 12',
             },
           }}
         >
-          <DataGrid
-            // loading={isLoading || !data}
-            getRowId={(row) => row._id}
-            rows={(data) || []}
-            columns={columns}
-          />
-        </Box>
+          {/* ROW 1 */}
 
-      </Box>
-      {/* <LineChart width={600} height={300} data={data1}>
+          <Box
+            gridColumn='span 8'
+            gridRow='span 2'
+            backgroundColor={theme.palette.background.alt}
+            p='1rem'
+            borderRadius='0.55rem'
+          >
+            {/* <OverviewChart view="sales" isDashboard={true} /> */}
+            {/* <div style={{ width: 600, height: 300 }}> */}
+
+            <Line options={options} data={data2} />
+            {/* </div> */}
+          </Box>
+
+          {/* ROW 2 */}
+          <Box
+            gridColumn='span 12'
+            gridRow='span 3'
+            sx={{
+              '& .MuiDataGrid-root': {
+                border: 'none',
+                borderRadius: '5rem',
+              },
+              '& .MuiDataGrid-cell': {
+                borderBottom: 'none',
+              },
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: theme.palette.background.alt,
+                color: theme.palette.secondary[100],
+                borderBottom: 'none',
+              },
+              '& .MuiDataGrid-virtualScroller': {
+                backgroundColor: theme.palette.background.alt,
+              },
+              '& .MuiDataGrid-footerContainer': {
+                backgroundColor: theme.palette.background.alt,
+                color: theme.palette.secondary[100],
+                borderTop: 'none',
+              },
+              '& .MuiDataGrid-toolbarContainer .MuiButton-text': {
+                color: `${theme.palette.secondary[200]} !important`,
+              },
+            }}
+          >
+            <DataGrid rows={data || []} columns={columns} />
+          </Box>
+        </Box>
+        {/* <LineChart width={600} height={300} data={data1}>
       <Line type="monotone" dataKey="react" stroke="#2196F3" strokeWidth={4} />
 
       <Line type="monotone" dataKey="vue" stroke="#FFCA29" strokeWidth={4} />
@@ -265,7 +365,37 @@ const Dashboard = () => {
       <Tooltip />
       <Legend />
     </LineChart> */}
-    </Box>
+      </Box>
+      <div className='App'>
+        Sensor Data
+        {!!user && (
+          <div className='App-header'>
+            <h1>Connected as user {user.id}</h1>
+            <div>
+              <p>Latest events:</p>
+              <table>
+                <thead>
+                  <tr>
+                    <td>Operation</td>
+                    <td>Document Key</td>
+                    <td>Full Document</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {events.map((e, i) => (
+                    <tr key={i}>
+                      <td>{e.operationType}</td>
+                      <td>{e.documentKey._id.toString()}</td>
+                      <td>{JSON.stringify(e.fullDocument)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
