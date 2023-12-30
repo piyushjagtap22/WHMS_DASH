@@ -46,6 +46,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
     signOut(auth)
       .then(() => {
         console.log('Succesfully Signed Out');
+        
       })
       .catch((err) => {
         console.log(err);

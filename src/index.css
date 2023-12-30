@@ -9,3 +9,15 @@ body,
     width : 100%;
     font-family: "Inter", sans-serif;
 }
+
+.react-tel-input .form-control {
+    font-size: 16px;
+    background: black;
+    color: gray;
+    border: 1px solid gray;
+    border-radius: 5px;
+    width: 387px;
+    outline: none;
+    padding: 32.5px 14px 18.5px 58px;
+    transition: box-shadow ease 4.25s,border-color ease .25s;
+}

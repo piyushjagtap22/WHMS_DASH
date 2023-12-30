@@ -15,7 +15,8 @@ const authSlice = createSlice({
   reducers: {
     setEmailId: (state, action) => {
       state.emailId = action.payload.email;
-    },
+      state.emailIdVerified = action.payload.emailIdVerified;
+     },
     setUserId: (state, action) => {
       state.userId = action.payload.id;
     },

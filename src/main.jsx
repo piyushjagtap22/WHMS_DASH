@@ -29,13 +29,17 @@ import { useSelector } from 'react-redux';
 import { themeSettings } from './theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import DefaultPage from './components/Pages/DefaultPage.jsx';
+import Register from './components/Pages/Register.jsx';
+import EmailRegister from './components/Pages/EmailRegister.jsx';
+
 const theme = createTheme(themeSettings('dark'));
 //
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
       <Route path='/login' element={<LoginScreen />} />
-      <Route path='/register' element={<RegisterScreen />} />{' '}
+      <Route path='/register' element={<Register/>} />
+      <Route path='/emailregister' element={<EmailRegister/>} />
       <Route path='/verify' element={<VerifyScreen />} />
       <Route path='' element={<PrivateRoute />}>
         <Route path='' element={<Layout />}>
