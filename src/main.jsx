@@ -28,16 +28,25 @@ import { createTheme } from '@mui/material/styles';
 import { useSelector } from 'react-redux';
 import { themeSettings } from './theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
+import Tabsnavigation from './components/Pages/Tabsnavigation.tsx';
+import UniqueLayout from './components/Pages/uniqueLayout.jsx';
+
 const theme = createTheme(themeSettings('dark'));
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
+       <Route path='/tabbar' element={<Tabsnavigation />} />
       <Route path='/login' element={<LoginScreen />} />
       <Route path='/register' element={<RegisterScreen />} />{' '}
       <Route path='/verify' element={<VerifyScreen />} />
-      <Route path='' element={<PrivateRoute />}>
+      {/* <Route path='' element={<PrivateRoute />}> */}
+      <Route path='/unique' element={<UniqueLayout />} />
+        
+      
+
         <Route path='' element={<Layout />}>
+         
           <Route path='/profile' element={<ProfileScreen />} />
           <Route path='/home' element={<HomeScreen />} />
           <Route path='/admin' element={<AdminScreen />} />
@@ -46,7 +55,7 @@ const router = createBrowserRouter(
           <Route path='/dashboard' element={<Dashboard />} />
           <Route path='/newuser' element={<InitialUserScreen />} />
         </Route>
-      </Route>
+      {/* </Route> */}
     </Route>
   )
 );

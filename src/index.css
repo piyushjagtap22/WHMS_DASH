@@ -9,3 +9,10 @@ body,
     width : 100%;
     font-family: "Inter", sans-serif;
 }
+
+.box {
+    border-bottom: 1px solid lightgreen;
+    padding: 2px;
+    size:10px
+    /* Add any other styles for your box */
+  }

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import FlexBetween from "../FlexBetween";
 import Header from "../Header";
+import MapComponent from "../MapComponent";
+import { ToastContainer, toast } from "react-toastify";
+
 import {
   DownloadOutlined,
   Email,
@@ -25,6 +28,7 @@ import {
   removeAdmin,
 } from './../../slices/superAdminApiSlice';
 import { useDispatch, useSelector } from "react-redux";
+import { Toast } from "react-bootstrap";
 
 const Dashboard = () => {
   const [data, setUsers] = useState([]);
@@ -35,8 +39,35 @@ const Dashboard = () => {
   const token = useSelector(
     (state) => state.auth.AuthUser.stsTokenManager.accessToken
   );
+  const [initialTable, setinitialTable] = useState([])
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+
+    console.log("THIS IS SEARCH",searchTerm);
+   
+    if (searchTerm.length >= 2) {
+      const filteredData = row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) || row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
+      setUsers(filteredData);
+      console.log("filtered data",filteredData)
+      
+    } else {
+      console.log("reset horha h ");
+      setUsers(initialTable); // Reset to original data when empty search term
+    }
+    // if(filteredData.length <=0){
+    //   toast.success("Success Notification !", {
+    //     position: toast.POSITION.TOP_RIGHT,
+    //   });
+    //   // setUsers(initialTable)
+    //   console.log("reset done");
+    // }
+  };
+
   // const {data } = useGetUserQuery();
   console.log(userInfo + "userInfo");
+  console.log("bunny",searchTerm)
   useEffect(() => {
     // Fetch user data when the component mounts
     const fetchData = async () => {
@@ -46,9 +77,12 @@ const Dashboard = () => {
         console.log(response + "R ");
         if (response.status === 200) {
           setUsers(response.data);
-          console.log(response.data);
+          setinitialTable(response.data)
+          console.log("bunny",response.data);
+          console.log("bunny crazy",typeof response.data); 
         } else {
           // Handle any errors or show a message
+          console.log("Something Went Wrong");
         }
       } catch (error) {
         // Handle any network or API request errors
@@ -195,12 +229,15 @@ const Dashboard = () => {
             },
           }}
         >
-          
+          <input type="text" value={searchTerm} onChange={handleSearchChange} placeholder="Search..." />
           <DataGrid
             // loading={isLoading || !data}
             
             getRowId={(row) => row._id}
             rows={(data) || []}
+            filter={{
+              global: searchTerm,
+            }}
             columns={columns}
             checkboxSelection
             initialState={{
@@ -209,8 +246,16 @@ const Dashboard = () => {
               },
             }}
           />
+
+          {/* <DataGrid
+                columns={columns}
+                rows={data}
+                filter={{
+                  global: searchTerm,
+                }}
+              /> */}
         </Box>
-        
+
       </Box>
     </Box>
   );
