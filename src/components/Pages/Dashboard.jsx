@@ -39,23 +39,32 @@ const Dashboard = () => {
   const token = useSelector(
     (state) => state.auth.AuthUser.stsTokenManager.accessToken
   );
-  const [initialTable, setinitialTable] = useState([])
+  const [initialTable, setinitialTable] = useState({})
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
 
     console.log("THIS IS SEARCH",searchTerm);
-   
+ 
+
     if (searchTerm.length >= 2) {
-      const filteredData = row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) || row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
+      const filteredData = data.filter(row => {
+        return (
+            row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) ||
+            row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
+        );
+    });
+      // const filteredData = row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) || row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
       setUsers(filteredData);
       console.log("filtered data",filteredData)
       
     } else {
       console.log("reset horha h ");
       setUsers(initialTable); // Reset to original data when empty search term
+      console.log("arijit da",initialTable)
     }
+
     // if(filteredData.length <=0){
     //   toast.success("Success Notification !", {
     //     position: toast.POSITION.TOP_RIGHT,
@@ -65,9 +74,18 @@ const Dashboard = () => {
     // }
   };
 
-  // const {data } = useGetUserQuery();
-  console.log(userInfo + "userInfo");
-  console.log("bunny",searchTerm)
+  const handleKeyDown = (e) => {
+    if (e.key === 'Backspace') {
+      console.log('keydown working')
+      setSearchTerm('');
+      setUsers(initialTable);
+    }
+  };
+
+
+  // // const {data } = useGetUserQuery();
+  // console.log(userInfo + "userInfo");
+  // console.log("bunny",searchTerm)
   useEffect(() => {
     // Fetch user data when the component mounts
     const fetchData = async () => {
@@ -229,7 +247,7 @@ const Dashboard = () => {
             },
           }}
         >
-          <input type="text" value={searchTerm} onChange={handleSearchChange} placeholder="Search..." />
+          <input type="text" value={searchTerm} onChange={handleSearchChange} onKeyDown={handleKeyDown} placeholder="Search..." />
           <DataGrid
             // loading={isLoading || !data}
             
