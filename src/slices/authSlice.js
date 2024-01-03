@@ -7,6 +7,7 @@ import { getMongoUser } from './usersApiSlice';
 const initialState = {
   token: localStorage.getItem('accessToken') ? localStorage.getItem('accessToken') : null,
   AuthUser: null,
+  MongoUser: null,
 };
 
 const authSlice = createSlice({
@@ -46,15 +47,9 @@ export const initializeAuthUser = () => async (dispatch) => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       dispatch(setAuthUser(user.toJSON()));
-      await getMongoUser(user.stsTokenManager.accessToken).then((res) => {
-        if (res.status == 200) {
-          console.log(res.data)
-          dispatch(setMongoUser(res.data));
-        }
-      });
+      // dispatch(setMongoUser(user.toJSON()));
     } else {
       dispatch(setAuthUser(null));
-      dispatch(setMongoUser(null));
     }
   });
 };

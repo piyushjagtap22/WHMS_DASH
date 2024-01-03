@@ -31,6 +31,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import DefaultPage from './components/Pages/DefaultPage.jsx';
 import Register from './components/Pages/Register.jsx';
 import EmailRegister from './components/Pages/EmailRegister.jsx';
+import DocumentVerificationScreen from './components/Pages/DocumentVerificationScreen.jsx';
 
 const theme = createTheme(themeSettings('dark'));
 //
@@ -40,7 +41,7 @@ const router = createBrowserRouter(
       <Route path='/login' element={<LoginScreen />} />
       <Route path='/register' element={<Register/>} />
       <Route path='/emailregister' element={<EmailRegister/>} />
-      <Route path='/verify' element={<VerifyScreen />} />
+      <Route path='/verify' element={<DocumentVerificationScreen />} />
       <Route path='' element={<PrivateRoute />}>
         <Route path='' element={<Layout />}>
           <Route path='/profile' element={<ProfileScreen />} />

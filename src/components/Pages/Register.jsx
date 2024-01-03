@@ -84,6 +84,8 @@ const Register = () => {
       await confirmOtp.confirm(otp).then((result) => {
         toast.success("Success");
         const user = auth.currentUser;
+        console.log(user.accessToken);
+        localStorage.setItem('accessToken', user.accessToken);
         setToken(user.accessToken);
         user.email === null ? (navigate("/emailregister") ) : (user.emailVerified ? (navigate("/dashboard")) : navigate("/emailregister")) ;
       });
@@ -257,7 +259,7 @@ const Register = () => {
               checked={termsChecked}
               onChange={() => setTermsChecked(!termsChecked)}
               error={errors.terms}
-              helperText={errors.terms}
+              
             />
           )}
           <Button

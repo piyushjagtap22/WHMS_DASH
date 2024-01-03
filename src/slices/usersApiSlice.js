@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 
-const USERS_URL = import.meta.env.VITE_API_URL + '/api/auth';
+const USERS_URL = 'http://localhost:3000/api/auth';
 
 export const login = (data) => axios.post(`${USERS_URL}/signin`, data);
 
@@ -54,4 +54,11 @@ export const getUserData = (token) => axiosInstance.get(`/api/profile/getuser`, 
 export const getMongoUser = (token) => axios.get(`${USERS_URL}/get-mongo-user`, {
   headers: { 'Authorization': `Bearer ${token}` }
 });
+
+export const createMongoUser = (data, token) => {
+  // pass token as an argument to this function
+  return axios.post(`${USERS_URL}/create-mongo-user`, data, {
+      headers: { 'Authorization': `Bearer ${token}` }
+  });
+}
 

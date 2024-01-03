@@ -8,7 +8,7 @@ const PrivateRoute = () => {
 
   if (!AuthUser) {
     // If not logged in, you can redirect to the welcome page or login
-    return <Navigate to='/login' replace />;
+    return <Navigate to='/register' replace />;
   }
 
   let role;

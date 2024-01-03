@@ -9,6 +9,7 @@ import {
   Divider,
   IconButton,
   MenuItem,
+  InputAdornment,
 } from "@mui/material";
 import { auth } from "../../firebase.js";
 import {
@@ -23,8 +24,11 @@ import {
 } from "firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { setEmailId, setToken } from "../../slices/authSlice.js";
+import { setEmailId, setMongoUser, setToken } from "../../slices/authSlice.js";
 import { toast, Toaster } from "react-hot-toast";
+import { Visibility, VisibilityOff, CheckCircle, Cancel } from '@mui/icons-material';
+// import { createMongoUserAsync } from "../../slices/userSlice.js";
+
 
 
 const EmailRegister = () => {
@@ -34,7 +38,22 @@ const EmailRegister = () => {
   const [linkSend, setLinkSend] = useState(false);
   const navigate = useNavigate();
   const { emailid } = useSelector((state) => state.auth);
+  const [showPassword, setShowPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordsMatch, setPasswordsMatch] = useState(false);
+  const dispatch = useDispatch();
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    const confirmPwd = e.target.value;
+    setConfirmPassword(confirmPwd);
+    setPasswordsMatch(confirmPwd === password);
+  };
+  
+  
   const linkEmailWithPhone = async (email, password) => {
     try {
       console.log("called");
@@ -66,6 +85,17 @@ const EmailRegister = () => {
     }
   };
 
+  const sendEmailLink = async (user) => {
+    console.log("called" + user);
+    await sendEmailVerification(user).then(() => {
+      console.log("link send success");
+      setLinkSend(true);
+    }).catch((err) => {
+      console.log(err.message);
+      toast.error(err.message);
+    });
+  }
+
   const handleLogin = async (e) => {
     e.preventDefault();
     if(displayName === "" || email === "" || password === ""){
@@ -77,12 +107,7 @@ const EmailRegister = () => {
           const user = auth.currentUser;
           setEmail(user.email);
           console.log(user.email + "  email")
-          await sendEmailVerification(user).then(() => {
-            console.log("link send success");
-            setLinkSend(true);
-          }).catch((err) => {
-            toast.error(err.message);
-          });
+          sendEmailLink(user);
         });
   
         // Set linkSend to true to display the verification message
@@ -90,11 +115,40 @@ const EmailRegister = () => {
         // Store email in localStorage for reference
         localStorage.setItem("email", email);
       } catch (error) {
-        console.error("Error creating user:", error.message);
+        console.log("Error creating user:", error.message);
         toast.error(error.message);
       }
     }
     
+  };
+
+   const createMongoUser = (token, name, role) => {
+    console.log("inside");
+    return async (dispatch) => {
+      console.log("inside1");
+      try {
+        const response = await fetch('http://localhost:3000/api/auth/create-mongo-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name , role}),
+        });
+  
+        if (!response.ok) {
+          console.log("Failed to create user");
+          throw new Error('Failed to create user');
+        }
+  
+        const userData = await response.json();
+        console.log("done");
+        console.log(userData);
+        dispatch(setMongoUser(userData));
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
   };
 
   const checkEmailVerification = async () => {
@@ -105,7 +159,10 @@ const EmailRegister = () => {
       await user.reload();
       // Check if the email is verified
       if (user.emailVerified) {
-        window.location.href = "http://localhost:5173/dashboard";
+        console.log("hogaya");
+        console.log(user.accessToken + "    " + user.displayName);
+      dispatch(createMongoUser(user.accessToken, user.displayName, "admin"));
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error("Error checking email verification:", error.message);
@@ -120,7 +177,6 @@ const EmailRegister = () => {
       setLinkSend(true);
     }
     
-
     // Check email verification every 2 seconds for 2 minutes
       const intervalId = setInterval(checkEmailVerification, 2000);
 
@@ -168,6 +224,18 @@ const EmailRegister = () => {
               Confirm your email address by clicking the link we sent to{" "}
               {localStorage.getItem("email")}
             </Typography>
+            <Button
+                style={{
+                  backgroundColor: "#7CD6AB",
+                  color: "#121318",
+                  margin: "20px 0",
+                  padding: "0.8rem",
+                }}
+                fullWidth
+                onClick={() => sendEmailLink(auth.currentUser)}
+              >
+                Resend Link
+              </Button>
           </Container>
         ) : (
           <>
@@ -208,23 +276,42 @@ const EmailRegister = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
               <TextField
-                label="Create Password*"
-                variant="outlined"
-                fullWidth
-                style={{ margin: "15px 0" }}
-                InputLabelProps={{ style: { color: "grey" } }}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+            label="Create Password*"
+            variant="outlined"
+            fullWidth
+            style={{ margin: "15px 0" }}
+            type={showPassword ? "text" : "password"}
+            InputLabelProps={{ style: { color: "grey" } }}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={togglePasswordVisibility}>
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
 
-              <TextField
-                label="Confirm Password*"
-                variant="outlined"
-                fullWidth
-                style={{ margin: "15px 0" }}
-                InputLabelProps={{ style: { color: "grey" } }}
-                
-              />
+          <TextField
+            label="Confirm Password*"
+            variant="outlined"
+            fullWidth
+            style={{ margin: "15px 0" }}
+            type={showPassword ? "text" : "password"}
+            InputLabelProps={{ style: { color: "grey" } }}
+            value={confirmPassword}
+            onChange={handleConfirmPasswordChange}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  {passwordsMatch ? <CheckCircle style={{ color: 'green' }} /> : <Cancel style={{ color: 'red' }} />}
+                </InputAdornment>
+              ),
+            }}
+          />
               
 
               <Button
