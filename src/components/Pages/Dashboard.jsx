@@ -64,14 +64,7 @@ const Dashboard = () => {
       setUsers(initialTable); // Reset to original data when empty search term
       console.log("arijit da",initialTable)
     }
-
-    // if(filteredData.length <=0){
-    //   toast.success("Success Notification !", {
-    //     position: toast.POSITION.TOP_RIGHT,
-    //   });
-    //   // setUsers(initialTable)
-    //   console.log("reset done");
-    // }
+    
   };
 
   const handleKeyDown = (e) => {
