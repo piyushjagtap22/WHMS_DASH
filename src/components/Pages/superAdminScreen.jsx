@@ -14,6 +14,7 @@ import {
 } from '../../slices/adminApiSlice';
 const SuperAdminScreen = () => {
   const [users, setUsers] = useState([]);
+  const [admins, setAdmins] = useState([]);
   const [expandedUsers, setExpandedUsers] = useState([]);
   const [currentlyExpandedUser, setCurrentlyExpandedUser] = useState(null);
   const dispatch = useDispatch();
@@ -32,6 +33,9 @@ const SuperAdminScreen = () => {
         console.log(response);
         if (response.status === 200) {
           setUsers(response.data);
+          setAdmins(
+            response.data.filter((user) => user.roles.includes('admin'))
+          );
           console.log(response.data);
         } else {
           // Handle any errors or show a message
@@ -54,7 +58,7 @@ const SuperAdminScreen = () => {
         if (response.status === 200) {
           console.log(response);
           // Update the user's role in the local state
-          setUsers((prevUsers) =>
+          setAdmins((prevUsers) =>
             prevUsers.map((prevUser) =>
               prevUser._id === user._id
                 ? { ...prevUser, roles: ['unallocated'] }
@@ -67,7 +71,7 @@ const SuperAdminScreen = () => {
         if (response.status === 200) {
           console.log(response);
           // Update the user's role in the local state
-          setUsers((prevUsers) =>
+          setAdmins((prevUsers) =>
             prevUsers.map((prevUser) =>
               prevUser._id === user._id
                 ? { ...prevUser, roles: ['admin'] }
@@ -141,9 +145,9 @@ const SuperAdminScreen = () => {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
+          {admins.map((user) => (
             <tr key={user.id}>
-              <td>{user.name}</td>
+              <td>{user.name}</td>a
               <td>{user.email}</td>
               <td>{user._id}</td>
 
