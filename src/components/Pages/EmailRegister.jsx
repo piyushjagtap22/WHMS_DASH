@@ -27,6 +27,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { setEmailId, setMongoUser, setToken } from "../../slices/authSlice.js";
 import { toast, Toaster } from "react-hot-toast";
 import { Visibility, VisibilityOff, CheckCircle, Cancel } from '@mui/icons-material';
+import { getMongoUser, getMongoUserByEmail } from "../../slices/usersApiSlice.js";
 // import { createMongoUserAsync } from "../../slices/userSlice.js";
 
 
@@ -100,7 +101,10 @@ const EmailRegister = () => {
     e.preventDefault();
     if(displayName === "" || email === "" || password === ""){
       toast.error("Please Fill up the details");
-    }else{
+    }else if(!passwordsMatch){
+      toast.error("Passwords doesn't match");
+    }
+    else{
       try {
   
         linkEmailWithPhone(email, password).then(async () => {
@@ -125,29 +129,35 @@ const EmailRegister = () => {
    const createMongoUser = (token, name, role) => {
     console.log("inside");
     return async (dispatch) => {
-      console.log("inside1");
-      try {
-        const response = await fetch('http://localhost:3000/api/auth/create-mongo-user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ name , role}),
-        });
-  
-        if (!response.ok) {
-          console.log("Failed to create user");
-          throw new Error('Failed to create user');
+      await getMongoUserByEmail(auth.currentUser.email).then( async (res)=> {
+        if(res.data.message==="User not found"){
+          try {
+            const response = await fetch('http://localhost:3000/api/auth/create-mongo-user', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({ name , role}),
+            });
+      
+            if (!response.ok) {
+              console.log("Failed to create user");
+              throw new Error('Failed to create user');
+            }
+      
+            const userData = await response.json();
+            console.log("done");
+            console.log(userData);
+            dispatch(setMongoUser(userData));
+          } catch (error) {
+            console.log(error.message);
+          }
+        }else{
+          console.log("user already created");
         }
-  
-        const userData = await response.json();
-        console.log("done");
-        console.log(userData);
-        dispatch(setMongoUser(userData));
-      } catch (error) {
-        console.log(error.message);
-      }
+      })
+      
     };
   };
 
@@ -156,13 +166,14 @@ const EmailRegister = () => {
       // Refresh the user object to get the latest data
       const user = auth.currentUser;
       console.log("checking for verify link");
+      console.log(user.email);
       await user.reload();
       // Check if the email is verified
       if (user.emailVerified) {
         console.log("hogaya");
         console.log(user.accessToken + "    " + user.displayName);
       dispatch(createMongoUser(user.accessToken, user.displayName, "admin"));
-        navigate("/dashboard");
+        navigate("/verify");
       }
     } catch (error) {
       console.error("Error checking email verification:", error.message);

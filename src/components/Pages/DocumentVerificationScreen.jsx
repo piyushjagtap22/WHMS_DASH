@@ -1,49 +1,39 @@
+import React, { useRef, useState } from 'react';
+import axios from 'axios';
 import { Button, Container, TextField, Typography } from '@mui/material';
-import React, { useRef } from 'react';
 import { Toaster } from 'react-hot-toast';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useSelector } from 'react-redux';
 
 const DocumentVerificationScreen = () => {
-
-  const token = useSelector((state) => state.auth.token);
-  console.log(token);
+  const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
-
-  const handleUploadClick = () => {
-    fileInputRef.current.click();
+  const token = useSelector((state) => state.auth.token);
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
   };
 
-  const handleFileChange = async (e) => {
-    const selectedFile = e.target.files[0];
-
+  const handleUpload = async () => {
     try {
       const formData = new FormData();
-      formData.append('file', selectedFile);
+      formData.append('file', file);
 
-      const response = await fetch('http://localhost:3000/api/admin/uploadDocument', {
-        method: 'POST',
+      // Replace 'YOUR_API_ENDPOINT' with the actual endpoint for your uploadDocument API
+      const response = await axios.post('http://localhost:3000/api/admin/uploadDocument', formData, {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`,
         },
-        body: formData,
       });
 
-      if (response.ok) {
-        console.log('File uploaded successfully');
-        // Add any additional logic or state updates upon successful upload
-      } else {
-        console.error('Error uploading file:', response.statusText);
-        // Handle error cases
-      }
+      console.log(response.data.message);
     } catch (error) {
-      console.error('Error uploading file:', error.message);
-      // Handle error cases
+      console.error('Error uploading file:', error.response.data.message);
     }
   };
 
   return (
+    
     <>
       <Container
         maxWidth="sm"
@@ -63,7 +53,7 @@ const DocumentVerificationScreen = () => {
           style={{ color: "#7CD6AB" }}
           marginBottom="20px"
         >
-          Complete your profile
+          Complete your profile Jehereeli
         </Typography>
 
         <form
@@ -75,6 +65,7 @@ const DocumentVerificationScreen = () => {
             fullWidth
             style={{ margin: "15px 0" }}
             InputLabelProps={{ style: { color: "grey" } }}
+            value={""}
           />
 
           <TextField
@@ -92,7 +83,7 @@ const DocumentVerificationScreen = () => {
           <div style={{ border: "1px solid grey", borderRadius: "5px", padding: "20px", marginBottom: "15px" }}>
             <div
               style={{ border: "2px dashed grey" , borderRadius: "5px", padding: "40px 20px", textAlign: "center", marginBottom: "25px", cursor: "pointer" }}
-              onClick={handleUploadClick}
+              
             >
               <CloudUploadIcon style={{ fontSize: "3rem", color: "#7CD6AB" }} />
               <Typography variant="body2" style={{ color: "grey" }}>
@@ -101,8 +92,7 @@ const DocumentVerificationScreen = () => {
               <input
                 type="file"
                 accept=".jpg, .jpeg, .png, .pdf"
-                ref={fileInputRef}
-                style={{ display: "none" }}
+                style={{ display: ""}}
                 onChange={handleFileChange}
               />
             </div>
@@ -121,13 +111,12 @@ const DocumentVerificationScreen = () => {
                 Cancel
               </Button>
               <Button
-                type="submit"
                 style={{
                   backgroundColor: "#7CD6AB",
                   color: "#121318",
                   margin: "0",
                 }}
-                onClick={handleFileChange}
+                onClick={handleUpload}
               >
                 Upload
               </Button>
@@ -142,6 +131,7 @@ const DocumentVerificationScreen = () => {
                   padding: "0.8rem",
                 }}
                 fullWidth
+                onClick={handleUpload}
               >
                 Submit
               </Button>
