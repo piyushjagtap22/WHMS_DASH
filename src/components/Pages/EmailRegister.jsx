@@ -109,7 +109,6 @@ const EmailRegister = () => {
   
         linkEmailWithPhone(email, password).then(async () => {
           const user = auth.currentUser;
-          setEmail(user.email);
           console.log(user.email + "  email")
           sendEmailLink(user);
         });
@@ -161,6 +160,8 @@ const EmailRegister = () => {
     };
   };
 
+
+
   const checkEmailVerification = async () => {
     try {
       // Refresh the user object to get the latest data
@@ -173,6 +174,10 @@ const EmailRegister = () => {
         console.log("hogaya");
         console.log(user.accessToken + "    " + user.displayName);
       dispatch(createMongoUser(user.accessToken, user.displayName, "admin"));
+      await getMongoUser(user.accessToken).then((res) => {
+        console.log("getmongouser");
+        console.log(res.data);
+      });
         navigate("/verify");
       }
     } catch (error) {

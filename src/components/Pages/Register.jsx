@@ -23,7 +23,8 @@ import { auth } from "../../firebase.js";
 import { toast, Toaster } from "react-hot-toast";
 import "react-phone-input-2/lib/material.css";
 import { Link, useNavigate } from 'react-router-dom';
-import { setToken } from "../../slices/authSlice.js";
+import { initializeAuthUser, setToken } from "../../slices/authSlice.js";
+import { useDispatch, useSelector } from "react-redux";
 
 const Register = () => {
   const [otp, setOtp] = useState("");
@@ -38,7 +39,8 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const formatPhone = "+" + phoneNumber;
   const navigate = useNavigate();
-
+  const token = useSelector((state)=> state.auth.token);
+  const dispatch = useDispatch();
   function recaptchaVerifier(number) {
     const recaptchaVerifier = new RecaptchaVerifier(
       auth,
@@ -84,12 +86,15 @@ const Register = () => {
       await confirmOtp.confirm(otp).then((result) => {
         toast.success("Success");
         const user = auth.currentUser;
-        console.log(user.accessToken);
-        localStorage.setItem('accessToken', user.accessToken);
-        setToken(user.accessToken);
+        localStorage.setItem('accessToken', result._tokenResponse.idToken);
+        console.log(result._tokenResponse.idToken);
+        setToken(result._tokenResponse.idToken);
+        // dispatch(initializeAuthUser());
+        console.log(auth);
         user.email === null ? (navigate("/emailregister") ) : (user.emailVerified ? (navigate("/dashboard")) : navigate("/emailregister")) ;
       });
     } catch (err) {
+      console.log(err.message);
       toast.error("invalid-verification-code");
     }
     }
@@ -162,7 +167,6 @@ const Register = () => {
           Phone Number
         </Typography>
           
-
           <div>
           <PhoneInput
         country={'in'}

@@ -9,6 +9,7 @@ const DocumentVerificationScreen = () => {
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
   const token = useSelector((state) => state.auth.token);
+  console.log(token);
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };

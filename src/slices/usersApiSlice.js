@@ -52,7 +52,7 @@ export const getUserData = (token) => axiosInstance.get(`/api/profile/getuser`, 
 });
 
 export const getMongoUser = (token) => axios.get(`${USERS_URL}/get-mongo-user`, {
-  headers: { 'Authorization': `Bearer ${token}` }
+  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, }
 });
 
 export const getMongoUserByEmail = (email) => axios.get(`http://localhost:3000/api/user/findUserByEmail/${email}`, {
