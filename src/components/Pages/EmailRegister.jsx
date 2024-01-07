@@ -43,6 +43,7 @@ const EmailRegister = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordsMatch, setPasswordsMatch] = useState(false);
   const dispatch = useDispatch();
+  const AuthUser = useSelector((state) => state.auth.AuthUser);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -129,6 +130,7 @@ const EmailRegister = () => {
     console.log("inside");
     return async (dispatch) => {
       await getMongoUserByEmail(auth.currentUser.email).then( async (res)=> {
+        console.log(JSON.stringify(res.data.existingUser));
         if(res.data.message==="User not found"){
           try {
             const response = await fetch('http://localhost:3000/api/auth/create-mongo-user', {
@@ -139,7 +141,7 @@ const EmailRegister = () => {
               },
               body: JSON.stringify({ name , role}),
             });
-      
+            console.log(response);
             if (!response.ok) {
               console.log("Failed to create user");
               throw new Error('Failed to create user');
@@ -153,12 +155,24 @@ const EmailRegister = () => {
             console.log(error.message);
           }
         }else{
-          console.log("user already created");
+          console.log("user already created");  
         }
       })
       
     };
   };
+
+  const checkAndSetMonogosUser = async () => {
+      try {
+        await getMongoUserByEmail(auth.currentUser.email).then((res)=> {
+          console.log(res.data.existingUser);
+          const user = res.data.existingUser;
+          dispatch(setMongoUser(user));
+        })
+      } catch (error) {
+        console.error(error.message);
+      }
+    }
 
 
 
@@ -174,11 +188,9 @@ const EmailRegister = () => {
         console.log("hogaya");
         console.log(user.accessToken + "    " + user.displayName);
       dispatch(createMongoUser(user.accessToken, user.displayName, "admin"));
-      await getMongoUser(user.accessToken).then((res) => {
-        console.log("getmongouser");
-        console.log(res.data);
-      });
-        navigate("/verify");
+      console.log("shivanshu");
+      checkAndSetMonogosUser(user.accessToken);
+        // navigate("/verify");
       }
     } catch (error) {
       console.error("Error checking email verification:", error.message);
@@ -186,7 +198,7 @@ const EmailRegister = () => {
   };
   useEffect(() => {
     // Check if user is coming without phone verification
-    if(auth.currentUser === null){
+    if(AuthUser === null){
       navigate("/register");
     }
     if(auth.currentUser.email !== null && auth.currentUser.emailVerified === false){

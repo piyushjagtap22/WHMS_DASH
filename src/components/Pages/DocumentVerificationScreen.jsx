@@ -1,18 +1,25 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { Button, Container, TextField, Typography } from '@mui/material';
 import { Toaster } from 'react-hot-toast';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { getMongoUser } from '../../slices/usersApiSlice';
+import { setMongoUser } from '../../slices/authSlice';
+import { auth } from '../../firebase';
+import store from '../../store';
 
 const DocumentVerificationScreen = () => {
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
   const token = useSelector((state) => state.auth.token);
+  const MongosUser = useSelector((state) => state.auth.MongosUser);
+  const [docUploadedSuccess, setDocUploadedSuccess] = useState(false);
   console.log(token);
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
+  const dispatch = useDispatch();
 
   const handleUpload = async () => {
     try {
@@ -28,10 +35,34 @@ const DocumentVerificationScreen = () => {
       });
 
       console.log(response.data.message);
+      if(response.data.message === "File uploaded successfully"){
+        setDocUploadedSuccess(true);
+      }
     } catch (error) {
       console.error('Error uploading file:', error.response.data.message);
     }
   };
+  const handleSubmit = async (token) => {
+    try {
+      await getMongoUser(token).then((res) => {
+        console.log("getmongouser");
+        // console.log(res.data.InitialUserSchema);
+    const user = res.data.InitialUserSchema;
+        store.dispatch(setMongoUser(user));
+      });
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+
+ useEffect(()=>{
+  // if(MongosUser.doc_uploaded){
+  //   setDocUploadedSuccess(true);
+  // }
+  console.log(MongosUser);
+handleSubmit(token);
+ },[handleUpload])
+ 
 
   return (
     
@@ -48,7 +79,18 @@ const DocumentVerificationScreen = () => {
         }}
       >
         <Toaster toastOptions={{ duration: 4000 }} />
-        <Typography
+
+        {docUploadedSuccess ? (<><Typography
+          variant="h3"
+          fontWeight="bold"
+          style={{ color: "#7CD6AB" }}
+          marginBottom="20px"
+        >
+          Document Uploaded Succesfully ! 
+        </Typography>
+        <Typography variant="subtitle2" style={{ margin: "15px 0", padding: "0px 0px" }}>
+            Verification in Progress ..... Wait till admin verifies your doc 
+          </Typography></>) : (<><Typography
           variant="h3"
           fontWeight="bold"
           style={{ color: "#7CD6AB" }}
@@ -56,6 +98,7 @@ const DocumentVerificationScreen = () => {
         >
           Complete your profile Jehereeli
         </Typography>
+        
 
         <form
           style={{ width: "70%", margin: "auto", textAlign: "left" }}
@@ -132,11 +175,12 @@ const DocumentVerificationScreen = () => {
                   padding: "0.8rem",
                 }}
                 fullWidth
-                onClick={handleUpload}
+                onClick={handleSubmit}
               >
                 Submit
               </Button>
-        </form>
+        </form></>)}
+        
       </Container>
     </>
   );
