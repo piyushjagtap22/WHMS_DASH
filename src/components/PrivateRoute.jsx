@@ -3,13 +3,13 @@ import { Outlet } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 const PrivateRoute = () => {
-  const AuthUser = useSelector((state) => state.auth);
+  console.log('In private');
+  const AuthUser = useSelector((state) => state.auth.AuthUser);
   const MongoUser = useSelector((state) => state.auth.MongoUser);
-console.log(AuthUser);
-
+  console.log(!AuthUser);
   if (!AuthUser) {
     // If not logged in, you can redirect to the welcome page or login
-    return <Navigate to='/register' replace />;
+    // return <Navigate to='/register' replace />;
   }
 
   let role;
@@ -22,6 +22,7 @@ console.log(AuthUser);
 
   return (
     <div>
+      {/* {role === 'testing' && <Navigate to='/imagetesting' replace />} */}
       {role === 'admin' && <Navigate to='/admin' replace />}
       {role === 'superadmin' && <Navigate to='/superadmin' replace />}
       {role === 'superadmin2' && <Navigate to='/superadmin2' replace />}

@@ -3,12 +3,17 @@ import { createSlice } from '@reduxjs/toolkit';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
 import { getMongoUser } from './usersApiSlice';
+import { Navigate } from 'react-router-dom';
+
+console.log("here")
 
 const initialState = {
-  token: localStorage.getItem('accessToken') ? localStorage.getItem('accessToken') : null,
+  token: null,
   AuthUser: null,
   MongoUser: null,
 };
+
+// console.log(initialState)
 
 const authSlice = createSlice({
   name: 'auth',
@@ -17,7 +22,7 @@ const authSlice = createSlice({
     setEmailId: (state, action) => {
       state.emailId = action.payload.email;
       state.emailIdVerified = action.payload.emailIdVerified;
-     },
+    },
     setUserId: (state, action) => {
       state.userId = action.payload.id;
     },
@@ -44,11 +49,14 @@ export const { setToken, logout, setUserId, setEmailId, setAuthUser, setMongoUse
 
 // Add an asynchronous action to initialize AuthUser based on Firebase auth state
 export const initializeAuthUser = () => async (dispatch) => {
+  console.log("in initialize Auth User")
   onAuthStateChanged(auth, async (user) => {
     if (user) {
+      console.log(user.toJSON())
       dispatch(setAuthUser(user.toJSON()));
       // dispatch(setMongoUser(user.toJSON()));
     } else {
+      console.log("user not found")
       dispatch(setAuthUser(null));
     }
   });
