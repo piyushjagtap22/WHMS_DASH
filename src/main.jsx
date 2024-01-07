@@ -34,9 +34,14 @@ import DefaultPage from './components/Pages/DefaultPage.jsx';
 import Register from './components/Pages/Register.jsx';
 import EmailRegister from './components/Pages/EmailRegister.jsx';
 import DocumentVerificationScreen from './components/Pages/DocumentVerificationScreen.jsx';
-
+import { initializeAuthUser } from './slices/authSlice';
+import ImageTesting from './components/Pages/ImageTesting.jsx';
 const theme = createTheme(themeSettings('dark'));
 //
+//Firebase auth Initilialization 
+store.dispatch(initializeAuthUser());
+
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
@@ -53,6 +58,7 @@ const router = createBrowserRouter(
             <Route path='/superadmin' element={<SuperAdminScreen />} />
             <Route path='/user' element={<UserScreen />} />
             <Route path='/dashboard' element={<Dashboard />} />
+            <Route path='/imagetesting' element={<ImageTesting />} />
             <Route path='/Default' element={<DefaultPage />} />
             <Route path='/newuser' element={<InitialUserScreen />} />
           </Route>

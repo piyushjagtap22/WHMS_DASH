@@ -16,9 +16,11 @@ function App() {
   const mode = useSelector((state) => state.mode.mode);
   console.log(mode);
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
-  useEffect(() => {
-    store.dispatch(initializeAuthUser());
-  }, []);
+  // useEffect(() => {
+
+    
+  // }, []);
+  console.log("App jsx 23")
   return (
     <>
       {/* <Header></Header> */}

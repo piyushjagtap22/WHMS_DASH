@@ -63,6 +63,7 @@ const EmailRegister = () => {
   };
 
   const linkEmailWithPhone = async (email, password) => {
+    console.log(email, password);
     try {
       console.log('called');
       const credential = EmailAuthProvider.credential(email, password);
@@ -96,7 +97,7 @@ const EmailRegister = () => {
   };
 
   const sendEmailLink = async (user) => {
-    console.log('called' + user);
+    console.log('called' + email);
     await sendEmailVerification(user)
       .then(() => {
         console.log('link send success');
@@ -137,6 +138,7 @@ const EmailRegister = () => {
     console.log('inside');
     return async (dispatch) => {
       await getMongoUserByEmail(auth.currentUser.email).then( async (res)=> {
+        console.log("get mongo user email reg ")
         console.log(JSON.stringify(res.data.existingUser));
         if(res.data.message==="User not found"){
           try {
@@ -149,6 +151,7 @@ const EmailRegister = () => {
               body: JSON.stringify({ name , role}),
             });
             console.log(response);
+            console.log("Create Mongo User Response");
             if (!response.ok) {
               console.log('Failed to create user');
               throw new Error('Failed to create user');
@@ -195,8 +198,8 @@ const EmailRegister = () => {
         console.log(user.accessToken + "    " + user.displayName);
       dispatch(createMongoUser(user.accessToken, user.displayName, "admin"));
       console.log("shivanshu");
-      checkAndSetMonogosUser(user.accessToken);
-        // navigate("/verify");
+      // checkAndSetMonogosUser(user.accessToken);
+        navigate("/verify");
       }
     } catch (error) {
       console.error('Error checking email verification:', error.message);

@@ -42,9 +42,9 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
   const { userInfo } = useSelector((state) => state.superAdmin);
-  const token = useSelector(
-    (state) => state.auth.AuthUser.stsTokenManager.accessToken
-  );
+  // const token = useSelector(
+  //   (state) => state.auth.AuthUser.stsTokenManager.accessToken
+  // );
   const [user, setUser] = useState();
   const [events, setEvents] = useState([]);
   const [realTimeData, setRealTimeData] = useState([]);
@@ -52,8 +52,11 @@ const Dashboard = () => {
 
   // const {data } = useGetUserQuery();
   console.log(userInfo + 'userInfo');
-
+  const  token = useSelector(
+    (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
+    );
   useEffect(() => {
+    
     // Fetch user data when the component mounts
     const fetchData = async () => {
       try {

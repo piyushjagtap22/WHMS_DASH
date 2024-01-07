@@ -4,30 +4,41 @@ import { Button, Container, TextField, Typography } from '@mui/material';
 import { Toaster } from 'react-hot-toast';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useDispatch, useSelector } from 'react-redux';
-import { getMongoUser } from '../../slices/usersApiSlice';
-import { setMongoUser } from '../../slices/authSlice';
-import { auth } from '../../firebase';
+import { initializeMongoUser } from '../../slices/authSlice';
 import store from '../../store';
 
 const DocumentVerificationScreen = () => {
-  console.log('In Doc Verification');
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
-  const token = useSelector((state) => state.auth.token);
-  const MongosUser = useSelector((state) => state.auth.MongosUser);
+  const token = useSelector((state) => state.auth.AuthUser?.stsTokenManager?.accessToken);
+  const authUser = useSelector((state) => state.auth.AuthUser); 
+  const mongoUser = useSelector((state) => state.auth.MongoUser);
   const [docUploadedSuccess, setDocUploadedSuccess] = useState(false);
-  console.log(token);
+  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    console.log("shiv");
+    console.log(mongoUser);
+    if(mongoUser?.doc_uploaded === true){
+      setDocUploadedSuccess(true);
+    }
+    if (token) {
+      setLoading(false);
+    }
+  }, [mongoUser, token]);
+
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
-  const dispatch = useDispatch();
 
   const handleUpload = async () => {
     try {
+      console.log(token)
+      console.log(authUser)
       const formData = new FormData();
       formData.append('file', file);
 
-      // Replace 'YOUR_API_ENDPOINT' with the actual endpoint for your uploadDocument API
       const response = await axios.post(
         'http://localhost:3000/api/admin/uploadDocument',
         formData,
@@ -40,34 +51,23 @@ const DocumentVerificationScreen = () => {
       );
 
       console.log(response.data.message);
-      if(response.data.message === "File uploaded successfully"){
+      if (response.data.message === "File uploaded successfully") {
         setDocUploadedSuccess(true);
       }
     } catch (error) {
-      console.error('Error uploading file:', error.response.data.message);
+      console.error('Error uploading file:', error.response?.data?.message);
     }
   };
-  const handleSubmit = async (token) => {
-    try {
-      await getMongoUser(token).then((res) => {
-        console.log("getmongouser");
-        // console.log(res.data.InitialUserSchema);
-    const user = res.data.InitialUserSchema;
-        store.dispatch(setMongoUser(user));
-      });
-    } catch (error) {
-      console.error(error.message);
-    }
-  }
 
- useEffect(()=>{
-  // if(MongosUser.doc_uploaded){
-  //   setDocUploadedSuccess(true);
+  // const handleSubmit = async () => {
+  //   if (token) {
+  //     await store.dispatch(initializeMongoUser(token));
+  //   }
   // }
-  console.log(MongosUser);
-handleSubmit(token);
- },[handleUpload])
- 
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <>
@@ -196,7 +196,7 @@ handleSubmit(token);
                   padding: "0.8rem",
                 }}
                 fullWidth
-                onClick={handleSubmit}
+               
               >
                 Submit
               </Button>
