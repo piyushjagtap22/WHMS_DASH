@@ -12,10 +12,12 @@ import {
 } from 'react-router-dom';
 import HomeScreen from './components/Pages/HomeScreen.jsx';
 import LoginScreen from './components/Pages/LoginScreen.jsx';
+// import ImageTesting from './components/Pages/ImageTesting.jsx';
 import ProfileScreen from './components/Pages/ProfileScreen.jsx';
 import RegisterScreen from './components/Pages/RegisterScreen.jsx';
 import VerifyScreen from './components/Pages/VerifyScreen.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
+import AuthValidations from './components/AuthValidations.jsx';
 import AdminScreen from './components/Pages/adminScreen.jsx';
 import Dashboard from './components/Pages/Dashboard.jsx';
 import Layout from './components/Pages/Layout.jsx';
@@ -38,20 +40,22 @@ const theme = createTheme(themeSettings('dark'));
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
-      <Route path='/login' element={<LoginScreen />} />
-      <Route path='/register' element={<Register/>} />
-      <Route path='/emailregister' element={<EmailRegister/>} />
-      <Route path='/verify' element={<DocumentVerificationScreen />} />
-      <Route path='' element={<PrivateRoute />}>
-        <Route path='' element={<Layout />}>
-          <Route path='/profile' element={<ProfileScreen />} />
-          <Route path='/home' element={<HomeScreen />} />
-          <Route path='/admin' element={<AdminScreen />} />
-          <Route path='/superadmin' element={<SuperAdminScreen />} />
-          <Route path='/user' element={<UserScreen />} />
-          <Route path='/dashboard' element={<Dashboard />} />
-          <Route path='/Default' element={<DefaultPage />} />
-          <Route path='/newuser' element={<InitialUserScreen />} />
+      <Route path='' element={<AuthValidations />}>
+        <Route path='/login' element={<LoginScreen />} />
+        <Route path='/register' element={<Register />} />
+        <Route path='/emailregister' element={<EmailRegister />} />
+        <Route path='/verify' element={<DocumentVerificationScreen />} />
+        <Route path='' element={<PrivateRoute />}>
+          <Route path='' element={<Layout />}>
+            <Route path='/profile' element={<ProfileScreen />} />
+            <Route path='/home' element={<HomeScreen />} />
+            <Route path='/admin' element={<AdminScreen />} />
+            <Route path='/superadmin' element={<SuperAdminScreen />} />
+            <Route path='/user' element={<UserScreen />} />
+            <Route path='/dashboard' element={<Dashboard />} />
+            <Route path='/Default' element={<DefaultPage />} />
+            <Route path='/newuser' element={<InitialUserScreen />} />
+          </Route>
         </Route>
       </Route>
     </Route>

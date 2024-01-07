@@ -11,8 +11,8 @@ const UserScreen = () => {
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.superAdmin);
   const { AuthUser } = useSelector((state) => state.auth);
-  console.log("userInfo" + userInfo);
-  console.log("AuthUser" + AuthUser.email);
+  console.log('userInfo' + userInfo);
+  // console.log("AuthUser" + AuthUser.email);
   const submitHandler = async (e) => {
     // if (token) {
     //     try {
