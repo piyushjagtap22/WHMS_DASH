@@ -1,10 +1,25 @@
 import React, { useMemo } from 'react';
 import { useEffect, useState } from 'react';
+import FlexBetween from "../FlexBetween";
+import Header from "../Header";
 import { Button, Form } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import {
+ 
+  IconButton,
+
+} from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { DataGrid } from '@mui/x-data-grid';
+import {
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
+import { Card, CardMedia } from '@mui/material';
 import {
   createAdmin,
   getAllUsers,
@@ -12,7 +27,9 @@ import {
   enableAdmin,
   getAllAdmin,
   disableAdmin,
-  docById
+  approveDocById,
+  addDeviceID
+  // docById
 } from './../../slices/superAdminApiSlice';
 import {
   getUnallocatedUsers,
@@ -27,7 +44,6 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 400,
-
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
@@ -41,14 +57,23 @@ const SuperAdminScreen = () => {
   const [currentlyExpandedUser, setCurrentlyExpandedUser] = useState(null);
   const dispatch = useDispatch();
   const [adminInfo, setAdminInfo] = useState();
+  const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
+  const SUPERADMIN_URL = "http://localhost:3000" + '/api/superadmin';
   // const token = useSelector(
   //   (state) => state.auth.AuthUser.stsTokenManager.accessToken
   // );
-  const token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjUyNmM2YTg0YWMwNjcwMDVjZTM0Y2VmZjliM2EyZTA4ZTBkZDliY2MiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiUGl5dXNoIEphZ3RhcCIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJNGdWaVdFRkdHa2Jrbm1YdDlkcGlrck1CeDhVRmc4WWQzTjY5NFdSNWs9czk2LWMiLCJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vd2htcy1hdXRoLTdlZDRiIiwiYXVkIjoid2htcy1hdXRoLTdlZDRiIiwiYXV0aF90aW1lIjoxNzA0Mzc0MTE3LCJ1c2VyX2lkIjoibjlSeXdTV05nU1hQVHdPcWhhTUFvbUk5SVlpMSIsInN1YiI6Im45Unl3U1dOZ1NYUFR3T3FoYU1Bb21JOUlZaTEiLCJpYXQiOjE3MDQzNzQxMTcsImV4cCI6MTcwNDM3NzcxNywiZW1haWwiOiJwanRlbXBpZEBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJnb29nbGUuY29tIjpbIjEwMjQ4MDA4NjE0NzE3MDU0MjUxMCJdLCJlbWFpbCI6WyJwanRlbXBpZEBnbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.QQiaX7nGy9DFbhtavRAFCxfSsScpuAqpeTHZg9YSDj92ndsj4oadqgEIKtGTIAxCHOWCUSVkfX9wlwVcSn-fGEclfu0yQTFMtIhzIIG-tLLKrZ_rl4au-xpFGBfXiauPejefhdNGiFDOOMlDslc5sWe5BZqTLmJIad-qUrsBDboNCNiom7aL90YPb9XNJDMnSUKktbYDhZ8lISOvCzQtZRAdm4PFxslmD1gr3WG7_OYZSuF_GnbhuqmOpTtoKJ5BTDK8qynXSLZqS9qLP93q5ASraE09kEyBUNtMSiGpSsbFKoobwZxEFuMrCrXzS9ZwBr8owM0lQnYoBzVPnyXWMQ"
+  const token = "eyJhbGciOiJSUzI1NiIsImtpZCI6ImQxNjg5NDE1ZWMyM2EzMzdlMmJiYWE1ZTNlNjhiNjZkYzk5MzY4ODQiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiUGl5dXNoIEphZ3RhcCIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJNGdWaVdFRkdHa2Jrbm1YdDlkcGlrck1CeDhVRmc4WWQzTjY5NFdSNWs9czk2LWMiLCJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vd2htcy1hdXRoLTdlZDRiIiwiYXVkIjoid2htcy1hdXRoLTdlZDRiIiwiYXV0aF90aW1lIjoxNzA0OTg3NjYyLCJ1c2VyX2lkIjoibjlSeXdTV05nU1hQVHdPcWhhTUFvbUk5SVlpMSIsInN1YiI6Im45Unl3U1dOZ1NYUFR3T3FoYU1Bb21JOUlZaTEiLCJpYXQiOjE3MDQ5ODc2NjIsImV4cCI6MTcwNDk5MTI2MiwiZW1haWwiOiJwanRlbXBpZEBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJnb29nbGUuY29tIjpbIjEwMjQ4MDA4NjE0NzE3MDU0MjUxMCJdLCJlbWFpbCI6WyJwanRlbXBpZEBnbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.LgVg3geOkx0F3mylK8aRrAkUdrdZk7LTND8TLsl0wv5ZID71yz9Gt6-yMgt6LYo0N-L3fPrmTuTwdmWckItcslzI6YzJDaDca67N3D4hRR_iCLsF6xkO146meA-u5P3ADoSvKYzxceUHRO8UYMhw4nKuIyhUG7yxNk0UMGBmORJX6KXNIjSn3BRYyFDY2oexBz0tYfrp5NnvPZcy2fGw4V2ZF5cDhipybHFp0CXJ8qh70NzaAWon6zFbGV3PegomNI4Ww8eNjNXI1OPhTVGYYfzsTtAfQ8j9hRjbF27qfoWh1cLDqzCstyU4KR5nv71oddcxqWXa3w_l0ezXUyCgew"
+  const [document, setdocument] = useState(null)
   const { userInfo } = useSelector((state) => state.superAdmin);
   const [adminUsers, setAdminUsers] = useState([]); // State to store admin users
   const [button,setButton] = useState('false');
   const [open, setOpen] = React.useState(false);
+  const [selectedAdmin, setselectedAdmin] = useState("")
+  const [showUserIds, setShowUserIds] = useState({});
+  const theme = useTheme();
+  const [data, setData] = useState([]);
+  const [textFieldValue, setTextFieldValue] = useState('');
+
 
 
   useEffect(() => {
@@ -57,10 +82,11 @@ const SuperAdminScreen = () => {
       try {
         console.log('in fetchdata');
         const response = await getAllAdmin(token);
-        console.log("users data ashi",response.data.admins);
+        console.log("users data ",response.data.admins);
         if (response.status === 200) {
           setUsers(response.data.admins);
 
+ 
         } else {
           // Handle any errors or show a message
         }
@@ -69,12 +95,47 @@ const SuperAdminScreen = () => {
       }
     };
     fetchData();
-  }, [dispatch, token ,button]);
+  }, [dispatch, token ,button ,document]);
 
   const handleOpen = async (userId) => {
     setOpen(true);
-    const doc = await documentByID(userId);
-    console.log("handle open doc",doc);
+    
+    console.log('enable Admin');
+    const apiUrl = `${SUPERADMIN_URL}/getDocById`;
+    setselectedAdmin(userId);
+    const authToken =
+      `Bearer ${token}`;
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: authToken,
+      },
+      body: JSON.stringify({ _id: userId }),
+    })
+      .then((response) => response.blob())
+      .then((blob) => {
+        const imageUrl = URL.createObjectURL(blob);
+        setdocument(imageUrl);
+      })
+      .catch((error) => console.error('Error fetching image:', error));
+
+
+
+    // try {
+    //   const response = await docById({ "_id": `${userId}`}, token);
+      
+    //   if (response) {
+    //     console.log(response); // Assuming the user data is in the response data
+    //     setButton(!button);
+    //     console.log('response final',response)
+    //     setdocument(response);
+    //   } else {
+    //     // Handle any errors or show a message
+    //   }
+    //   } catch(error) {
+    //     console.log(error);
+    //   }
 
   }
   const handleClose = () => setOpen(false);
@@ -115,6 +176,25 @@ const SuperAdminScreen = () => {
     }
   };
 
+
+  const approveDoc = async (userId) =>{
+    alert("clicked on"+userId)
+    const response = await approveDocById({ adminID: `${userId}`}, token);
+
+    if (response.status === 200) {
+      console.log(response); // Assuming the user data is in the response data
+      alert("Document Verified");
+      setdocument(null);
+      setOpen(false);
+
+    } else {
+      // Handle any errors or show a message
+      alert("something went wrong");
+    }
+    
+  }
+
+
   const fetchAdminUsers = async (admin) => {
     console.log(admin);
   };
@@ -153,6 +233,31 @@ const SuperAdminScreen = () => {
 }
 
 
+const addDevice = async (data) => {
+  console.log(textFieldValue);
+  // console.log("check",data);
+  try{
+  alert("Are you sure you want to add device"+textFieldValue);
+
+  const response = await addDeviceID({"adminId": `${data}`,"deviceIds":[`${textFieldValue}`]}, token);
+  // const response = await addDeviceID({"adminId": "gL3g7f1sOSUGGyQmrB3mvOn68xm1","deviceIds": ["deviceId9"]}, token);
+  if (response.status === 200) {
+    console.log(response); // Assuming the user data is in the response data
+    setButton(!button);
+  } else {
+    // Handle any errors or show a message
+  }
+}catch(error){
+  console.log(error);
+}
+}
+
+const handleInputChange = (event) => {
+  // Update the state with the current value of the text field
+  setTextFieldValue(event.target.value);
+};
+
+
 
 const disableAdminByID = async  (userId) => {
   // Perform your query or action using the retrieved data
@@ -172,12 +277,21 @@ const disableAdminByID = async  (userId) => {
 }
 }
 
+const handleShowUserIds = (adminId) => {
+  setShowUserIds((prevShowUserIds) => ({
+    ...prevShowUserIds,
+    [adminId]: !prevShowUserIds[adminId],
+  }));
+};
+
+
 const documentByID = async (userId) => {
   alert(`clicked by ${userId}`)
   console.log('enable Admin');
   try {
-    const response = await docById({ "_id": `${userId}`}, token);
-    console.log("image response",response);
+    
+
+
     if (response.status === 200) {
       console.log(response); // Assuming the user data is in the response data
       setButton(!button);
@@ -232,8 +346,46 @@ const documentByID = async (userId) => {
 
   //const isExpanded = (user) => expandedUsers.includes(user._id);
   const isExpanded = (user) => user._id === currentlyExpandedUser;
+
+  //Data related to Table
+
+  const columns = [
+    {
+      field: "name",
+      headerName: "Name",
+      flex: 0.4,
+    },
+    {
+      field: "email",
+      headerName: "Email",
+      flex: 0.4,
+    },
+    {
+      field: "admin_id",
+      headerName: "Admin ID",
+      flex: 0.5,
+    },
+    {
+      field: "doc_status",
+      headerName: "Doc Status",
+      flex: 0.4,
+    },
+    {
+      field: "Admin",
+      headerName: "Admin Status",
+      flex: 0.3,
+    },
+    {
+      field: "devices",
+      headerName: "Devices",
+      flex: 0.3,
+    },
+  ];
+
+
+
   return (
-    <div>
+    <div >
       Hello SuperAdmin
       <h1>Admin Management</h1>
       <table>
@@ -241,64 +393,14 @@ const documentByID = async (userId) => {
           <tr>
             <th>Name</th>
             <th>Email</th>
-            <th>ID</th>
-            <th>Role</th>
-            <th>Actions</th>
+            <th>Admin ID</th>
+            <th>Doc Status</th>
+            <th>Admin Status</th>
+            <th>Devices</th>
+         
           </tr>
         </thead>
-        <tbody>
-          {/* {users} */}
-        {/* unallocated */}
-        {/* {users.map((user) => (
-          <tr key={user.id} >
-            <td>{user.name}</td>
-            <td>{user.email}</td>
-            <td>{user._id}</td> 
-            
-            <td>{user.roles[0]}</td>
-            <td>
-              <button onClick={() => adminToggle(user)}>
-                {user.roles[0] === 'admin' ? 'Remove Admin' : 'Make Admin'}
-              </button>
-              <button onClick={() => expandUser(user)}>
-                {isExpanded(user) ? 'Close This Admin' : 'Expand This Admin'}
-              </button>
-
-              <button onClick={() => enableAdminByID(user._id)}>
-                {user.roles[0] === 'admin' ? 'Remove Admin' : 'Make Admin'}ENABLE
-              </button>
-            </td>
-            <td></td>
-          </tr>
-        ))} */}
-         
-          {users.map((admin) => (
-            <tr key={admin._id}>
-              <td>{admin.name}</td>
-              <td>{admin.email}</td>
-              <td>{admin._id}</td>
-              <td>{admin?.adminDetails[0]?.accountEnabled ? 'True' : 'False'}</td> 
-             {
-                admin?.adminDetails[0]?.accountEnabled 
-              ?
-                <button onClick={() => disableAdminByID(admin._id)}>
-                  Disable Admin
-                </button>
-              :
-                <button onClick={() => enableAdminByID(admin._id)}>
-                  Enable Admin
-                </button>
-              }
-
-              {
-                !(admin?.doc_verified)
-              ?
-              <>
-              <button onClick={() => handleOpen(admin._id)}>
-                See documents
-              </button>
- 
-              <Modal
+        <Modal
                 open={open}
                 onClose={handleClose}
                 aria-labelledby="modal-modal-title"
@@ -308,107 +410,136 @@ const documentByID = async (userId) => {
                   <Typography id="modal-modal-title" variant="h6" component="h2">
                     List of Documents
                   </Typography>
-                  <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-                  </Typography>
+                  <Card>
+                    {document && <img src={document} alt="Image" style={{
+                        maxWidth: '100%',
+                        maxHeight: '40rem', // Set your desired max-height
+                        width: 'auto',
+                        height: 'auto',
+                        objectFit: 'contain', // Maintain aspect ratio without stretching
+                      }} />}
+                  </Card>
+                  <button onClick={() => approveDoc(selectedAdmin)}>
+                      Approve Documents{selectedAdmin}
+                  </button>
+
                 </Box>
               </Modal>
-              </>
+        <tbody>
+         
+          {users.map((admin) => (
+            <>
+            <tr key={admin._id}>
+              <td>{admin.name}</td>
+              <td>{admin.email}</td>
+              <td>{admin._id}</td>
+              <td>
+                
+               {
+                admin?.adminDetails[0]?.accountEnabled 
+              ?
+              
+                <a href="#" onClick={() => disableAdminByID(admin._id)}>
+                  Disable Admin
+                </a>
               
               :
-              <span></span>
+             
+                <a href="#" onClick={() => enableAdminByID(admin._id)}>
+                  Enable Admin
+                </a>
+              
               }
+                
+                
+                </td> 
+             
+              {/* <tr>
+              <button onClick={() => handleShowUserIds(admin._id)}>
+                    {showUserIds[admin._id] ? 'Hide Admin IDs' : 'Show Admin IDs'}
+                  </button>
+              </tr> */}
+            <tr>
+            {admin?.adminDetails[0]?.accountEnabled ? <td>Enabled</td> : <td>Disabled</td>}
+              </tr>
+              <td>
+              {
+                !(admin?.doc_verified)
+              ?
+              <>
+              <a href="#" onClick={(event) => handleOpen(admin._id)} className="link-button">
+                See documents   
+              </a>
+              <IconButton onClick={() => handleShowUserIds(admin._id)}>
+               <KeyboardArrowDownIcon />
+              </IconButton>
+           </>
+              :
+              <>
+              <a href="#"  className="link-button disabled" >
+                See documents 
+               
+              </a>
+               <IconButton onClick={() => handleShowUserIds(admin._id)}>
+               <KeyboardArrowDownIcon />
+              </IconButton>
+              </>
+              }
+              </td>
             </tr>
-          ))}
 
+            <tr>
+                {showUserIds[admin._id] && admin.adminDetails && (
+                    <table className='newtableoutline'>
+                      <th className='newtableth'>
+                        Device ID
+                      </th>
+                      <tr></tr>
+                      {admin?.adminDetails[0]?.deviceIds.map((userId) => (
+                         <>
+                              <th className='newtableth' key={userId}>
+                                {userId}
+                              </th>
+                              <tr></tr>
+                          </>
+                      ))}
+                     <tr>
+                      
+                      <TextField style={{"padding-left":"0.5em"}} id="outlined-basic" onChange={handleInputChange} value={textFieldValue} label="Add Device id" variant="outlined" />
+                      <button onClick={() => addDevice(admin._id)}>Add Device</button>
+                     </tr>
+                     
+                    </table>
+              )}
+              </tr>
+              
+              
+            </>
+          ))}
+         
+ 
         </tbody>
       </table>
-      <div>
-        {/* {users.map((user) => (
-          <div key={`${user.id}-expanded`} className='expanded-row'>
-            {isExpanded(user) && (
-              <div>
-                <p>Admin Details:</p>
-                <p>Name: {user.name}</p>
-                <p>Email: {user.email}</p>
-                <p>ID: {user._id}</p>
-                <p>Role: {user.roles[0]}</p>
-                <h2>Admin Users</h2>
-                <div>
-                  {adminUsers.length === 0 ? (
-                    'No user found'
-                  ) : (
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>User Name</th>
-                          <th>Email</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {adminUsers.map((user) => (
-                          <tr key={user._id}>
-                            <td>{user.name}</td>
-                            <td>{user.email}</td>
-                            <td>{user._id}</td>
-                            <td>
-                              <button onClick={() => removeUser(user._id)}>
-                                Remove User
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-                <table>
-                  <thead>
-                    <h2>Unallocated Users</h2>
-                    <tr>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>ID</th>
-                      <th>Role</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users
-                      .filter(
-                        (unallocatedUser) =>
-                          unallocatedUser.roles[0] === 'unallocated'
-                      )
-                      .map((unallocatedUser) => (
-                        <tr key={unallocatedUser.id}>
-                          <td>{unallocatedUser.name}</td>
-                          <td>{unallocatedUser.email}</td>
-                          <td>{unallocatedUser._id}</td>
-                          <td>{unallocatedUser.roles[0]}</td>
-                          <td>
-                            <button
-                              onClick={() =>
-                                addUserToAdmin(unallocatedUser._id, user._id)
-                              }
-                            >
-                              Add User to This Admin
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        ))} */}
-      </div>
-      <div>
-        {/* <p id='myText'>{token}</p> */}
-      </div>
+      <Box m="1.5rem ">
+  
+
+     
+    </Box>
+    
     </div>
   );
 };
 
 export default SuperAdminScreen;
+
+
+// <tr>
+// <td>{showUserIds[admin._id] && admin.adminDetails && (
+//     <ul>
+//       {admin.adminDetails[0].userIds.map((userId) => (
+//         <li key={userId}>{userId}</li>
+//       ))}
+//     </ul>
+// )}
+// </td>
+// </tr>
