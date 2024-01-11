@@ -2,6 +2,16 @@ import React, { useEffect, useState } from 'react';
 import FlexBetween from '../FlexBetween';
 import Header from '../Header';
 import * as Realm from 'realm-web';
+import MapComponent from "../MapComponent";
+import { ToastContainer, toast } from "react-toastify";
+
+import {
+  DownloadOutlined,
+  Email,
+  PointOfSale,
+  PersonAdd,
+  Traffic,
+} from "@mui/icons-material";
 import {
   Box,
   useTheme,
@@ -35,6 +45,8 @@ ChartJS.register(
 );
 
 const app = new Realm.App({ id: 'sensor_realtimedb-ujgdc' });
+import { useDispatch, useSelector } from "react-redux";
+import { Toast } from "react-bootstrap";
 
 const Dashboard = () => {
   const [data, setUsers] = useState([]);
@@ -55,6 +67,47 @@ const Dashboard = () => {
   const  token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
     );
+ 
+  const [initialTable, setinitialTable] = useState({})
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+
+    console.log("THIS IS SEARCH",searchTerm);
+ 
+
+    if (searchTerm.length >= 2) {
+      const filteredData = data.filter(row => {
+        return (
+            row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) ||
+            row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
+        );
+    });
+      // const filteredData = row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) || row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
+      setUsers(filteredData);
+      console.log("filtered data",filteredData)
+      
+    } else {
+      console.log("reset horha h ");
+      setUsers(initialTable); // Reset to original data when empty search term
+      console.log("arijit da",initialTable)
+    }
+    
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Backspace') {
+      console.log('keydown working')
+      setSearchTerm('');
+      setUsers(initialTable);
+    }
+  };
+
+
+  // // const {data } = useGetUserQuery();
+  // console.log(userInfo + "userInfo");
+  // console.log("bunny",searchTerm)
   useEffect(() => {
     
     // Fetch user data when the component mounts
@@ -64,16 +117,13 @@ const Dashboard = () => {
         const response = await getAllUsers(token);
         // console.log(response + 'R ');
         if (response.status === 200) {
-          // Add a unique id property to each row
-          const rowsWithId = response.data.map((row) => ({
-            ...row,
-            id: row._id, // Assuming _id is a unique identifier
-          }));
-          setUsers(rowsWithId);
-          setRealTimeData(rowsWithId);
-          // console.log(response.data);
+          setUsers(response.data);
+          setinitialTable(response.data)
+          console.log("bunny",response.data);
+          console.log("bunny crazy",typeof response.data); 
         } else {
           // Handle any errors or show a message
+          console.log("Something Went Wrong");
         }
       } catch (error) {
         // Handle any network or API request errors
@@ -342,36 +392,33 @@ const Dashboard = () => {
       <Tooltip />
       <Legend />
     </LineChart> */}
-      </Box>
-      <div className='App'>
-        Sensor Data
-        {!!user && (
-          <div className='App-header'>
-            <h1>Connected as user {user.id}</h1>
-            <div>
-              <p>Latest events:</p>
-              <table>
-                <thead>
-                  <tr>
-                    <td>Operation</td>
-                    <td>Document Key</td>
-                    <td>Full Document</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  {events.map((e, i) => (
-                    <tr key={i}>
-                      <td>{e.operationType}</td>
-                      <td>{e.documentKey._id.toString()}</td>
-                      <td>{JSON.stringify(e.fullDocument)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
+          <input type="text" value={searchTerm} onChange={handleSearchChange} onKeyDown={handleKeyDown} placeholder="Search..." />
+          <DataGrid
+            // loading={isLoading || !data}
+            
+            getRowId={(row) => row._id}
+            rows={(data) || []}
+            filter={{
+              global: searchTerm,
+            }}
+            columns={columns}
+            checkboxSelection
+            initialState={{
+              pinnedColumns: {
+                left: ['_id'],
+              },
+            }}
+          />
+
+          {/* <DataGrid
+                columns={columns}
+                rows={data}
+                filter={{
+                  global: searchTerm,
+                }}
+              /> */}
+        </Box>
+
     </>
   );
 };

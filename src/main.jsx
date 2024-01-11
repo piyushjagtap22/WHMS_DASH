@@ -35,7 +35,10 @@ import Register from './components/Pages/Register.jsx';
 import EmailRegister from './components/Pages/EmailRegister.jsx';
 import DocumentVerificationScreen from './components/Pages/DocumentVerificationScreen.jsx';
 import { initializeAuthUser } from './slices/authSlice';
-import ImageTesting from './components/Pages/ImageTesting.jsx';
+
+import Tabsnavigation from './components/Pages/Tabsnavigation.tsx';
+import UniqueLayout from './components/Pages/uniqueLayout.jsx';
+
 const theme = createTheme(themeSettings('dark'));
 //
 //Firebase auth Initilialization 
@@ -45,7 +48,10 @@ store.dispatch(initializeAuthUser());
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
+      <Route path='/unique' element={<UniqueLayout />} />
+      <Route path='/tabbar' element={<Tabsnavigation />} />
       <Route path='' element={<AuthValidations />}>
+ 
         <Route path='/login' element={<LoginScreen />} />
         <Route path='/register' element={<Register />} />
         <Route path='/emailregister' element={<EmailRegister />} />

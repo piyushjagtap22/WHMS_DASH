@@ -9,15 +9,79 @@ body,
     width : 100%;
     font-family: "Inter", sans-serif;
 }
+a{
+  color: #B8D5FF;
+  text-decoration: none;
+}
+th{
+  padding: 2em;
+  color: #E7F1FF;
+  font-size: 14px;
+  font-family: Inter;
+  font-weight: 600;
+  line-height: 20px;
+  word-wrap: break-word
+}
+table{
+  width: 115%;
+  height: 100%; 
+  background: #191C23; 
+  border-radius: 16px;
+}
+tr{
+  
+  border-bottom: 1px #57647E solid;
 
-.react-tel-input .form-control {
-    font-size: 16px;
-    background: black;
-    color: gray;
-    border: 1px solid gray;
-    border-radius: 5px;
-    width: 387px;
-    outline: none;
-    padding: 32.5px 14px 18.5px 58px;
-    transition: box-shadow ease 4.25s,border-color ease .25s;
+}
+
+:last-child {
+  text-decoration: none;
+}
+
+.newtable{
+color: #B8D5FF;
+font-size: 14px;
+font-family: Inter;
+font-weight: 400;
+line-height: 2em;
+word-wrap: break-word
+}
+
+.newtableoutline{
+  margin: 1.5em;
+  align-content: center;
+  width: 350%;
+  height: 100%; 
+  background: #333947; 
+  border-radius: 16px
+}
+
+
+.newtableth {
+
+  padding: 1em;
+  color: #E7F1FF;
+  font-size: 14px;
+  font-family: Inter;
+  font-weight: 400;
+  line-height: 20px;
+  word-wrap: break-word
+
+}
+td{
+  line-height: 2em;
+  padding-left: 2em;
+  padding-right: 0em;
+  color: #B8D5FF;
+font-size: 14px;
+font-family: Inter;
+font-weight: 400;
+line-height: 4em;
+word-wrap: break-word
+}
+
+.disabled{
+  color: #999; /* Color for disabled state */
+  pointer-events: none; /* Prevent click events when disabled */
+  cursor: not-allowed;
 }
