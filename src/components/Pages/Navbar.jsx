@@ -30,6 +30,8 @@ import { FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
 import { LinkContainer } from 'react-router-bootstrap';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
+import { logout } from '../../slices/authSlice.js';
+
 
 const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const dispatch = useDispatch();
@@ -40,12 +42,15 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
   const [name, setName] = useState('');
+  const token = useSelector((state) => state.auth.token);
   const AuthUser = useSelector((state) => state.auth.AuthUser);
   const MongoUser = useSelector((state) => state.auth.MongoUser);
   const userSignOut = () => {
     signOut(auth)
-      .then(() => {
+      .then(() => {1
+        dispatch(logout(token));
         console.log('Succesfully Signed Out');
+        
       })
       .catch((err) => {
         console.log(err);

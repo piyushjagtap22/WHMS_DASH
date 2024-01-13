@@ -23,7 +23,7 @@ const RegisterScreen = () => {
   //   auth1,
   //   'recaptcha-container',
   //   {}
-  // );
+  // ); 
   const [otp, setOtp] = useState('');
   const appVerifier = window.recaptchaVerifier;
   const [displayName, setName] = useState('');
@@ -85,27 +85,27 @@ const RegisterScreen = () => {
 
   const handlePhoneSignUp = async () => {
     console.log('hello');
-    //   try {
-    //     // Initiate the phone number sign-up
-    //     // const appVerifier = window.recaptchaVerifier;
-    //     const phoneCredential = await signInWithPhoneNumber(
-    //       auth1,
-    //       phoneNumber,
-    //       appVerifier
-    //     )
-    //       .then((confirmationResult) => {
-    //         window.confirmationResult = confirmationResult;
-    //       })
-    //       .catch((err) => {
-    //         console.log(err);
-    //       });
-    //     // You can handle the phone sign-up success here
-    //     console.log('Phone sign-up successful:', phoneCredential);
-    //     // Navigate to a verification screen where the user enters the verification code.
-    //     // navigate('/verify-phone', { state: { phoneCredential } });
-    //   } catch (error) {
-    //     console.error('Phone sign-up error:', error);
-    //   }
+      try {
+        // Initiate the phone number sign-up
+        // const appVerifier = window.recaptchaVerifier;
+        const phoneCredential = await signInWithPhoneNumber(
+          auth1,
+          phoneNumber,
+          appVerifier
+        )
+          .then((confirmationResult) => {
+            window.confirmationResult = confirmationResult;
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+        // You can handle the phone sign-up success here
+        console.log('Phone sign-up successful:', phoneCredential);
+        // Navigate to a verification screen where the user enters the verification code.
+        // navigate('/verify-phone', { state: { phoneCredential } });
+      } catch (error) {
+        console.error('Phone sign-up error:', error);
+      }
   };
 
   return (

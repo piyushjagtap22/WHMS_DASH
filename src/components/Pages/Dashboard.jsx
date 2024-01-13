@@ -1,6 +1,10 @@
-import React, { useEffect, useState } from "react";
-import FlexBetween from "../FlexBetween";
-import Header from "../Header";
+import React, { useEffect, useState } from 'react';
+import FlexBetween from '../FlexBetween';
+import Header from '../Header';
+import * as Realm from 'realm-web';
+import MapComponent from "../MapComponent";
+import { ToastContainer, toast } from "react-toastify";
+
 import {
   DownloadOutlined,
   Email,
@@ -10,45 +14,116 @@ import {
 } from "@mui/icons-material";
 import {
   Box,
-  Button,
-  Typography,
   useTheme,
   useMediaQuery,
-} from "@mui/material";
+} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import BreakdownChart from "../BreakdownChart";
-import OverviewChart from "../OverviewChart";
 // import { useGetUserQuery } from "state/api";
 import {
-  createAdmin,
   getAllUsers,
-  removeAdmin,
 } from './../../slices/superAdminApiSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+const app = new Realm.App({ id: 'sensor_realtimedb-ujgdc' });
 import { useDispatch, useSelector } from "react-redux";
+import { Toast } from "react-bootstrap";
 
 const Dashboard = () => {
   const [data, setUsers] = useState([]);
   const theme = useTheme();
   const dispatch = useDispatch();
-  const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
+  const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
   const { userInfo } = useSelector((state) => state.superAdmin);
-  const token = useSelector(
-    (state) => state.auth.AuthUser.stsTokenManager.accessToken
-  );
+  // const token = useSelector(
+  //   (state) => state.auth.AuthUser.stsTokenManager.accessToken
+  // );
+  const [user, setUser] = useState();
+  const [events, setEvents] = useState([]);
+  const [realTimeData, setRealTimeData] = useState([]);
+  const [newRealTimeData, setNewRealTimeData] = useState([]);
+
   // const {data } = useGetUserQuery();
-  console.log(userInfo + "userInfo");
+  console.log(userInfo + 'userInfo');
+  const  token = useSelector(
+    (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
+    );
+ 
+  const [initialTable, setinitialTable] = useState({})
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+
+    console.log("THIS IS SEARCH",searchTerm);
+ 
+
+    if (searchTerm.length >= 2) {
+      const filteredData = data.filter(row => {
+        return (
+            row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) ||
+            row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
+        );
+    });
+      // const filteredData = row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) || row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
+      setUsers(filteredData);
+      console.log("filtered data",filteredData)
+      
+    } else {
+      console.log("reset horha h ");
+      setUsers(initialTable); // Reset to original data when empty search term
+      console.log("arijit da",initialTable)
+    }
+    
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Backspace') {
+      console.log('keydown working')
+      setSearchTerm('');
+      setUsers(initialTable);
+    }
+  };
+
+
+  // // const {data } = useGetUserQuery();
+  // console.log(userInfo + "userInfo");
+  // console.log("bunny",searchTerm)
   useEffect(() => {
+    
     // Fetch user data when the component mounts
     const fetchData = async () => {
       try {
         console.log('in fetchdata');
         const response = await getAllUsers(token);
-        console.log(response + "R ");
+        // console.log(response + 'R ');
         if (response.status === 200) {
           setUsers(response.data);
-          console.log(response.data);
+          setinitialTable(response.data)
+          console.log("bunny",response.data);
+          console.log("bunny crazy",typeof response.data); 
         } else {
           // Handle any errors or show a message
+          console.log("Something Went Wrong");
         }
       } catch (error) {
         // Handle any network or API request errors
@@ -56,67 +131,193 @@ const Dashboard = () => {
       }
     };
     fetchData();
-  }, [dispatch, token]);
+    const login = async () => {
+      try {
+        const mongodb = app.currentUser.mongoClient('mongodb-atlas');
+        const collection = mongodb.db('test').collection('realtimesensordocs');
+        const changeStream = collection.watch();
+        const user = await app.logIn(Realm.Credentials.anonymous());
+        setUser(user);
 
+        // Set up a change stream with a filter on the sensor_id field
+        // const pipeline = [
+        //   {
+        //     $match: {
+        //       'fullDocument.sensor_id': '233', // Change 'sensor_id' to the actual field name
+        //     },
+        //   },
+        // ];
+
+        // const changeStream = collection.watch();
+        // console.log(changeStream);
+        for await (const change of changeStream) {
+          console.log(change);
+          setNewRealTimeData((prevData) => {
+            const index = prevData.findIndex(
+              (item) => item._id === change.documentKey._id.toString()
+            );
+
+            const realTimeUpdate = {
+              _id: change.documentKey._id.toString(),
+              heartSensor: change.fullDocument.heartSensor.value,
+              timeStamp: change.fullDocument.heartSensor.timeStamp,
+            };
+
+            setRealTimeData((prevData) => {
+              const index = prevData.findIndex(
+                (item) => item._id === realTimeUpdate._id
+              );
+
+              if (index !== -1) {
+                const updatedData = [...prevData];
+                updatedData[index] = realTimeUpdate;
+                return updatedData;
+              } else {
+                // If the data for this item doesn't exist in the previous state, add it
+                return [...prevData, realTimeUpdate];
+              }
+            });
+
+            // Return the updated events array
+            return prevData; // Corrected from prevEvents to prevData
+          });
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    login();
+  }, [dispatch, token, realTimeData]); // Add changeStream and realTimeData to the dependency array
 
   const columns = [
     {
-      field: "_id",
-      headerName: "Device ID",
+      field: '_id',
+      headerName: 'Device ID',
       flex: 0.5,
     },
     {
-      field: "name",
-      headerName: "User",
+      field: 'name',
+      headerName: 'User',
       flex: 0.4,
     },
     {
-      field: "email",
-      headerName: "email",
+      field: 'heartSensor',
+      headerName: 'Heart Sensor',
+      flex: 0.4,
+      valueGetter: (params) => {
+        // Get the real-time value from the state based on _id
+        const realTimeValue = realTimeData.find(
+          (item) => item._id === params.row._id
+        );
+
+        // Display the real-time value if available, else display the default value
+        return realTimeValue
+          ? realTimeValue.heartSensor
+          : params.row.heartSensor.value;
+      },
+    },
+    // {
+    //   field: 'timeStamp',
+    //   headerName: 'Time Stamp',
+    //   flex: 0.4,
+    //   valueGetter: (params) => {
+    //     // Get the real-time value from the state based on _id
+    //     const realTimeValue = realTimeData.find(
+    //       (item) => item._id === params.row._id
+    //     );
+
+    //     // Display the real-time value if available, else display the default value
+    //     return realTimeValue
+    //       ? realTimeValue.timeStamp
+    //       : params.row.heartSensor.timeStamp;
+    //   },
+    // },
+    {
+      field: 'email',
+      headerName: 'email',
       flex: 0.4,
     },
     {
-      field: "phone",
-      headerName: "Phone",
-      flex: 0.4,
-      
-    },
-    {
-      field: "profile_exist",
-      headerName: "Profile exist",
+      field: 'phone',
+      headerName: 'Phone',
       flex: 0.4,
     },
     {
-      field: "roles",
-      headerName: "Role",
+      field: 'profile_exist',
+      headerName: 'Profile exist',
+      flex: 0.4,
+    },
+    {
+      field: 'roles',
+      headerName: 'Role',
       flex: 0.3,
     },
     {
-      field: "role",
-      headerName: "Activity",
+      field: 'role',
+      headerName: 'BP',
       flex: 0.3,
     },
-    {
-      field: "role1",
-      headerName: "BP",
-      flex: 0.3,
-    },
-    {
-      field: "role2",
-      headerName: "Duration",
-      flex: 0.3,
-    },
-   
-    
-    
   ];
 
-  return (
-    <Box m="1.5rem 2.5rem">
-      <FlexBetween>
-        <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
+  const labels = ['jan', 'feb', 'Mar', 'Apr', 'May', 'Jun', 'jul'];
 
-        {/* <Box>
+  const options = {
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        grid: {
+          color: theme.palette.primary[600],
+        },
+        ticks: {
+          callback: (value) => {
+            if (value === 0) return value;
+            return value + 'M';
+          },
+        },
+      },
+    },
+    elements: {
+      line: {
+        tension: 0.3,
+      },
+    },
+  };
+
+  const data2 = {
+    labels,
+    datasets: [
+      {
+        label: 'React',
+        data: [32, 42, 51, 37, 51, 65, 40],
+        backgroundColor: 'green',
+        borderColor: 'green',
+      },
+      {
+        label: 'Angular',
+        data: [37, 42, 41, 50, 31, 44, 40],
+        backgroundColor: '#F44236',
+        borderColor: '#F44236',
+      },
+    ],
+  };
+
+  return (
+    <>
+      <Box m='1.5rem 2.5rem'>
+        <FlexBetween>
+          <Header title='DASHBOARD' subtitle='Welcome to your dashboard' />
+
+          {/* <Box>
           <Button
             sx={{
               backgroundColor: theme.palette.secondary.light,
@@ -130,77 +331,76 @@ const Dashboard = () => {
             Download Reports
           </Button>
         </Box> */}
-      </FlexBetween>
+        </FlexBetween>
 
-      <Box
-        mt="20px"
-        display="grid"
-        gridTemplateColumns="repeat(12, 1fr)"
-        gridAutoRows="160px"
-        gap="20px"
-        sx={{
-          "& > div": { gridColumn: isNonMediumScreens ? undefined : "span 12" },
-        }}
-      >
-        {/* ROW 1 */}
-        
-        
         <Box
-          gridColumn="span 12"
-          gridRow="span 2"
-          backgroundColor={theme.palette.background.alt}
-          p="1rem"
-          borderRadius="0.55rem"
-        >
-          <Typography variant="h6" sx={{ color: theme.palette.secondary[100] }}>
-            Heart Rate
-          </Typography>
-          {/* <OverviewChart view="sales" isDashboard={true} /> */}
-        </Box>
-        
-        
-
-        {/* ROW 2 */}
-        <Box
-          gridColumn="span 12"
-          gridRow="span 3"
+          mt='20px'
+          display='grid'
+          gridTemplateColumns='repeat(12, 1fr)'
+          gridAutoRows='160px'
+          gap='20px'
           sx={{
-            "& .MuiDataGrid-root": {
-              border: "none",
-              borderRadius: "5rem",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: `0.3px solid ${theme.palette.background.primary}`,
-              
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: theme.palette.background.primary,
-              color: theme.palette.secondary[100],
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: theme.palette.background.alt,
-            },
-            "& .MuiDataGrid-footerContainer": {
-              backgroundColor: theme.palette.background.alt,
-              color: theme.palette.secondary[100],
-              borderTop: "1px solid grey",
-            },
-            "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-              backgroundColor: "black",
-              color: `${theme.palette.secondary[200]} !important`,
-            },
-            "& .superadmin": {
-              backgroundColor: 'rgba(157, 255, 118, 0.49)',
+            '& > div': {
+              gridColumn: isNonMediumScreens ? undefined : 'span 12',
             },
           }}
         >
+          {/* ROW 1 */}
+
           
+
+          {/* ROW 2 */}
+          <Box
+            gridColumn='span 12'
+            gridRow='span 4'
+            sx={{
+              '& .MuiDataGrid-root': {
+                border: 'none',
+                borderRadius: '5rem',
+              },
+              '& .MuiDataGrid-cell': {
+                borderBottom: 'none',
+              },
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: theme.palette.background.alt,
+                color: theme.palette.secondary[100],
+                borderBottom: 'none',
+              },
+              '& .MuiDataGrid-virtualScroller': {
+                backgroundColor: theme.palette.background.alt,
+              },
+              '& .MuiDataGrid-footerContainer': {
+                backgroundColor: theme.palette.background.alt,
+                color: theme.palette.secondary[100],
+                borderTop: 'none',
+              },
+              '& .MuiDataGrid-toolbarContainer .MuiButton-text': {
+                color: `${theme.palette.secondary[200]} !important`,
+              },
+            }}
+          >
+            <DataGrid rows={data || []} columns={columns} />
+          </Box>
+        </Box>
+        {/* <LineChart width={600} height={300} data={data1}>
+      <Line type="monotone" dataKey="react" stroke="#2196F3" strokeWidth={4} />
+
+      <Line type="monotone" dataKey="vue" stroke="#FFCA29" strokeWidth={4} />
+      <CartesianGrid stroke="#ccc" />
+      <XAxis dataKey="name" />
+      <YAxis dataKey="" />
+      <Tooltip />
+      <Legend />
+    </LineChart> */}
+          <input type="text" value={searchTerm} onChange={handleSearchChange} onKeyDown={handleKeyDown} placeholder="Search..." />
           <DataGrid
             // loading={isLoading || !data}
             
             getRowId={(row) => row._id}
             rows={(data) || []}
+            filter={{
+              global: searchTerm,
+            }}
             columns={columns}
             checkboxSelection
             initialState={{
@@ -209,10 +409,17 @@ const Dashboard = () => {
               },
             }}
           />
+
+          {/* <DataGrid
+                columns={columns}
+                rows={data}
+                filter={{
+                  global: searchTerm,
+                }}
+              /> */}
         </Box>
-        
-      </Box>
-    </Box>
+
+    </>
   );
 };
 

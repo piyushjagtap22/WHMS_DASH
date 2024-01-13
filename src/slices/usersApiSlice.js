@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 
-const USERS_URL = "http://localhost:3000" + '/api/auth';
+const USERS_URL = 'http://localhost:3000/api/auth';
 
 export const login = (data) => axios.post(`${USERS_URL}/signin`, data);
 
@@ -17,7 +17,7 @@ export const verify = (data) => axios.post(`${USERS_URL}/verifycode`, data);
 
 export const updateUser = (data, token) => {
   // Make sure to pass the 'token' as an argument to this function
-  return axios.post(`http://localhost:3000/api/profile/update-profile`, data, {
+  return axios.post(`${import.meta.env.VITE_API_URL}/api/profile/update-profile`, data, {
     headers: { 'Authorization': `Bearer ${token}` }
   });
 };
@@ -52,6 +52,17 @@ export const getUserData = (token) => axiosInstance.get(`/api/profile/getuser`, 
 });
 
 export const getMongoUser = (token) => axios.get(`${USERS_URL}/get-mongo-user`, {
-  headers: { 'Authorization': `Bearer ${token}` }
+  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, }
 });
+
+export const getMongoUserByEmail = (email) => axios.get(`http://localhost:3000/api/user/findUserByEmail/${email}`, {
+  headers: {'Content-Type': 'application/json' }
+});
+
+export const createMongoUser = (data, token) => {
+  // pass token as an argument to this function
+  return axios.post(`${USERS_URL}/create-mongo-user`, data, {
+      headers: { 'Authorization': `Bearer ${token}` }
+  });
+}
 
