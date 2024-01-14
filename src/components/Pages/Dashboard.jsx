@@ -257,56 +257,6 @@ const Dashboard = () => {
     },
   ];
 
-  const labels = ['jan', 'feb', 'Mar', 'Apr', 'May', 'Jun', 'jul'];
-
-  const options = {
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-      },
-      y: {
-        grid: {
-          color: theme.palette.primary[600],
-        },
-        ticks: {
-          callback: (value) => {
-            if (value === 0) return value;
-            return value + 'M';
-          },
-        },
-      },
-    },
-    elements: {
-      line: {
-        tension: 0.3,
-      },
-    },
-  };
-
-  const data2 = {
-    labels,
-    datasets: [
-      {
-        label: 'React',
-        data: [32, 42, 51, 37, 51, 65, 40],
-        backgroundColor: 'green',
-        borderColor: 'green',
-      },
-      {
-        label: 'Angular',
-        data: [37, 42, 41, 50, 31, 44, 40],
-        backgroundColor: '#F44236',
-        borderColor: '#F44236',
-      },
-    ],
-  };
 
   return (
     <>
@@ -398,7 +348,7 @@ const Dashboard = () => {
           onKeyDown={handleKeyDown}
           placeholder='Search...'
         />
-        <DataGrid
+        {/* <DataGrid
           rows={data || []}
           columns={columns}
           checkboxSelection
@@ -411,7 +361,7 @@ const Dashboard = () => {
               left: ['_id'],
             },
           }}
-        />
+        /> */}
 
         {/* <DataGrid
                 columns={columns}
