@@ -59,6 +59,11 @@ export const getMongoUserByEmail = (email) => axios.get(`http://localhost:3000/a
   headers: {'Content-Type': 'application/json' }
 });
 
+export const getHeartRateData = async (sensorId) => {
+  const response = await axios.get('/getheartrate', { params: { id: sensorId } });
+  return response;
+}
+
 export const createMongoUser = (data, token) => {
   // pass token as an argument to this function
   return axios.post(`${USERS_URL}/create-mongo-user`, data, {

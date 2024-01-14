@@ -64,7 +64,6 @@ const router = createBrowserRouter(
             <Route path='/superadmin' element={<SuperAdminScreen />} />
             <Route path='/user' element={<UserScreen />} />
             <Route path='/dashboard' element={<Dashboard />} />
-            <Route path='/imagetesting' element={<ImageTesting />} />
             <Route path='/Default' element={<DefaultPage />} />
             <Route path='/newuser' element={<InitialUserScreen />} />
           </Route>

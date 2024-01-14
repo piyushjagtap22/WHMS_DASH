@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import FlexBetween from '../FlexBetween';
 import Header from '../Header';
 import * as Realm from 'realm-web';
-import MapComponent from "../MapComponent";
 import { ToastContainer, toast } from "react-toastify";
 
 import {
@@ -45,7 +44,6 @@ ChartJS.register(
 );
 
 const app = new Realm.App({ id: 'sensor_realtimedb-ujgdc' });
-import { useDispatch, useSelector } from "react-redux";
 import { Toast } from "react-bootstrap";
 
 const Dashboard = () => {
@@ -392,7 +390,7 @@ const Dashboard = () => {
       <Tooltip />
       <Legend />
     </LineChart> */}
-          <input type="text" value={searchTerm} onChange={handleSearchChange} onKeyDown={handleKeyDown} placeholder="Search..." />
+          {/* <input type="text" value={searchTerm} onChange={handleSearchChange} onKeyDown={handleKeyDown} placeholder="Search..." />
           <DataGrid
             // loading={isLoading || !data}
             
@@ -408,7 +406,7 @@ const Dashboard = () => {
                 left: ['_id'],
               },
             }}
-          />
+          /> */}
 
           {/* <DataGrid
                 columns={columns}
