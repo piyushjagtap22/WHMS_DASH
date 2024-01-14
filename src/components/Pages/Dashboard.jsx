@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import FlexBetween from '../FlexBetween';
 import Header from '../Header';
 import * as Realm from 'realm-web';
-import MapComponent from "../MapComponent";
-import { ToastContainer, toast } from "react-toastify";
+// import MapComponent from '../MapComponent';
+import { ToastContainer, toast } from 'react-toastify';
 
 import {
   DownloadOutlined,
@@ -11,18 +11,11 @@ import {
   PointOfSale,
   PersonAdd,
   Traffic,
-} from "@mui/icons-material";
-import {
-  Box,
-  useTheme,
-  useMediaQuery,
-} from '@mui/material';
+} from '@mui/icons-material';
+import { Box, useTheme, useMediaQuery } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 // import { useGetUserQuery } from "state/api";
-import {
-  getAllUsers,
-} from './../../slices/superAdminApiSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { getAllUsers } from './../../slices/superAdminApiSlice';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -45,8 +38,8 @@ ChartJS.register(
 );
 
 const app = new Realm.App({ id: 'sensor_realtimedb-ujgdc' });
-import { useDispatch, useSelector } from "react-redux";
-import { Toast } from "react-bootstrap";
+import { useDispatch, useSelector } from 'react-redux';
+import { Toast } from 'react-bootstrap';
 
 const Dashboard = () => {
   const [data, setUsers] = useState([]);
@@ -64,66 +57,61 @@ const Dashboard = () => {
 
   // const {data } = useGetUserQuery();
   console.log(userInfo + 'userInfo');
-  const  token = useSelector(
+  const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
-    );
- 
-  const [initialTable, setinitialTable] = useState({})
+  );
+
+  const [initialTable, setinitialTable] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
 
-    console.log("THIS IS SEARCH",searchTerm);
- 
+    console.log('THIS IS SEARCH', searchTerm);
 
     if (searchTerm.length >= 2) {
-      const filteredData = data.filter(row => {
+      const filteredData = data.filter((row) => {
         return (
-            row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) ||
-            row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
+          row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) ||
+          row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
         );
-    });
+      });
       // const filteredData = row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) || row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
       setUsers(filteredData);
-      console.log("filtered data",filteredData)
-      
+      console.log('filtered data', filteredData);
     } else {
-      console.log("reset horha h ");
+      console.log('reset horha h ');
       setUsers(initialTable); // Reset to original data when empty search term
-      console.log("arijit da",initialTable)
+      console.log('arijit da', initialTable);
     }
-    
   };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Backspace') {
-      console.log('keydown working')
+      console.log('keydown working');
       setSearchTerm('');
       setUsers(initialTable);
     }
   };
 
-
   // // const {data } = useGetUserQuery();
   // console.log(userInfo + "userInfo");
   // console.log("bunny",searchTerm)
   useEffect(() => {
-    
     // Fetch user data when the component mounts
     const fetchData = async () => {
       try {
         console.log('in fetchdata');
         const response = await getAllUsers(token);
-        // console.log(response + 'R ');
+        console.log(response + 'R ');
         if (response.status === 200) {
           setUsers(response.data);
-          setinitialTable(response.data)
-          console.log("bunny",response.data);
-          console.log("bunny crazy",typeof response.data); 
+          setinitialTable(response.data);
+          console.log('bunny', response.data);
+          console.log('bunny crazy', typeof response.data);
         } else {
           // Handle any errors or show a message
-          console.log("Something Went Wrong");
+          console.log('Something Went Wrong');
         }
       } catch (error) {
         // Handle any network or API request errors
@@ -133,57 +121,66 @@ const Dashboard = () => {
     fetchData();
     const login = async () => {
       try {
-        const mongodb = app.currentUser.mongoClient('mongodb-atlas');
-        const collection = mongodb.db('test').collection('realtimesensordocs');
-        const changeStream = collection.watch();
+        // Log in anonymously
         const user = await app.logIn(Realm.Credentials.anonymous());
-        setUser(user);
 
-        // Set up a change stream with a filter on the sensor_id field
-        // const pipeline = [
-        //   {
-        //     $match: {
-        //       'fullDocument.sensor_id': '233', // Change 'sensor_id' to the actual field name
-        //     },
-        //   },
-        // ];
+        if (user) {
+          // Successfully logged in, proceed with MongoDB client setup
+          const mongodb = user.mongoClient('mongodb-atlas');
+          const collection = mongodb.db('test').collection('devices');
 
-        // const changeStream = collection.watch();
-        // console.log(changeStream);
-        for await (const change of changeStream) {
-          console.log(change);
-          setNewRealTimeData((prevData) => {
-            const index = prevData.findIndex(
-              (item) => item._id === change.documentKey._id.toString()
-            );
+          // Set up change stream and handle real-time updates
+          const changeStream = collection.watch();
+          // Set up a change stream with a filter on the sensor_id field
+          // const pipeline = [
+          //   {
+          //     $match: {
+          //       'fullDocument.sensor_id': '233', // Change 'sensor_id' to the actual field name
+          //     },
+          //   },
+          // ];
 
-            const realTimeUpdate = {
-              _id: change.documentKey._id.toString(),
-              heartSensor: change.fullDocument.heartSensor.value,
-              timeStamp: change.fullDocument.heartSensor.timeStamp,
-            };
+          // const changeStream = collection.watch();
+          // console.log(changeStream);
+          for await (const change of changeStream) {
+            console.log('Change Stream Event:', change);
 
-            setRealTimeData((prevData) => {
+            setNewRealTimeData((prevData) => {
               const index = prevData.findIndex(
-                (item) => item._id === realTimeUpdate._id
+                (item) => item._id === change.documentKey._id.toString()
               );
 
-              if (index !== -1) {
-                const updatedData = [...prevData];
-                updatedData[index] = realTimeUpdate;
-                return updatedData;
-              } else {
-                // If the data for this item doesn't exist in the previous state, add it
-                return [...prevData, realTimeUpdate];
-              }
-            });
+              const realTimeUpdate = {
+                _id: change.documentKey._id.toString(),
+                heartSensor: change.fullDocument.heartSensor.value,
+                timeStamp: change.fullDocument.heartSensor.timeStamp,
+              };
 
-            // Return the updated events array
-            return prevData; // Corrected from prevEvents to prevData
-          });
+              setRealTimeData((prevData) => {
+                const index = prevData.findIndex(
+                  (item) => item._id === realTimeUpdate._id
+                );
+
+                if (index !== -1) {
+                  const updatedData = [...prevData];
+                  updatedData[index] = realTimeUpdate;
+                  return updatedData;
+                } else {
+                  return [...prevData, realTimeUpdate];
+                }
+              });
+
+              // Return the updated events array
+              return [...prevData, realTimeUpdate];
+            });
+          }
+        } else {
+          console.log('User not logged in');
+          // Handle the case when the user is not logged in
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.log('Error during login:', error);
+        // Handle login errors
       }
     };
 
@@ -212,9 +209,9 @@ const Dashboard = () => {
         );
 
         // Display the real-time value if available, else display the default value
-        return realTimeValue
-          ? realTimeValue.heartSensor
-          : params.row.heartSensor.value;
+        return realTimeValue && realTimeValue.heartSensor
+          ? realTimeValue.heartSensor.value
+          : params.row.heartSensor?.value || '';
       },
     },
     // {
@@ -347,8 +344,6 @@ const Dashboard = () => {
         >
           {/* ROW 1 */}
 
-          
-
           {/* ROW 2 */}
           <Box
             gridColumn='span 12'
@@ -379,7 +374,11 @@ const Dashboard = () => {
               },
             }}
           >
-            <DataGrid rows={data || []} columns={columns} />
+            <DataGrid
+              rows={data || []}
+              columns={columns}
+              getRowId={(row) => row._id}
+            />
           </Box>
         </Box>
         {/* <LineChart width={600} height={300} data={data1}>
@@ -392,33 +391,36 @@ const Dashboard = () => {
       <Tooltip />
       <Legend />
     </LineChart> */}
-          <input type="text" value={searchTerm} onChange={handleSearchChange} onKeyDown={handleKeyDown} placeholder="Search..." />
-          <DataGrid
-            // loading={isLoading || !data}
-            
-            getRowId={(row) => row._id}
-            rows={(data) || []}
-            filter={{
-              global: searchTerm,
-            }}
-            columns={columns}
-            checkboxSelection
-            initialState={{
-              pinnedColumns: {
-                left: ['_id'],
-              },
-            }}
-          />
+        <input
+          type='text'
+          value={searchTerm}
+          onChange={handleSearchChange}
+          onKeyDown={handleKeyDown}
+          placeholder='Search...'
+        />
+        <DataGrid
+          rows={data || []}
+          columns={columns}
+          checkboxSelection
+          getRowId={(row) => row._id} // Provide a function to generate unique IDs
+          filter={{
+            global: searchTerm,
+          }}
+          initialState={{
+            pinnedColumns: {
+              left: ['_id'],
+            },
+          }}
+        />
 
-          {/* <DataGrid
+        {/* <DataGrid
                 columns={columns}
                 rows={data}
                 filter={{
                   global: searchTerm,
                 }}
               /> */}
-        </Box>
-
+      </Box>
     </>
   );
 };

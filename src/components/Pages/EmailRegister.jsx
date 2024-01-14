@@ -137,21 +137,25 @@ const EmailRegister = () => {
   const createMongoUser = (token, name, role) => {
     console.log('inside');
     return async (dispatch) => {
-      await getMongoUserByEmail(auth.currentUser.email).then( async (res)=> {
-        console.log("get mongo user email reg ")
+      await getMongoUserByEmail(auth.currentUser.email).then(async (res) => {
+        console.log('get mongo user email reg ');
         console.log(JSON.stringify(res.data.existingUser));
-        if(res.data.message==="User not found"){
+        // con;
+        if (res.data.message === 'User not found') {
           try {
-            const response = await fetch('http://localhost:3000/api/auth/create-mongo-user', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-              },
-              body: JSON.stringify({ name , role}),
-            });
+            const response = await fetch(
+              'http://localhost:3000/api/auth/create-mongo-user',
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ name, role }),
+              }
+            );
             console.log(response);
-            console.log("Create Mongo User Response");
+            console.log('Create Mongo User Response');
             if (!response.ok) {
               console.log('Failed to create user');
               throw new Error('Failed to create user');
@@ -164,26 +168,24 @@ const EmailRegister = () => {
           } catch (error) {
             console.log(error.message);
           }
-        }else{
-          console.log("user already created");  
+        } else {
+          console.log('user already created');
         }
       });
     };
   };
 
   const checkAndSetMonogosUser = async () => {
-      try {
-        await getMongoUserByEmail(auth.currentUser.email).then((res)=> {
-          console.log(res.data.existingUser);
-          const user = res.data.existingUser;
-          dispatch(setMongoUser(user));
-        })
-      } catch (error) {
-        console.error(error.message);
-      }
+    try {
+      await getMongoUserByEmail(auth.currentUser.email).then((res) => {
+        console.log(res.data.existingUser);
+        const user = res.data.existingUser;
+        dispatch(setMongoUser(user));
+      });
+    } catch (error) {
+      console.error(error.message);
     }
-
-
+  };
 
   const checkEmailVerification = async () => {
     try {
@@ -194,12 +196,12 @@ const EmailRegister = () => {
       await user.reload();
       // Check if the email is verified
       if (user.emailVerified) {
-        console.log("hogaya");
-        console.log(user.accessToken + "    " + user.displayName);
-      dispatch(createMongoUser(user.accessToken, user.displayName, "admin"));
-      console.log("shivanshu");
-      // checkAndSetMonogosUser(user.accessToken);
-        navigate("/verify");
+        console.log('hogaya');
+        console.log(user.accessToken + '    ' + user.displayName);
+        dispatch(createMongoUser(user.accessToken, user.displayName, 'admin'));
+        console.log('shivanshu');
+        // checkAndSetMonogosUser(user.accessToken);
+        navigate('/verify');
       }
     } catch (error) {
       console.error('Error checking email verification:', error.message);
@@ -208,8 +210,8 @@ const EmailRegister = () => {
   useEffect(() => {
     console.log('EmailRegister component mounted');
     // Check if user is coming without phone verification
-    if(AuthUser === null){
-      navigate("/register");
+    if (AuthUser === null) {
+      navigate('/register');
     }
     if (
       auth.currentUser.email !== null &&
