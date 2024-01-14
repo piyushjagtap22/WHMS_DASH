@@ -28,7 +28,7 @@ ChartJS.register(
   Legend
 );
 
-const Graph = () => {
+const Graph = (props) => {
   const theme = useTheme();
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
 
@@ -50,7 +50,7 @@ const Graph = () => {
           color: theme.palette.primary[600],
         },
         ticks: {
-            maxTicksLimit: 3,
+            maxTicksLimit: 5,
           callback: (value) => {
             if (value === 0) return value;
             return value + "M";
@@ -71,8 +71,8 @@ const Graph = () => {
     labels,
     datasets: [
       {
-        label: "React",
-        data: [0, 10, 20, 30, 20, 15, 10],
+        label: "HeartRate",
+        data: props.data,
         backgroundColor: "green",
         borderColor: "green",
       },
