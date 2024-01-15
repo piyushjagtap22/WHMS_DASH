@@ -214,22 +214,22 @@ const Dashboard = () => {
           : params.row.heartSensor?.value || '';
       },
     },
-    // {
-    //   field: 'timeStamp',
-    //   headerName: 'Time Stamp',
-    //   flex: 0.4,
-    //   valueGetter: (params) => {
-    //     // Get the real-time value from the state based on _id
-    //     const realTimeValue = realTimeData.find(
-    //       (item) => item._id === params.row._id
-    //     );
+    {
+      field: 'timeStamp',
+      headerName: 'Time Stamp',
+      flex: 0.4,
+      valueGetter: (params) => {
+        // Get the real-time value from the state based on _id
+        const realTimeValue = realTimeData.find(
+          (item) => item._id === params.row._id
+        );
 
-    //     // Display the real-time value if available, else display the default value
-    //     return realTimeValue
-    //       ? realTimeValue.timeStamp
-    //       : params.row.heartSensor.timeStamp;
-    //   },
-    // },
+        // Display the real-time value if available, else display the default value
+        return realTimeValue
+          ? realTimeValue.timeStamp
+          : params.row.heartSensor.timeStamp;
+      },
+    },
     {
       field: 'email',
       headerName: 'email',

@@ -43,6 +43,9 @@ const Graph = (props) => {
         grid: {
           display: false,
         },
+      //   ticks: {
+      //     maxTicksLimit: 10,
+      // },
         
       },
       y: {
@@ -50,7 +53,7 @@ const Graph = (props) => {
           color: theme.palette.primary[600],
         },
         ticks: {
-            maxTicksLimit: 5,
+            maxTicksLimit: 7,
           callback: (value) => {
             if (value === 0) return value;
             return value + "M";
@@ -66,12 +69,12 @@ const Graph = (props) => {
     },
   };
 
-  const labels = ["jan", "feb", "Mar", "Apr", "May", "Jun", "jul"];
+  const labels = props.timestamp;
   const data2 = {
     labels,
     datasets: [
       {
-        label: "HeartRate",
+        label: props.name,
         data: props.data,
         backgroundColor: "green",
         borderColor: "green",
@@ -106,7 +109,7 @@ const Graph = (props) => {
                 alignItems: "center",
               }}
             >
-              Heart Rate
+              {props.name}
             </span>
             
             <span
