@@ -101,8 +101,8 @@ const Tabsnavigation = ({
                           <TabContext value={value}>
                             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                               <TabList onChange={handleChange} aria-label="lab API tabs example" sx={{ padding: '5px !important' }}>
-                                <Tab label="Item One" value="1" />
-                                <Tab label="Item Two" value="2" />
+                                <Tab label="User Profile" value="1" />
+                                <Tab label="History" value="2" />
                                 
                               </TabList>
                             </Box>
