@@ -53,21 +53,31 @@ const AuthValidations = () => {
     if (AuthUser === null) {
       console.log('Not Auth User');
       navigate('/register');
-    } else if (AuthUser !== null && AuthUser.email !== null && AuthUser.emailVerified === false) {
+    } else if (
+      AuthUser !== null &&
+      AuthUser.email !== null &&
+      AuthUser.emailVerified === false
+    ) {
       console.log('Email REGISTER AND verified loop');
       console.log(AuthUser.email);
       navigate('/emailregister');
-    } else if (AuthUser !== null && AuthUser.email !== null && AuthUser.emailVerified === true) {
+    } else if (
+      AuthUser !== null &&
+      AuthUser.email !== null &&
+      AuthUser.emailVerified === true
+    ) {
       console.log(AuthUser.stsTokenManager.accessToken);
       if (!initializeMongoUserCalled.current) {
         (async () => {
-          await store.dispatch(initializeMongoUser(AuthUser.stsTokenManager.accessToken));
+          await store.dispatch(
+            initializeMongoUser(AuthUser.stsTokenManager.accessToken)
+          );
           initializeMongoUserCalled.current = true; // Set the ref to true after calling initializeMongoUser
         })();
       }
 
       // Assuming MongoUser is set after initializing with initializeMongoUser
-      console.log(MongoUser)
+      // console.log(MongoUser);
       // if (MongoUser && MongoUser.doc_uploaded === true && MongoUser.doc_verified === true) {
       //   console.log("Dashboard jao")
       //   navigate('/dashboard');
@@ -75,12 +85,18 @@ const AuthValidations = () => {
       //   console.log("verify jao")
       //   navigate('/verify');
       // }
-
-      if (MongoUser && MongoUser.doc_uploaded === true && MongoUser.doc_verified === true) {
-        console.log("Dashboard jao")
+      else if (MongoUser && MongoUser.roles[0] === 'superadmins') {
+        console.log('superadmin jao');
+        navigate('/superadmin');
+      } else if (
+        MongoUser &&
+        MongoUser.doc_uploaded === true &&
+        MongoUser.doc_verified === true
+      ) {
+        console.log('Dashboard jao');
         navigate('/dashboard');
       } else {
-        console.log("verify jao")
+        console.log('verify jao');
         navigate('/verify');
       }
     }

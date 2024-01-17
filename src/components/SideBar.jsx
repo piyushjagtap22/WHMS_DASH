@@ -43,7 +43,7 @@ const navItems = [
     icon: <ShoppingCartOutlined />,
   },
   {
-    text: 'Alerts & Notifications',
+    text: 'superadmin',
     icon: <Groups2Outlined />,
   },
   {

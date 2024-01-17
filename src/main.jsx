@@ -37,13 +37,12 @@ import DocumentVerificationScreen from './components/Pages/DocumentVerificationS
 import { initializeAuthUser } from './slices/authSlice';
 
 import Tabsnavigation from './components/Pages/Tabsnavigation.tsx';
-import UniqueLayout from './components/Pages/uniqueLayout.jsx';
-
+// import UniqueLayout from './components/Pages/uniqueLayout.jsx';
+import UniqueLayout from './components/Pages/UniqueLayout.jsx';
 const theme = createTheme(themeSettings('dark'));
 //
-//Firebase auth Initilialization 
+//Firebase auth Initilialization
 store.dispatch(initializeAuthUser());
-
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -51,7 +50,6 @@ const router = createBrowserRouter(
       <Route path='/unique' element={<UniqueLayout />} />
       <Route path='/tabbar' element={<Tabsnavigation />} />
       <Route path='' element={<AuthValidations />}>
- 
         <Route path='/login' element={<LoginScreen />} />
         <Route path='/register' element={<Register />} />
         <Route path='/emailregister' element={<EmailRegister />} />

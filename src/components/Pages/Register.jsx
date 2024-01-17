@@ -43,7 +43,7 @@ const Register = () => {
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
-  const [termsChecked, setTermsChecked] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(true);
   const [errors, setErrors] = useState({});
   const formatPhone = '+' + phoneNumber;
   const navigate = useNavigate();

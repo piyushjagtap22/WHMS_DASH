@@ -6,7 +6,7 @@ import {
   Box,
   Button,
   Typography,
-  useTheme, 
+  useTheme,
   useMediaQuery,
   CardMedia,
 } from "@mui/material";
@@ -23,50 +23,70 @@ const DefaultPage = () => {
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
   const dispatch = useDispatch();
   const [heartRateData, setHeartRateData] = useState([]);
+  const [heartRateTimeStamp, setheartRateTimeStamp] = useState([]);
+  const [xSensorData, setxSensorData] = useState([]);
+  const [xSensorTimeStamp, setxSensorTimeStamp] = useState([]);
+  const [ySensorData, setySensorData] = useState([]);
+  const [ySensorTimeStamp, setySensorTimeStamp] = useState([]);
   const MonogoUser = useSelector((state) => state.auth.MongoUser);
   const [socketConnected, setSocketConnected] = useState(false);
 
-  const fetchHeartRateData = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/api/sensor/getheartrate/qL0scom2VvbsoId8uLYSNIEWxnU2');
-      
-      if (!response.ok) {
-        // Handle non-OK responses here if needed
-        console.error('Failed to fetch data');
-        return;
-      }
+  // const fetchHeartRateData = async () => {
+  //   try {
+  //     const response = await fetch('http://localhost:3000/api/sensor/getheartrate/qL0scom2VvbsoId8uLYSNIEWxnU2');
 
-      const data = await response.json();
+  //     if (!response.ok) {
+  //       // Handle non-OK responses here if needed
+  //       console.error('Failed to fetch data');
+  //       return;
+  //     }
 
-      // Log the received data for debugging
-      console.log('Received data:', data);
+  //     const data = await response.json();
 
-      // Ensure that the data is an object with a heartrate array
-      // if (data && Array.isArray(data.heartrate)) {
-      //   // Extracting only the "value" field from each object in the array
-      //   const values = data.heartrate.map(item => item.value);
-      //   setHeartRateData(values);
-      // } else {
-      //   console.error('Invalid data format from the API');
-      // }
-    } catch (error) {
-      console.error('Error fetching data', error);
-    }
-  };
+  //     // Log the received data for debugging
+  //     console.log('Received data:', data);
 
+  //     // Ensure that the data is an object with a heartrate array
+  //     // if (data && Array.isArray(data.heartrate)) {
+  //     //   // Extracting only the "value" field from each object in the array
+  //     //   const values = data.heartrate.map(item => item.value);
+  //     //   setHeartRateData(values);
+  //     // } else {
+  //     //   console.error('Invalid data format from the API');
+  //     // }
+  //   } catch (error) {
+  //     console.error('Error fetching data', error);
+  //   }
+  // };
 
   useEffect(() => {
     const id = "8snb36T61DWQRd4PtSzvRphDeiT2";
     socket = io(ENDPOINT);
-    socket.emit("setup",id);
+    socket.emit("setup", id);
     socket.on("initialData", (data) => {
       console.log("Initial data received:", data);
-      if (data && Array.isArray(data.message)) {
+      if (data && Array.isArray(data.message.heartSensor)) {
         // Extracting only the "value" field from each object in the array
-        const values = data.message.map(item => item.value);
-        setHeartRateData(values);
+        const heartsensor = data.message.heartSensor.map((item) => item.value);
+        const timestamp = data.message.heartSensor.map((item) =>
+          item.timestamp.slice(11, 19)
+        );
+        const xSensor = data.message.xSensor.map((item) => item.value);
+        const xtimestamp = data.message.xSensor.map((item) =>
+          item.timestamp.slice(11, 19)
+        );
+        const ySensor = data.message.ySensor.map((item) => item.value);
+        const ytimestamp = data.message.ySensor.map((item) =>
+          item.timestamp.slice(11, 19)
+        );
+        setHeartRateData(heartsensor);
+        setheartRateTimeStamp(timestamp);
+        setxSensorData(xSensor);
+        setxSensorTimeStamp(xtimestamp);
+        setySensorData(ySensor);
+        setySensorTimeStamp(ytimestamp);
       } else {
-        console.error('Invalid data format from the API');
+        console.error("Invalid data format from the API");
       }
     });
 
@@ -74,21 +94,36 @@ const DefaultPage = () => {
       console.log("Real-time data change detected:", data.data.heartSensor);
       if (data && Array.isArray(data.data.heartSensor)) {
         // Extracting only the "value" field from each object in the array
-        const values = data.data.heartSensor.map(item => item.value);
-        setHeartRateData(values);
+        const heartsensor = data.data.heartSensor.map((item) => item.value);
+        const timestamp = data.data.heartSensor.map((item) =>
+          item.timestamp.slice(11, 19)
+        );
+        const xSensor = data.data.xSensor.map((item) => item.value);
+        const xtimestamp = data.data.xSensor.map((item) =>
+          item.timestamp.slice(11, 19)
+        );
+        const ySensor = data.data.ySensor.map((item) => item.value);
+        const ytimestamp = data.data.ySensor.map((item) =>
+          item.timestamp.slice(11, 19)
+        );
+        setHeartRateData(heartsensor);
+        setheartRateTimeStamp(timestamp);
+        setxSensorData(xSensor);
+        setxSensorTimeStamp(xtimestamp);
+        setySensorData(ySensor);
+        setySensorTimeStamp(ytimestamp);
       } else {
-        console.error('Invalid data format from the API');
+        console.error("Invalid data format from the API");
       }
       // Update state with the new data
     });
     // Function to fetch heart rate data from the API
-    
+
     // Call the fetch function
-    fetchHeartRateData();
   }, []); // Empty dependency array ensures the effect runs once when the component mounts
 
   // Log the state for debugging
-  console.log('heartRateData state:', heartRateData);
+  console.log("heartRateData state:", heartRateData);
 
   return (
     <Box m="1.5rem 2.5rem">
@@ -108,41 +143,50 @@ const DefaultPage = () => {
         }}
       >
         {/* ROW 1 */}
-        <Graph data={heartRateData}/>
+        <Graph
+          name={"HeartRate"}
+          data={heartRateData}
+          timestamp={heartRateTimeStamp}
+        />
 
         {/* ROW 2 */}
-        
-        <Graph data={heartRateData}/>
 
-      {/* ROW 3 */}
-      <Graph data={heartRateData}/>
-        
-      <Graph data={heartRateData}/>
+        <Graph
+          name={"XSensor"}
+          data={xSensorData}
+          timestamp={xSensorTimeStamp}
+        />
+
+        {/* ROW 3 */}
+        <Graph
+          name={"YSensor"}
+          data={ySensorData}
+          timestamp={ySensorTimeStamp}
+        />
+
+        {/* <Graph data={heartRateData}/> */}
         {/* ROW 4 */}
         {isNonMediumScreens && (
           <Box
-          component="img"
-          alt="body_male"
-          src={Body_Male}
-          gridColumn="span 1"
-          gridRow="span 2"
-          position="fixed"
-          top="5rem"
-          right={2}
-          height="90vh"
-          width="38%"
-          zIndex={1}
-        />
+            component="img"
+            alt="body_male"
+            src={Body_Male}
+            gridColumn="span 1"
+            gridRow="span 2"
+            position="fixed"
+            top="5rem"
+            right={2}
+            height="90vh"
+            width="38%"
+            zIndex={1}
+          />
         )}
       </Box>
-      <div>
-      {/* Render your component using heartRateData */}
-      {heartRateData.map((item, index) => (
-        <div key={index}>
-          Heart Rate: {item}
-        </div>
-      ))}
-    </div>
+      {/* <div>
+        {heartRateData.map((item, index) => (
+          <div key={index}>Heart Rate: {item}</div>
+        ))}
+      </div> */}
     </Box>
   );
 };

@@ -10,17 +10,19 @@ import store from '../../store';
 const DocumentVerificationScreen = () => {
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
-  const token = useSelector((state) => state.auth.AuthUser?.stsTokenManager?.accessToken);
-  const authUser = useSelector((state) => state.auth.AuthUser); 
+  const token = useSelector(
+    (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
+  );
+  const authUser = useSelector((state) => state.auth.AuthUser);
   const mongoUser = useSelector((state) => state.auth.MongoUser);
   const [docUploadedSuccess, setDocUploadedSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("shiv");
+    console.log('shiv');
     console.log(mongoUser);
-    if(mongoUser?.doc_uploaded === true){
+    if (mongoUser?.doc_uploaded === true) {
       setDocUploadedSuccess(true);
     }
     if (token) {
@@ -34,8 +36,8 @@ const DocumentVerificationScreen = () => {
 
   const handleUpload = async () => {
     try {
-      console.log(token)
-      console.log(authUser)
+      console.log(token);
+      console.log(authUser);
       const formData = new FormData();
       formData.append('file', file);
 
@@ -51,7 +53,7 @@ const DocumentVerificationScreen = () => {
       );
 
       console.log(response.data.message);
-      if (response.data.message === "File uploaded successfully") {
+      if (response.data.message === 'File uploaded successfully') {
         setDocUploadedSuccess(true);
       }
     } catch (error) {
@@ -84,124 +86,134 @@ const DocumentVerificationScreen = () => {
       >
         <Toaster toastOptions={{ duration: 4000 }} />
 
-        {docUploadedSuccess ? (<><Typography
-          variant="h3"
-          fontWeight="bold"
-          style={{ color: "#7CD6AB" }}
-          marginBottom="20px"
-        >
-          Document Uploaded Succesfully ! 
-        </Typography>
-        <Typography variant="subtitle2" style={{ margin: "15px 0", padding: "0px 0px" }}>
-            Verification in Progress ..... Wait till admin verifies your doc 
-          </Typography></>) : (<><Typography
-          variant="h3"
-          fontWeight="bold"
-          style={{ color: "#7CD6AB" }}
-          marginBottom="20px"
-        >
-          Complete your profile Jehereeli
-        </Typography>
-        
-
-        <form style={{ width: '70%', margin: 'auto', textAlign: 'left' }}>
-          <TextField
-            label='Organization*'
-            variant='outlined'
-            fullWidth
-            style={{ margin: '15px 0' }}
-            InputLabelProps={{ style: { color: 'grey' } }}
-            value={''}
-          />
-
-          <TextField
-            label='Department'
-            variant='outlined'
-            fullWidth
-            style={{ margin: '15px 0' }}
-            InputLabelProps={{ style: { color: 'grey' } }}
-          />
-
-          <Typography
-            variant='subtitle2'
-            style={{ margin: '15px 0', padding: '0px 0px' }}
-          >
-            Upload government ID proof
-          </Typography>
-
-          <div
-            style={{
-              border: '1px solid grey',
-              borderRadius: '5px',
-              padding: '20px',
-              marginBottom: '15px',
-            }}
-          >
-            <div
-              style={{
-                border: '2px dashed grey',
-                borderRadius: '5px',
-                padding: '40px 20px',
-                textAlign: 'center',
-                marginBottom: '25px',
-                cursor: 'pointer',
-              }}
-            >
-              <CloudUploadIcon style={{ fontSize: '3rem', color: '#7CD6AB' }} />
-              <Typography variant='body2' style={{ color: 'grey' }}>
-                Click or drag file to this area to upload
-              </Typography>
-              <input
-                type='file'
-                accept='.jpg, .jpeg, .png, .pdf'
-                style={{ display: '' }}
-                onChange={handleFileChange}
-              />
-            </div>
+        {docUploadedSuccess ? (
+          <>
             <Typography
-              variant='body2'
-              style={{ color: 'grey', marginBottom: '40px' }}
+              variant='h3'
+              fontWeight='bold'
+              style={{ color: '#7CD6AB' }}
+              marginBottom='20px'
             >
-              Formats accepted are jpg, jpeg, png, and PDF
+              Document Uploaded Succesfully !
             </Typography>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button
+            <Typography
+              variant='subtitle2'
+              style={{ margin: '15px 0', padding: '0px 0px' }}
+            >
+              Verification in Progress ..... Wait till admin verifies your doc
+            </Typography>
+          </>
+        ) : (
+          <>
+            <Typography
+              variant='h3'
+              fontWeight='bold'
+              style={{ color: '#7CD6AB' }}
+              marginBottom='20px'
+            >
+              Complete your profile Jehereeli
+            </Typography>
+
+            <div style={{ width: '70%', margin: 'auto', textAlign: 'left' }}>
+              <TextField
+                label='Organization*'
                 variant='outlined'
+                fullWidth
+                style={{ margin: '15px 0' }}
+                InputLabelProps={{ style: { color: 'grey' } }}
+                value={''}
+              />
+
+              <TextField
+                label='Department'
+                variant='outlined'
+                fullWidth
+                style={{ margin: '15px 0' }}
+                InputLabelProps={{ style: { color: 'grey' } }}
+              />
+
+              <Typography
+                variant='subtitle2'
+                style={{ margin: '15px 0', padding: '0px 0px' }}
+              >
+                Upload government ID proof
+              </Typography>
+
+              <div
                 style={{
-                  color: '#7CD6AB',
-                  borderColor: '#7CD6AB',
-                  margin: '0 10px',
+                  border: '1px solid grey',
+                  borderRadius: '5px',
+                  padding: '20px',
+                  marginBottom: '15px',
                 }}
               >
-                Cancel
-              </Button>
+                <div
+                  style={{
+                    border: '2px dashed grey',
+                    borderRadius: '5px',
+                    padding: '40px 20px',
+                    textAlign: 'center',
+                    marginBottom: '25px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <CloudUploadIcon
+                    style={{ fontSize: '3rem', color: '#7CD6AB' }}
+                  />
+                  <Typography variant='body2' style={{ color: 'grey' }}>
+                    Click or drag file to this area to upload
+                  </Typography>
+                  <input
+                    type='file'
+                    accept='.jpg, .jpeg, .png, .pdf'
+                    style={{ display: '' }}
+                    onChange={handleFileChange}
+                  />
+                </div>
+                <Typography
+                  variant='body2'
+                  style={{ color: 'grey', marginBottom: '40px' }}
+                >
+                  Formats accepted are jpg, jpeg, png, and PDF
+                </Typography>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button
+                    variant='outlined'
+                    style={{
+                      color: '#7CD6AB',
+                      borderColor: '#7CD6AB',
+                      margin: '0 10px',
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    style={{
+                      backgroundColor: '#7CD6AB',
+                      color: '#121318',
+                      margin: '0',
+                    }}
+                    onClick={handleUpload}
+                  >
+                    Upload
+                  </Button>
+                </div>
+              </div>
               <Button
+                type='submit'
                 style={{
                   backgroundColor: '#7CD6AB',
                   color: '#121318',
-                  margin: '0',
-                }}
-                onClick={handleUpload}
-              >
-                Upload
-              </Button>
-            </div>
-          </div>
-          <Button
-                type="submit"
-                style={{
-                  backgroundColor: "#7CD6AB",
-                  color: "#121318",
-                  margin: "20px 0",
-                  padding: "0.8rem",
+                  margin: '20px 0',
+                  padding: '0.8rem',
                 }}
                 fullWidth
-               
               >
                 Submit
               </Button>
-        </form></>)}
-        
+            </div>
+          </>
+        )}
       </Container>
     </>
   );
