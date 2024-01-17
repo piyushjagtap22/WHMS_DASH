@@ -55,6 +55,9 @@ const router = createBrowserRouter(
         <Route path='/emailregister' element={<EmailRegister />} />
         <Route path='/verify' element={<DocumentVerificationScreen />} />
         <Route path='' element={<PrivateRoute />}>
+        <Route path='' element={<UniqueLayout />}>
+          <Route path='/Default' element={<DefaultPage />} />
+        </Route>
           <Route path='' element={<Layout />}>
             <Route path='/profile' element={<ProfileScreen />} />
             <Route path='/home' element={<HomeScreen />} />

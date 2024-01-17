@@ -28,6 +28,14 @@ ChartJS.register(
   Legend
 );
 
+function calculateAverage(lastValues) {
+  var sum = lastValues.reduce(function (acc, value) {
+    return acc + value;
+  }, 0);
+
+  return sum / lastValues.length;
+}
+
 const Graph = (props) => {
   const theme = useTheme();
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
@@ -74,14 +82,15 @@ const Graph = (props) => {
     labels,
     datasets: [
       {
-        label: "HeartRate",
+        label: props.name,
         data: props.data,
-        backgroundColor: "green",
-        borderColor: "green",
+        backgroundColor: calculateAverage(props.data.slice(-10)) > props.max ? "red" : "green",
+        borderColor:  calculateAverage(props.data.slice(-10)) > props.max ? "red" : "green",
       },
     ],
   };
 
+  // console.log("average", calculateAverage(props.data.slice(-10)));
   return (
     <Box
       gridColumn="span 7"

@@ -85,7 +85,7 @@ const AuthValidations = () => {
       //   console.log("verify jao")
       //   navigate('/verify');
       // }
-      else if (MongoUser && MongoUser.roles[0] === 'superadmins') {
+      else if (MongoUser && MongoUser.roles[0] === 'superadmin') {
         console.log('superadmin jao');
         navigate('/superadmin');
       } else if (

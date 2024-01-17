@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import FlexBetween from "../FlexBetween";
 import Header from "../Header";
-import { DownloadOutlined } from "@mui/icons-material";
+import { DownloadOutlined  } from "@mui/icons-material";
+import { useLocation } from 'react-router-dom';
+import IconButton from '@mui/material/IconButton';
+import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+
 import {
   Box,
   Button,
@@ -15,11 +20,14 @@ import Graph from "../Graph";
 import { getHeartRateData, getMongoUserByEmail } from "../../slices/usersApiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import io from "socket.io-client";
+import { Unstable_Popup as BasePopup } from '@mui/base/Unstable_Popup';
+import { styled } from '@mui/system';
 
 const ENDPOINT = "http://localhost:3000";
 var socket;
 const DefaultPage = () => {
   const theme = useTheme();
+  const {state: adminData} = useLocation();
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
   const dispatch = useDispatch();
   const [heartRateData, setHeartRateData] = useState([]);
@@ -30,6 +38,19 @@ const DefaultPage = () => {
   const [ySensorTimeStamp, setySensorTimeStamp] = useState([]);
   const MonogoUser = useSelector((state) => state.auth.MongoUser);
   const [socketConnected, setSocketConnected] = useState(false);
+  const [anchor, setAnchor] = React.useState(null);
+
+  const LightTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: "white",
+      color: 'black',
+      fontSize: 15,
+    },
+  }));
+
+ 
 
   // const fetchHeartRateData = async () => {
   //   try {
@@ -60,6 +81,7 @@ const DefaultPage = () => {
   // };
 
   useEffect(() => {
+    console.log("harsh admin data",adminData)
     const id = "8snb36T61DWQRd4PtSzvRphDeiT2";
     socket = io(ENDPOINT);
     socket.emit("setup", id);
@@ -91,7 +113,7 @@ const DefaultPage = () => {
     });
 
     socket.on("dataChange", (data) => {
-      console.log("Real-time data change detected:", data.data.heartSensor);
+      // console.log("Real-time data change detected:", data.data);
       if (data && Array.isArray(data.data.heartSensor)) {
         // Extracting only the "value" field from each object in the array
         const heartsensor = data.data.heartSensor.map((item) => item.value);
@@ -123,9 +145,10 @@ const DefaultPage = () => {
   }, []); // Empty dependency array ensures the effect runs once when the component mounts
 
   // Log the state for debugging
-  console.log("heartRateData state:", heartRateData);
+  // console.log("heartRateData state:", heartRateData);
 
   return (
+    <>
     <Box m="1.5rem 2.5rem">
       <FlexBetween>
         <Header subtitle="Today" />
@@ -147,6 +170,7 @@ const DefaultPage = () => {
           name={"HeartRate"}
           data={heartRateData}
           timestamp={heartRateTimeStamp}
+          max = {200}
         />
 
         {/* ROW 2 */}
@@ -155,6 +179,7 @@ const DefaultPage = () => {
           name={"XSensor"}
           data={xSensorData}
           timestamp={xSensorTimeStamp}
+          max = {200}
         />
 
         {/* ROW 3 */}
@@ -162,32 +187,54 @@ const DefaultPage = () => {
           name={"YSensor"}
           data={ySensorData}
           timestamp={ySensorTimeStamp}
+          max = {400}
         />
+       
 
         {/* <Graph data={heartRateData}/> */}
         {/* ROW 4 */}
         {isNonMediumScreens && (
-          <Box
-            component="img"
-            alt="body_male"
-            src={Body_Male}
-            gridColumn="span 1"
-            gridRow="span 2"
-            position="fixed"
-            top="5rem"
-            right={2}
-            height="90vh"
-            width="38%"
-            zIndex={1}
-          />
+           <Box position="relative">
+           <img
+             alt="body_male"
+             src={Body_Male}
+             style={{
+               gridColumn: 'span 1',
+               gridRow: 'span 2',
+               position: 'fixed',
+               top: '5rem',
+               right: 2,
+               height: '90vh',
+               width: '38%',
+               zIndex: 2,
+             }}
+           />
+           <LightTooltip
+             title={`Heart rate : ${heartRateData[39]}`}
+             arrow
+             placement="right-end"
+             style={{
+              fontSize: "15",
+               position: 'fixed',
+               top: '13rem',
+               right: 240,
+               zIndex: 3,
+             }}
+           >
+             <IconButton>
+               <FavoriteRoundedIcon />
+             </IconButton>
+           </LightTooltip>
+         </Box>
         )}
       </Box>
-      {/* <div>
-        {heartRateData.map((item, index) => (
-          <div key={index}>Heart Rate: {item}</div>
-        ))}
-      </div> */}
     </Box>
+    <Tooltip title ={`Heart rate : ${heartRateData[39]}`} arrow placement="right-end">
+      <IconButton>
+        <FavoriteRoundedIcon />
+      </IconButton>
+    </Tooltip>
+    </>
   );
 };
 
