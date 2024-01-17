@@ -39,6 +39,7 @@ ChartJS.register(
 
 const app = new Realm.App({ id: 'sensor_realtimedb-ujgdc' });
 import { Toast } from "react-bootstrap";
+import { useDispatch, useSelector } from 'react-redux';
 
 const Dashboard = () => {
   const [data, setUsers] = useState([]);
