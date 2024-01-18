@@ -90,7 +90,7 @@ const Graph = (props) => {
     ],
   };
 
-  // console.log("average", calculateAverage(props.data.slice(-10)));
+  console.log("average", calculateAverage(props.data.slice(-10)));
   return (
     <Box
       gridColumn="span 7"

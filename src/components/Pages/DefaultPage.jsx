@@ -6,7 +6,6 @@ import { useLocation } from 'react-router-dom';
 import IconButton from '@mui/material/IconButton';
 import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
-
 import {
   Box,
   Button,
@@ -39,7 +38,6 @@ const DefaultPage = () => {
   const MonogoUser = useSelector((state) => state.auth.MongoUser);
   const [socketConnected, setSocketConnected] = useState(false);
   const [anchor, setAnchor] = React.useState(null);
-
   const LightTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
@@ -49,36 +47,6 @@ const DefaultPage = () => {
       fontSize: 15,
     },
   }));
-
- 
-
-  // const fetchHeartRateData = async () => {
-  //   try {
-  //     const response = await fetch('http://localhost:3000/api/sensor/getheartrate/qL0scom2VvbsoId8uLYSNIEWxnU2');
-
-  //     if (!response.ok) {
-  //       // Handle non-OK responses here if needed
-  //       console.error('Failed to fetch data');
-  //       return;
-  //     }
-
-  //     const data = await response.json();
-
-  //     // Log the received data for debugging
-  //     console.log('Received data:', data);
-
-  //     // Ensure that the data is an object with a heartrate array
-  //     // if (data && Array.isArray(data.heartrate)) {
-  //     //   // Extracting only the "value" field from each object in the array
-  //     //   const values = data.heartrate.map(item => item.value);
-  //     //   setHeartRateData(values);
-  //     // } else {
-  //     //   console.error('Invalid data format from the API');
-  //     // }
-  //   } catch (error) {
-  //     console.error('Error fetching data', error);
-  //   }
-  // };
 
   useEffect(() => {
     console.log("harsh admin data",adminData)
@@ -139,13 +107,8 @@ const DefaultPage = () => {
       }
       // Update state with the new data
     });
-    // Function to fetch heart rate data from the API
+  }, []); 
 
-    // Call the fetch function
-  }, []); // Empty dependency array ensures the effect runs once when the component mounts
-
-  // Log the state for debugging
-  // console.log("heartRateData state:", heartRateData);
 
   return (
     <>
@@ -179,7 +142,7 @@ const DefaultPage = () => {
           name={"XSensor"}
           data={xSensorData}
           timestamp={xSensorTimeStamp}
-          max = {200}
+          max = {180}
         />
 
         {/* ROW 3 */}
@@ -187,7 +150,7 @@ const DefaultPage = () => {
           name={"YSensor"}
           data={ySensorData}
           timestamp={ySensorTimeStamp}
-          max = {400}
+          max = {300}
         />
        
 
@@ -209,7 +172,7 @@ const DefaultPage = () => {
                zIndex: 2,
              }}
            />
-           <LightTooltip
+           <Tooltip
              title={`Heart rate : ${heartRateData[39]}`}
              arrow
              placement="right-end"
@@ -224,16 +187,11 @@ const DefaultPage = () => {
              <IconButton>
                <FavoriteRoundedIcon />
              </IconButton>
-           </LightTooltip>
+           </Tooltip>
          </Box>
         )}
       </Box>
     </Box>
-    <Tooltip title ={`Heart rate : ${heartRateData[39]}`} arrow placement="right-end">
-      <IconButton>
-        <FavoriteRoundedIcon />
-      </IconButton>
-    </Tooltip>
     </>
   );
 };
