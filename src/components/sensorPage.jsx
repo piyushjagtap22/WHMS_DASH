@@ -9,7 +9,15 @@ import { useDispatch, useSelector } from 'react-redux';
 
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 
+
+
+
 const SensorPage = () => {
+  
+
+
+
+
   const navigate = useNavigate();
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
@@ -25,33 +33,72 @@ const SensorPage = () => {
       data:data
     } }); // Pass the row data as a prop
   }
-   // Function to handle real-time updates
-  const handleRealTimeUpdate = (updatedObject) => {
-    setData((prevData) => {
-      const updatedData = prevData.map((obj) => {
-        console.log("Fata")
-        if (obj._id === updatedObject._id) {
-          // If the _id matches, update xSensor and ySensor values
-         
-          return {
-            ...obj,
-            xSensor: {
-              ...obj.xSensor,
-              value: updatedObject.xSensor.value,
-            },
-            ySensor: {
-              ...obj.ySensor,
-              value: updatedObject.ySensor.value,
-            },
-          };
-        }
-        return obj;
+     // Function to handle real-time updates
+     const handleRealTimeUpdate = (updatedObject) => {
+      setData((prevData) => {
+        const updatedData = prevData.map((obj) => {
+          console.log("Fata")
+          if (obj._id === updatedObject._id) {
+            // If the _id matches, update xSensor and ySensor values
+           
+            return {
+              ...obj,
+              xSensor: {
+                ...obj.xSensor,
+                value: updatedObject.xSensor.value,
+              },
+              ySensor: {
+                ...obj.ySensor,
+                value: updatedObject.ySensor.value,
+              },
+            };
+          }
+          return obj;
+        });
+  
+        return updatedData;
       });
+    };
+    
+    
 
-      return updatedData;
-    });
+  const [initialTable, setinitialTable] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
+  // const [user, setUser] = useState();
+
+  //Table Searching
+  const handleSearchChange = (eve) => {
+    setSearchTerm(eve.target.value);
+
+    console.log('THIS IS SEARCH', searchTerm);
+
+    if (searchTerm.length >= 2) {
+      console.log("search runinnh");
+      const filteredData = events.filter((row) => {
+        return (
+          row?.initialUserData?.name?.toUpperCase().includes(searchTerm.toUpperCase()) 
+        );
+      });
+      // const filteredData = row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) || row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
+      // setUsers(filteredData);
+      setEvents(filteredData)
+      console.log('filtered data', filteredData);
+    } else {
+      // Reset to original data when empty search term
+      // console.log('arijit da', initialTable);
+      setEvents(initialTable)
+    }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Backspace') {
+      console.log('keydown working');
+      setSearchTerm('');
+      // setUsers(initialTable);
+      setEvents(initialTable)
+    }
+  };
+    
 
   useEffect(() => {
     const login = async () => {
@@ -65,6 +112,7 @@ const SensorPage = () => {
           console.log("Chalao");
           console.log("Device id data response",response.data)
           setEvents(response.data.deviceDocuments);
+          setinitialTable(response.data.deviceDocuments)
           const bunnySet = new Set(response.data.devices.flat());
           const bunnyList = [...bunnySet];
           // Now, bunnyList contains unique values from the nested arrays
@@ -147,8 +195,17 @@ const SensorPage = () => {
   return (
     <div className='App'>
       {!!user && (
+
+        
         <div className='App-header'>
-          
+          <input
+          type='text'
+          value={searchTerm}
+          onChange={handleSearchChange}
+          onKeyDown={handleKeyDown}
+          placeholder='Search...'
+        />
+        {/* <p>{JSON.stringify(events)}</p> */}
           <div>
          
             <table>
