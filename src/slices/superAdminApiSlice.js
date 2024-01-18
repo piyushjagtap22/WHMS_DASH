@@ -39,6 +39,13 @@ export const createAdmin = (data, token) => {
 //     .catch(error => console.log('error', error));
 // }
 
+// export const getDeviceIds = (token) => {
+//     console.log("getDevice id chala");
+//     return axios.get(`admin/getDeviceIds`, {
+//         headers: { 'Authorization': `Bearer ${token}` }
+//     }); 
+// }
+
 
 export const addDeviceID = (data, token) => {
     console.log("slice running")

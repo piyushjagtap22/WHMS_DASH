@@ -15,6 +15,38 @@ export const AddUsersToAdmin = (data, token) => {
     });
 };
 
+
+// export const getUserById =(data,token) => {
+//     alert(data);
+
+//     var myHeaders = new Headers();
+//     myHeaders.append("Authorization", `Bearer ${token}`);
+//     myHeaders.append("Content-Type", "application/json");
+
+//     var raw = JSON.stringify({
+//     "deviceId": "deviceId1"
+//     });
+
+//     var requestOptions = {
+//     method: 'POST',
+//     headers: myHeaders,
+//     body: raw,
+//     redirect: 'follow'
+//     };
+
+//     fetch("http://localhost:3000/api/admin/getDeviceData", requestOptions)
+//     .then(response => response.text())
+//     .then(result => console.log(result))
+//     .catch(error => console.log('error', error));
+// }
+
+export const getDeviceIds = (token) => {
+    console.log("getDevice id chsla");
+    return axios.get(`${ADMIN_URL}/getDeviceIds`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    }); 
+}
+
 export const RemoveUsersFromAdmin = (data, token) => {
     // pass token as an argument to this function
     return axios.post(`${ADMIN_URL}/remove-users`, data, {
