@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import FlexBetween from "../FlexBetween";
 import Header from "../Header";
 import { DownloadOutlined } from "@mui/icons-material";
+import { useLocation } from 'react-router-dom';
+
 import {
   Box,
   Button,
@@ -15,11 +17,13 @@ import Graph from "../Graph";
 import { getMongoUserByEmail } from "../../slices/usersApiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import io from "socket.io-client";
+import UniqueLayout from "./UniqueLayout";
 
 const ENDPOINT = "http://localhost:3000";
 var socket;
 const DefaultPage = () => {
   const theme = useTheme();
+  const {state: userData} = useLocation();
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
   const dispatch = useDispatch();
   const [heartRateData, setHeartRateData] = useState([]);
@@ -60,6 +64,7 @@ const DefaultPage = () => {
   // };
 
   useEffect(() => {
+    console.log("harsh user data",userData)
     const id = "8snb36T61DWQRd4PtSzvRphDeiT2";
     socket = io(ENDPOINT);
     socket.emit("setup", id);
@@ -126,7 +131,10 @@ const DefaultPage = () => {
   console.log("heartRateData state:", heartRateData);
 
   return (
+    <>
+    <UniqueLayout data={userData} />
     <Box m="1.5rem 2.5rem">
+      
       <FlexBetween>
         <Header subtitle="Today" />
       </FlexBetween>
@@ -188,6 +196,7 @@ const DefaultPage = () => {
         ))}
       </div> */}
     </Box>
+    </>
   );
 };
 

@@ -18,6 +18,8 @@ const adminSlice = createSlice({
     },
 });
 
+
+
 export const { setAdminInfo } = adminSlice.actions;
 
 export default adminSlice.reducer;

@@ -40,6 +40,7 @@ ChartJS.register(
 const app = new Realm.App({ id: 'sensor_realtimedb-ujgdc' });
 import { useDispatch, useSelector } from 'react-redux';
 import { Toast } from 'react-bootstrap';
+import SensorPage from '../sensorPage';
 
 const Dashboard = () => {
   const [data, setUsers] = useState([]);
@@ -280,7 +281,7 @@ const Dashboard = () => {
         </Box> */}
         </FlexBetween>
 
-        <Box
+        {/* <Box
           mt='20px'
           display='grid'
           gridTemplateColumns='repeat(12, 1fr)'
@@ -295,7 +296,7 @@ const Dashboard = () => {
           {/* ROW 1 */}
 
           {/* ROW 2 */}
-          <Box
+          {/* <Box
             gridColumn='span 12'
             gridRow='span 4'
             sx={{
@@ -329,8 +330,8 @@ const Dashboard = () => {
               columns={columns}
               getRowId={(row) => row._id}
             />
-          </Box>
-        </Box>
+          </Box> */}
+        {/* </Box> */} 
         {/* <LineChart width={600} height={300} data={data1}>
       <Line type="monotone" dataKey="react" stroke="#2196F3" strokeWidth={4} />
 
@@ -370,6 +371,7 @@ const Dashboard = () => {
                   global: searchTerm,
                 }}
               /> */}
+              <SensorPage />
       </Box>
     </>
   );

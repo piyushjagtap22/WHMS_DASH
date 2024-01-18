@@ -62,7 +62,13 @@ const Tabsnavigation = ({
 
 
   useEffect(() => {
-    setActive(pathname.substring(1));
+    console.log("Hiii from tabsNavigation",user)
+    if(user){
+      setActive(pathname.substring(1));
+    }else{
+      navigate(`/dashboard`); 
+    }
+    
   }, [pathname]);
 
  
@@ -101,8 +107,8 @@ const Tabsnavigation = ({
                           <TabContext value={value}>
                             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                               <TabList onChange={handleChange} aria-label="lab API tabs example" sx={{ padding: '5px !important' }}>
-                                <Tab label="Item One" value="1" />
-                                <Tab label="Item Two" value="2" />
+                                <Tab label="User Profile" value="1" />
+                                <Tab label="History" value="2" />
                                 
                               </TabList>
                             </Box>
@@ -126,14 +132,14 @@ const Tabsnavigation = ({
                     </FlexBetween>
                     <Box sx={{ width: '100%',marginBottom: '1rem'}}>
                     <p className='firstnames'>Name <br></br> 
-                    <span className='sidebarvalues'>Amitabh Bacchan</span>
+                    <span className='sidebarvalues'>{user?.data?.initialUserData?.name}</span>
                     </p>
 
                     </Box>
                     
                     <Box sx={{ width: '100%',marginBottom: '1rem'}}>
                     <p className='firstnames'>Device ID <br></br> 
-                    <span className='sidebarvalues'>WHMS-XX-203988</span>
+                    <span className='sidebarvalues'>{user?.data?.deviceId}</span>
                     </p>
 
                     </Box>
@@ -141,7 +147,7 @@ const Tabsnavigation = ({
 
                     <Box sx={{ width: '100%',marginBottom: '1rem'}}>
                     <p className='firstnames'>Phone number <br></br> 
-                    <span className='sidebarvalues'>9406928294</span>
+                    <span className='sidebarvalues'>{user?.data?.initialUserData?.phone}</span>
                     </p>
 
                     </Box>
@@ -152,9 +158,8 @@ const Tabsnavigation = ({
                   <Box sx={{ width: '100%'}}>
                     <Box sx={{ width: '100%'}}>
                       <p className='firstnames'>Environment <br></br> 
-                      <span className='sidebarvalues'>Space</span>
+                      <span className='sidebarvalues'>{user?.data?.environmentData?.name}</span>
                     </p>
-
                     </Box>
 
                     
@@ -163,7 +168,7 @@ const Tabsnavigation = ({
                       <p className='firstnames'>
                           Age
                         <br></br> 
-                        <span className='sidebarvalues'>45</span>
+                        <span className='sidebarvalues'>{user?.data?.profileData?.dob}</span>
                       </p>
                     </Box>
 
@@ -171,7 +176,7 @@ const Tabsnavigation = ({
                       <p className='firstnames'>
                           Weight
                         <br></br> 
-                        <span className='sidebarvalues'>72</span>
+                        <span className='sidebarvalues'>{user?.data?.profileData?.weight}</span>
                       </p>
                     </Box>
                       
@@ -183,7 +188,7 @@ const Tabsnavigation = ({
                       <p className='firstnames'>
                           Height
                         <br></br> 
-                        <span className='sidebarvalues'>169 cm</span>
+                        <span className='sidebarvalues'>{user?.data?.profileData?.height} cm</span>
                       </p>
                     </Box>
 
@@ -191,7 +196,7 @@ const Tabsnavigation = ({
                       <p className='firstnames'>
                           Gender
                         <br></br> 
-                        <span className='sidebarvalues'>Male</span>
+                        <span className='sidebarvalues'>{user?.data?.profileData?.gender}</span>
                       </p>
                     </Box>
                     </Box>
@@ -201,14 +206,14 @@ const Tabsnavigation = ({
  
                     <Box sx={{ width: '100%',marginBottom: '1rem'}}>
                     <p className='firstnames'>Device Status <br></br> 
-                    <span className='sidebarvalues'>ACtive</span>
+                    <span className='sidebarvalues'>-----</span>
                     </p>
 
                     </Box>
                     
                     <Box sx={{ width: '100%',marginBottom: '1rem'}}>
                     <p className='firstnames'>Admin <br></br> 
-                    <span className='sidebarvalues'>Harsh Bunny</span>
+                    <span className='sidebarvalues'>-----</span>
                     </p>
 
                     </Box>
@@ -216,7 +221,7 @@ const Tabsnavigation = ({
 
                     <Box sx={{ width: '100%',marginBottom: '1rem'}}>
                     <p className='firstnames'>Department <br></br> 
-                    <span className='sidebarvalues'>ISRO SPACE</span>
+                    <span className='sidebarvalues'>----</span>
                     </p>
 
                     </Box>

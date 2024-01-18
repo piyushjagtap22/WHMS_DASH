@@ -23,9 +23,9 @@ th{
   word-wrap: break-word
 }
 table{
-  width: 115%;
+  width: 100%;
   height: 100%; 
-  background: #191C23; 
+  background: #0d1025; 
   border-radius: 16px;
 }
 tr{
