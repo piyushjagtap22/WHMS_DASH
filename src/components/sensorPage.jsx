@@ -28,10 +28,17 @@ const SensorPage = () => {
   // setDeviceList((prevDeviceList) => [...prevDeviceList, newDevice]);
   const [events, setEvents] = useState([]);
   const handleRowClick = (data) => {
-    alert("Going on default page with",data)
-    navigate(`/Default`, { state: {
-      data:data
-    } }); // Pass the row data as a prop
+    console.log(data)
+    const result = window.confirm("Do you want to Navigate to User details Page");
+
+    if (result) {
+        navigate(`/Default`, { state: {
+          data:data
+        } }); // Pass the row data as a prop
+    } else {
+      
+    }
+    
   }
      // Function to handle real-time updates
      const handleRealTimeUpdate = (updatedObject) => {
@@ -96,6 +103,18 @@ const SensorPage = () => {
       setSearchTerm('');
       // setUsers(initialTable);
       setEvents(initialTable)
+    }
+  };
+
+
+  const getCellStyle = (stringValue) => {
+    const value = parseInt(stringValue, 10) || 0;
+    if (value > 180) {
+      return { color: 'red' };
+    } else if (value > 150) {
+      return { color: 'orange' };
+    } else {
+      return { color: 'green' };
     }
   };
     
@@ -198,23 +217,40 @@ const SensorPage = () => {
 
         
         <div className='App-header'>
-          <input
+          {/* <input
           type='text'
           value={searchTerm}
           onChange={handleSearchChange}
           onKeyDown={handleKeyDown}
           placeholder='Search...'
-        />
+        /> */}
         {/* <p>{JSON.stringify(events)}</p> */}
           <div>
          
             <table>
               <thead>
+              <tr >
+                  
+                  <input
+                    type='text'
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder='Search...'
+                    style={{     
+                    backgroundColor: "#1d1f22",
+                    color: "white",
+                    border: '2px solid #007bff', // Highlighted border color
+                    borderRadius: '5px',        // Border radius
+                    }}
+                  />
+              
+                </tr>
                 <tr>
                   <td>Device</td>
                   {/* <td>User Id</td> */}
                   <td>Admin Id</td>
-                  <td>Heart Rate</td>
+                  <td >Heart Rate</td>
                   <td>ECG Sensor</td>
                   <td>BP Sensor</td>
                   
@@ -223,16 +259,13 @@ const SensorPage = () => {
               <tbody>
                 {events.map((e, i) => (
                  
-                  <tr key={i} onClick={() => handleRowClick(e)}>
+                  <tr style={{cursor: "pointer"}} key={i} onClick={() => handleRowClick(e)}>
                    
-                    {/* <td>{e.operationType}</td> */}
-                    {/* <td>{e.documentKey._id.toString()}</td> */}
-                    {/* <tr>{e.deviceId}</tr> */}
                     <td>{e?.deviceId}</td>
                     <td>{e?.initialUserData?.name || "------" }</td>
-                    <td style={{ color: e?.heartSensor && parseInt(e.heartSensor, 10) > 100 ? 'red' : 'white' }} >{e?.heartSensor || "------"} bpm</td>
-                    <td>{e?.xSensor || "------" } </td>
-                    <td>{e?.ySensor || "------" } </td>
+                    <td style={getCellStyle(e?.heartSensor)} >{e?.heartSensor || "------"} bpm</td>
+                    <td style={getCellStyle(e?.xSensor)}>{e?.xSensor || "------" } bpm</td>
+                    <td style={getCellStyle(e?.ySensor)}>{e?.ySensor || "------" } mmhg</td>
 
                     {/* <tr>{JSON.stringify(e)}</tr> */}
 
