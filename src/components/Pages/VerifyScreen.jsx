@@ -24,13 +24,13 @@ const VerifyScreen = () => {
   const { userId } = useSelector((state) => state.auth);
   const { emailId } = useSelector((state) => state.auth);
   const [auth, setAuth] = useState(false);
-  useEffect(() => {
-    if (!userId) {
-      navigate('/login');
-    } else {
-      setAuth(true);
-    }
-  }, [navigate, userId]);
+  // useEffect(() => {
+  //   if (!userId) {
+  //     navigate('/login');
+  //   } else {
+  //     setAuth(true);
+  //   }
+  // }, [navigate, userId]);
 
   useEffect(() => {
     let interval;

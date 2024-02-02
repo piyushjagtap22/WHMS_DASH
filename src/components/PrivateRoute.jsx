@@ -26,7 +26,7 @@ const PrivateRoute = () => {
       {/* {role === 'testing' && <Navigate to='/imagetesting' replace />} */}
       {/* {role === 'admin' && <Navigate to='/admin' replace />}
       {role === 'superadmin' && <Navigate to='/superadmin' replace />}
-      {role === 'superadmin2' && <Navigate to='/superadmin2' replace />}
+      {role === 'superadmin2' && <Navigate to='/superadmin2' replace />} return <TempPage />;
       {role === 'user' && <Navigate to='/user' replace />}
       {role === 'unallocated' && <Navigate to='/newuser' replace />} */}
       {/* {role === 'superadmin' && <Navigate to='/superadmin' replace />} */}

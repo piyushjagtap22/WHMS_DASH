@@ -1,10 +1,17 @@
+import { signOut } from 'firebase/auth';
+import { setAuthState } from '../../slices/authSlice';
+import { auth } from '../../firebase';
 import React, { useEffect, useState } from 'react';
+import { setAuthUser } from '../../slices/authSlice';
 import FlexBetween from '../FlexBetween';
 import Header from '../Header';
 import * as Realm from 'realm-web';
+import { setLoading } from '../../slices/loadingSlice';
 // import MapComponent from '../MapComponent';
 import { ToastContainer, toast } from 'react-toastify';
-
+import Loader from '../Loader';
+import { setMongoUser } from '../../slices/authSlice';
+import { onAuthStateChanged } from 'firebase/auth';
 import {
   DownloadOutlined,
   Email,
@@ -62,6 +69,11 @@ const Dashboard = () => {
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
 
+  const delay = (milliseconds) =>
+    new Promise((resolve) => {
+      console.log('Delay called ', milliseconds);
+      setTimeout(resolve, milliseconds);
+    });
   const [initialTable, setinitialTable] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -87,6 +99,39 @@ const Dashboard = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      dispatch(setLoading(true));
+      await delay(1000);
+      await signOut(auth);
+      console.log('in');
+      // Listen for changes in authentication state
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          // User is successfully signed out, navigate to '/register'
+          dispatch(setAuthState('/register'));
+          dispatch(setAuthUser(null));
+          dispatch(setMongoUser(null));
+          console.log('here');
+          // dispatch(setLoading(true));
+          console.log('Navigating to /register');
+
+          // Use navigate to trigger navigation
+          navigate('/register');
+
+          // Make sure this log is reached
+          console.log('Navigation completed');
+
+          unsubscribe(); // Unsubscribe to avoid further callbacks
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      dispatch(setLoading(false)); // Hide loader when operation completes
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Backspace') {
       console.log('keydown working');
@@ -103,17 +148,17 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         console.log('in fetchdata');
-        const response = await getAllUsers(token);
-        console.log(response + 'R ');
-        if (response.status === 200) {
-          setUsers(response.data);
-          setinitialTable(response.data);
-          console.log('bunny', response.data);
-          console.log('bunny crazy', typeof response.data);
-        } else {
-          // Handle any errors or show a message
-          console.log('Something Went Wrong');
-        }
+        // const response = await getAllUsers(token);
+        // console.log(response + 'R ');
+        // if (response.status === 200) {
+        //   setUsers(response.data);
+        //   setinitialTable(response.data);
+        //   console.log('bunny', response.data);
+        //   console.log('bunny crazy', typeof response.data);
+        // } else {
+        //   // Handle any errors or show a message
+        //   console.log('Something Went Wrong');
+        // }
       } catch (error) {
         // Handle any network or API request errors
         console.log(error);
@@ -258,13 +303,12 @@ const Dashboard = () => {
     },
   ];
 
-
   return (
     <>
       <Box m='1.5rem 2.5rem'>
         <FlexBetween>
           <Header title='DASHBOARD' subtitle='Welcome to your dashboard' />
-
+          <button onClick={handleLogout}>Log Out</button>
           {/* <Box>
           <Button
             sx={{
@@ -295,8 +339,8 @@ const Dashboard = () => {
         >
           {/* ROW 1 */}
 
-          {/* ROW 2 */}
-          {/* <Box
+        {/* ROW 2 */}
+        {/* <Box
             gridColumn='span 12'
             gridRow='span 4'
             sx={{
@@ -331,7 +375,7 @@ const Dashboard = () => {
               getRowId={(row) => row._id}
             />
           </Box> */}
-        {/* </Box> */} 
+        {/* </Box> */}
         {/* <LineChart width={600} height={300} data={data1}>
       <Line type="monotone" dataKey="react" stroke="#2196F3" strokeWidth={4} />
 
@@ -371,7 +415,7 @@ const Dashboard = () => {
                   global: searchTerm,
                 }}
               /> */}
-              <SensorPage />
+        <SensorPage />
       </Box>
     </>
   );

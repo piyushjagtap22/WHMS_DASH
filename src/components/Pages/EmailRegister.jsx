@@ -1,4 +1,9 @@
+import Loader from '../Loader.jsx';
+import { Navigate } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
+import { setAuthUser } from '../../slices/authSlice.js';
+import { signOut } from 'firebase/auth';
 import {
   Container,
   Typography,
@@ -24,7 +29,12 @@ import {
 } from 'firebase/auth';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { setEmailId, setMongoUser, setToken } from '../../slices/authSlice.js';
+import {
+  setAuthState,
+  setEmailId,
+  setMongoUser,
+  setToken,
+} from '../../slices/authSlice.js';
 import { toast, Toaster } from 'react-hot-toast';
 import {
   Visibility,
@@ -37,13 +47,18 @@ import {
   getMongoUserByEmail,
 } from '../../slices/usersApiSlice.js';
 // import { createMongoUserAsync } from "../../slices/userSlice.js";
+import { logout } from '../../slices/authSlice.js';
+import { setLoading } from '../../slices/loadingSlice.js';
 
 const EmailRegister = () => {
+  const isLoading = useSelector((state) => state.loading.loading);
+
   console.log('in email register');
   const [displayName, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [linkSend, setLinkSend] = useState(false);
+
+  const [linkSend, setLinkSend] = useState('load');
   const navigate = useNavigate();
   const { emailid } = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
@@ -92,6 +107,16 @@ const EmailRegister = () => {
       const updatedUser = auth.currentUser;
       console.log('Account linking success', updatedUser);
     } catch (error) {
+      console.log(error.message);
+      if (error.message === 'Firebase: Error (auth/requires-recent-login).') {
+        console.log('hello');
+        toast.error('Session Timed out, Please login again,');
+
+        setTimeout(() => {
+          handleLogout();
+          Navigate('/register');
+        }, 3000);
+      }
       console.error('Account linking error', error.code, error.message);
     }
   };
@@ -101,7 +126,7 @@ const EmailRegister = () => {
     await sendEmailVerification(user)
       .then(() => {
         console.log('link send success');
-        setLinkSend(true);
+        setLinkSend('sent');
       })
       .catch((err) => {
         console.log(err.message);
@@ -110,26 +135,36 @@ const EmailRegister = () => {
   };
 
   const handleLogin = async (e) => {
+    dispatch(setLoading(true));
+
     e.preventDefault();
     if (displayName === '' || email === '' || password === '') {
       toast.error('Please Fill up the details');
     } else if (!passwordsMatch) {
-      toast.error("Passwords doesn't match");
+      toast.error("Passwords don't match");
     } else {
       try {
-        linkEmailWithPhone(email, password).then(async () => {
-          const user = auth.currentUser;
-          console.log(user.email + '  email');
-          sendEmailLink(user);
-        });
+        // linkEmailWithPhone(email, password).then(async () => {
+        //   const user = auth.currentUser;
+        //   console.log(user.email + '  email');
+        //   sendEmailLink(user);
+        // });
+        await linkEmailWithPhone(email, password);
 
-        // Set linkSend to true to display the verification message
+        const user = auth.currentUser;
+        console.log(user.email + '  email');
+
+        await sendEmailLink(user);
+
+        setLinkSend('sent');
 
         // Store email in localStorage for reference
         localStorage.setItem('email', email);
       } catch (error) {
         console.log('Error creating user:', error.message);
         toast.error(error.message);
+      } finally {
+        dispatch(setLoading(false));
       }
     }
   };
@@ -137,42 +172,86 @@ const EmailRegister = () => {
   const createMongoUser = (token, name, role) => {
     console.log('inside');
     return async (dispatch) => {
-      await getMongoUserByEmail(auth.currentUser.email).then(async (res) => {
-        console.log('get mongo user email reg ');
-        console.log(JSON.stringify(res.data.existingUser));
-        // con;
-        if (res.data.message === 'User not found') {
-          try {
-            const response = await fetch(
-              'http://localhost:3000/api/auth/create-mongo-user',
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ name, role }),
+      console.log(auth.currentUser.stsTokenManager.accessToken);
+      await getMongoUser(auth.currentUser.stsTokenManager.accessToken)
+        .then(async (res) => {
+          console.log(res);
+          console.log('get mongo user email reg ');
+          console.log(JSON.stringify(res));
+          // con;
+          if (res.status === 204) {
+            try {
+              const response = await fetch(
+                'http://localhost:3000/api/auth/create-mongo-user',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({ name, role }),
+                }
+              );
+              console.log(response);
+              console.log('Create Mongo User Response');
+              if (!response.ok) {
+                console.log('Failed to create user');
+                throw new Error('Failed to create user');
               }
-            );
-            console.log(response);
-            console.log('Create Mongo User Response');
-            if (!response.ok) {
-              console.log('Failed to create user');
-              throw new Error('Failed to create user');
-            }
 
-            const userData = await response.json();
-            console.log('done');
-            console.log(userData);
-            dispatch(setMongoUser(userData));
-          } catch (error) {
-            console.log(error.message);
+              const userData = await response.json();
+              console.log('done');
+              console.log(userData);
+              await dispatch(setMongoUser(userData));
+            } catch (error) {
+              console.log(error.message);
+            }
+          } else if (res.status === 200) {
+            console.log('user already created');
           }
-        } else {
-          console.log('user already created');
+        })
+        .catch(async (err) => {
+          console.log(err);
+        });
+    };
+  };
+
+  const delay = (milliseconds) =>
+    new Promise((resolve) => {
+      console.log('Delay called ', milliseconds);
+      setTimeout(resolve, milliseconds);
+    });
+
+  const handleLogout = async () => {
+    try {
+      dispatch(setLoading(true));
+      await delay(1000);
+      await signOut(auth);
+
+      // Listen for changes in authentication state
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          // User is successfully signed out, navigate to '/register'
+          dispatch(setAuthState('/register'));
+          dispatch(setAuthUser(null));
+          dispatch(setMongoUser(null));
+          // dispatch(setLoading(true));
+          console.log('Navigating to /register');
+
+          // Use navigate to trigger navigation
+          navigate('/register');
+
+          // Make sure this log is reached
+          console.log('Navigation completed');
+
+          unsubscribe(); // Unsubscribe to avoid further callbacks
         }
       });
-    };
+    } catch (error) {
+      console.log(error);
+    } finally {
+      dispatch(setLoading(false)); // Hide loader when operation completes
+    }
   };
 
   const checkAndSetMonogosUser = async () => {
@@ -198,9 +277,12 @@ const EmailRegister = () => {
       if (user.emailVerified) {
         console.log('hogaya');
         console.log(user.accessToken + '    ' + user.displayName);
-        dispatch(createMongoUser(user.accessToken, user.displayName, 'admin'));
+        await dispatch(
+          createMongoUser(user.accessToken, user.displayName, 'admin')
+        );
         console.log('shivanshu');
         // checkAndSetMonogosUser(user.accessToken);
+        await dispatch(setAuthState('/verify'));
         navigate('/verify');
       }
     } catch (error) {
@@ -208,17 +290,23 @@ const EmailRegister = () => {
     }
   };
   useEffect(() => {
+    dispatch(setLoading(true));
     console.log('EmailRegister component mounted');
     // Check if user is coming without phone verification
-    if (AuthUser === null) {
-      navigate('/register');
-    }
+    // if (AuthUser === null) {
+    //   navigate('/register');
+    // }
     if (
-      auth.currentUser.email !== null &&
+      auth?.currentUser?.email !== null &&
       auth.currentUser.emailVerified === false
     ) {
-      setLinkSend(true);
+      var r = 1;
+
+      setLinkSend('sent');
+    } else {
+      setLinkSend('notsent');
     }
+    dispatch(setLoading(false));
 
     // Check email verification every 2 seconds for 2 minutes
     const intervalId = setInterval(checkEmailVerification, 2000);
@@ -246,7 +334,9 @@ const EmailRegister = () => {
         }}
       >
         <Toaster toastOptions={{ duration: 4000 }} />
-        {linkSend ? (
+        {linkSend === 'load' ? (
+          <Loader />
+        ) : linkSend === 'sent' ? (
           <Container
             maxWidth='sm'
             style={{
@@ -278,6 +368,18 @@ const EmailRegister = () => {
               onClick={() => sendEmailLink(auth.currentUser)}
             >
               Resend Link
+            </Button>
+            <Button
+              onClick={handleLogout}
+              style={{
+                backgroundColor: '#7CD6AB',
+                color: '#121318',
+                margin: '20px 0',
+                padding: '0.8rem',
+              }}
+              fullWidth
+            >
+              Not You, Sign in With Different Account
             </Button>
           </Container>
         ) : (
@@ -379,6 +481,18 @@ const EmailRegister = () => {
                 Register Account
               </Button>
             </form>
+            <Button
+              onClick={handleLogout}
+              style={{
+                backgroundColor: '#7CD6AB',
+                color: '#121318',
+                margin: '20px 0',
+                padding: '0.8rem',
+              }}
+              fullWidth
+            >
+              Not you, Sign in With Different Account
+            </Button>
           </>
         )}
       </Container>

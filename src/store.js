@@ -4,17 +4,22 @@ import authReducer from './slices/authSlice';
 import profileReducer from './slices/profileSlice';
 import superAdminReducer from './slices/superAdminSlice';
 import modeReducer from './slices/modeSlice';
+import loadingReducer from './slices/loadingSlice'
+import authSliceReducer from './slices/authSlice'; // Import the authSlice.reducer
 
 
 const store = configureStore({
   reducer: {
-    auth: authReducer,
+
+    auth: authSliceReducer,
     profile: profileReducer,
     superAdmin: superAdminReducer,
     mode: modeReducer,
+    loading: loadingReducer
     // [apiSlice.reducerPath] :apiSlice.reducer
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware(),
+
   devTools: true,
 });
 

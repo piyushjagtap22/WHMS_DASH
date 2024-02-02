@@ -1,37 +1,46 @@
-import React, { useMemo } from 'react';
-import { Container } from 'react-bootstrap';
+// App.jsx
+import React, { useMemo, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-// import Header from './components/Pages/oldHeader';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { useEffect } from 'react';
-import store from './store';
-import { initializeAuthUser } from './slices/authSlice';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setLoading } from './slices/loadingSlice';
+import Loader from '../src/components/Loader';
+import { initializeAuthUser, initializeMongoUser } from './slices/authSlice';
+import store from './store';
 import { themeSettings } from './theme';
 
 function App() {
   const mode = useSelector((state) => state.mode.mode);
-  console.log(mode);
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
-  // useEffect(() => {
+  const loading = useSelector((state) => state.loading.loading);
+  const dispatch = useDispatch();
 
-    
-  // }, []);
-  console.log("App jsx 23")
+  useEffect(() => {
+    console.log('22');
+    const initializeApp = async () => {
+      try {
+        dispatch(setLoading(true));
+        console.log('25');
+        await store.dispatch(initializeAuthUser());
+        // await store.dispatch(initializeMongoUser());
+        console.log('28');
+        dispatch(setLoading(false));
+        console.log('30');
+      } catch (error) {
+        console.error('Error initializing app:', error);
+        dispatch(setLoading(false));
+      }
+    };
+
+    initializeApp();
+  }, [dispatch]);
+
   return (
     <>
-      {/* <Header></Header> */}
-      {/* <ToastContainer />
-      <Container className='my-2'>
-        <Outlet></Outlet>
-      </Container> */}
       <ThemeProvider theme={theme}>
         <CssBaseline />
-
-        <Outlet />
+        {loading ? <Loader /> : <Outlet />}
       </ThemeProvider>
     </>
   );

@@ -1,3 +1,13 @@
+import {
+  setAuthState,
+  setAuthUser,
+  setMongoUser,
+} from '../../slices/authSlice';
+import { setLoading } from '../../slices/loadingSlice';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
+import { auth } from '../../firebase.js';
+import Loader from '../Loader.jsx';
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { Button, Container, TextField, Typography } from '@mui/material';
@@ -18,17 +28,58 @@ const DocumentVerificationScreen = () => {
   const [docUploadedSuccess, setDocUploadedSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [docUploaded, setDocUploaded] = useState('load');
+  const handleLogout = async () => {
+    try {
+      console.log('0');
+      // dispatch(setLoading(true));
+
+      // await delay(1000);
+      console.log('1');
+      await signOut(auth);
+      console.log('2');
+      // Listen for changes in authentication state
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          // User is successfully signed out, navigate to '/register'
+          dispatch(setAuthState('/register'));
+          dispatch(setAuthUser(null));
+          dispatch(setMongoUser(null));
+          // dispatch(setLoading(true));
+          console.log('Navigating to /register');
+
+          // Use navigate to trigger navigation
+          navigate('/register');
+
+          // Make sure this log is reached
+          console.log('Navigation completed');
+
+          unsubscribe(); // Unsubscribe to avoid further callbacks
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      // dispatch(setLoading(false)); // Hide loader when operation completes
+    }
+  };
 
   useEffect(() => {
-    console.log('shiv');
-    console.log(mongoUser);
+    console.log('Doc Verification');
+    console.log('docUploaded:', docUploaded);
+    console.log('mongoUser:', mongoUser);
     if (mongoUser?.doc_uploaded === true) {
       setDocUploadedSuccess(true);
+      console.log('if');
+      setDocUploaded('yes');
+    } else {
+      console.log('else');
+      setDocUploaded('no');
+      console.log(docUploaded);
     }
-    if (token) {
-      setLoading(false);
-    }
-  }, [mongoUser, token]);
+    console.log(docUploaded);
+  }, []);
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
@@ -55,6 +106,7 @@ const DocumentVerificationScreen = () => {
       console.log(response.data.message);
       if (response.data.message === 'File uploaded successfully') {
         setDocUploadedSuccess(true);
+        setDocUploaded('yes');
       }
     } catch (error) {
       console.error('Error uploading file:', error.response?.data?.message);
@@ -67,9 +119,9 @@ const DocumentVerificationScreen = () => {
   //   }
   // }
 
-  if (loading) {
-    return null;
-  }
+  // if (loading) {
+  //   return null;
+  // }
 
   return (
     <>
@@ -86,7 +138,9 @@ const DocumentVerificationScreen = () => {
       >
         <Toaster toastOptions={{ duration: 4000 }} />
 
-        {docUploadedSuccess ? (
+        {docUploaded === 'load' ? (
+          <Loader />
+        ) : docUploaded === 'yes' ? (
           <>
             <Typography
               variant='h3'
@@ -102,6 +156,18 @@ const DocumentVerificationScreen = () => {
             >
               Verification in Progress ..... Wait till admin verifies your doc
             </Typography>
+            <Button
+              onClick={handleLogout}
+              style={{
+                backgroundColor: '#7CD6AB',
+                color: '#121318',
+                margin: '20px 0',
+                padding: '0.8rem',
+              }}
+              fullWidth
+            >
+              Not You, Sign in With Different Account
+            </Button>
           </>
         ) : (
           <>
@@ -111,7 +177,7 @@ const DocumentVerificationScreen = () => {
               style={{ color: '#7CD6AB' }}
               marginBottom='20px'
             >
-              Complete your profile Jehereeli
+              Complete your profile
             </Typography>
 
             <div style={{ width: '70%', margin: 'auto', textAlign: 'left' }}>
@@ -210,6 +276,18 @@ const DocumentVerificationScreen = () => {
                 fullWidth
               >
                 Submit
+              </Button>
+              <Button
+                onClick={handleLogout}
+                style={{
+                  backgroundColor: '#7CD6AB',
+                  color: '#121318',
+                  margin: '20px 0',
+                  padding: '0.8rem',
+                }}
+                fullWidth
+              >
+                Not You, Sign in With Different Account
               </Button>
             </div>
           </>

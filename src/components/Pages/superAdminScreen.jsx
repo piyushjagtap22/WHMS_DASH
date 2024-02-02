@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+// import { delay } from '@reduxjs/toolkit/dist/utils';
 import { useEffect, useState } from 'react';
 import FlexBetween from '../FlexBetween';
 import Header from '../Header';
@@ -13,6 +14,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { DataGrid } from '@mui/x-data-grid';
 import { useTheme, useMediaQuery } from '@mui/material';
 import { Card, CardMedia } from '@mui/material';
+import { setLoading } from '../../slices/loadingSlice';
 import {
   createAdmin,
   getAllUsers,
@@ -24,6 +26,10 @@ import {
   addDeviceID,
   // docById
 } from './../../slices/superAdminApiSlice';
+import { auth } from '../../firebase.js';
+import { onAuthStateChanged } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
+import { setAuthState } from '../../slices/authSlice';
 import {
   getUnallocatedUsers,
   AddUsersToAdmin,
@@ -43,6 +49,11 @@ const style = {
 };
 
 const SuperAdminScreen = () => {
+  const delay = (milliseconds) =>
+    new Promise((resolve) => {
+      console.log('Delay called ', milliseconds);
+      setTimeout(resolve, milliseconds);
+    });
   const [users, setUsers] = useState([]);
   const [expandedUsers, setExpandedUsers] = useState([]);
   const [currentlyExpandedUser, setCurrentlyExpandedUser] = useState(null);
@@ -64,7 +75,37 @@ const SuperAdminScreen = () => {
   const theme = useTheme();
   const [data, setData] = useState([]);
   const [textFieldValue, setTextFieldValue] = useState('');
+  const handleLogout = async () => {
+    try {
+      dispatch(setLoading(true));
+      await delay(1000);
+      await signOut(auth);
 
+      // Listen for changes in authentication state
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          // User is successfully signed out, navigate to '/register'
+          dispatch(setAuthState('/register'));
+          dispatch(setAuthUser(null));
+          dispatch(setMongoUser(null));
+          // dispatch(setLoading(true));
+          console.log('Navigating to /register');
+
+          // Use navigate to trigger navigation
+          navigate('/register');
+
+          // Make sure this log is reached
+          console.log('Navigation completed');
+
+          unsubscribe(); // Unsubscribe to avoid further callbacks
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      dispatch(setLoading(false)); // Hide loader when operation completes
+    }
+  };
   useEffect(() => {
     // Fetch user data when the component mounts
     const fetchData = async () => {
@@ -354,145 +395,163 @@ const SuperAdminScreen = () => {
       flex: 0.3,
     },
   ];
-
+  console.log('in superadmin');
   return (
-    <div>
-      Hello SuperAdmin
-      <h1>Admin Management</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Admin ID</th>
-            <th>Doc Status</th>
-            <th>Admin Status</th>
-            <th>Devices</th>
-          </tr>
-        </thead>
-        <Modal
-          open={open}
-          onClose={handleClose}
-          aria-labelledby='modal-modal-title'
-          aria-describedby='modal-modal-description'
+    <>
+      <div>
+        Hello SuperAdmin,
+        <Button
+          onClick={handleLogout}
+          style={{
+            backgroundColor: '#7CD6AB',
+            color: '#121318',
+            margin: '20px 0',
+            padding: '0.8rem',
+          }}
+          fullWidth
         >
-          <Box sx={style}>
-            <Typography id='modal-modal-title' variant='h6' component='h2'>
-              List of Documents
-            </Typography>
-            <Card>
-              {document && (
-                <img
-                  src={document}
-                  alt='Image'
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: '40rem', // Set your desired max-height
-                    width: 'auto',
-                    height: 'auto',
-                    objectFit: 'contain', // Maintain aspect ratio without stretching
-                  }}
-                />
-              )}
-            </Card>
-            <button onClick={() => approveDoc(selectedAdmin)}>
-              Approve Documents{selectedAdmin}
-            </button>
-          </Box>
-        </Modal>
-        <tbody>
-          {users.map((admin) => (
-            <>
-              <tr key={admin._id}>
-                <td>{admin.name}</td>
-                <td>{admin.email}</td>
-                <td>{admin._id}</td>
-                <td>
-                  {admin?.adminDetails[0]?.accountEnabled ? (
-                    <a href='#' onClick={() => disableAdminByID(admin._id)}>
-                      Disable Admin
-                    </a>
-                  ) : (
-                    <a href='#' onClick={() => enableAdminByID(admin._id)}>
-                      Enable Admin
-                    </a>
-                  )}
-                </td>
+          Logout
+        </Button>
+        <h1>Admin Management</h1>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Admin ID</th>
+              <th>Doc Status</th>
+              <th>Admin Status</th>
+              <th>Devices</th>
+            </tr>
+          </thead>
+          <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby='modal-modal-title'
+            aria-describedby='modal-modal-description'
+          >
+            <Box sx={style}>
+              <Typography id='modal-modal-title' variant='h6' component='h2'>
+                List of Documents
+              </Typography>
+              <Card>
+                {document && (
+                  <img
+                    src={document}
+                    alt='Image'
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '40rem', // Set your desired max-height
+                      width: 'auto',
+                      height: 'auto',
+                      objectFit: 'contain', // Maintain aspect ratio without stretching
+                    }}
+                  />
+                )}
+              </Card>
+              <button onClick={() => approveDoc(selectedAdmin)}>
+                Approve Documents{selectedAdmin}
+              </button>
+            </Box>
+          </Modal>
+          <tbody>
+            {users.map((admin) => (
+              <>
+                <tr key={admin._id}>
+                  <td>{admin.name}</td>
+                  <td>{admin.email}</td>
+                  <td>{admin._id}</td>
+                  <td>
+                    {admin?.adminDetails[0]?.accountEnabled ? (
+                      <a href='#' onClick={() => disableAdminByID(admin._id)}>
+                        Disable Admin
+                      </a>
+                    ) : (
+                      <a href='#' onClick={() => enableAdminByID(admin._id)}>
+                        Enable Admin
+                      </a>
+                    )}
+                  </td>
 
-                {/* <tr>
+                  {/* <tr>
               <button onClick={() => handleShowUserIds(admin._id)}>
                     {showUserIds[admin._id] ? 'Hide Admin IDs' : 'Show Admin IDs'}
                   </button>
               </tr> */}
+                  <tr>
+                    {admin?.adminDetails[0]?.accountEnabled ? (
+                      <td>Enabled</td>
+                    ) : (
+                      <td>Disabled</td>
+                    )}
+                  </tr>
+                  <td>
+                    {!admin?.doc_verified ? (
+                      <>
+                        <a
+                          href='#'
+                          onClick={(event) => handleOpen(admin._id)}
+                          className='link-button'
+                        >
+                          See documents
+                        </a>
+                        <IconButton
+                          onClick={() => handleShowUserIds(admin._id)}
+                        >
+                          <KeyboardArrowDownIcon />
+                        </IconButton>
+                      </>
+                    ) : (
+                      <>
+                        <a href='#' className='link-button disabled'>
+                          See documents
+                        </a>
+                        <IconButton
+                          onClick={() => handleShowUserIds(admin._id)}
+                        >
+                          <KeyboardArrowDownIcon />
+                        </IconButton>
+                      </>
+                    )}
+                  </td>
+                </tr>
+
                 <tr>
-                  {admin?.adminDetails[0]?.accountEnabled ? (
-                    <td>Enabled</td>
-                  ) : (
-                    <td>Disabled</td>
+                  {showUserIds[admin._id] && admin.adminDetails && (
+                    <table className='newtableoutline'>
+                      <th className='newtableth'>Device ID</th>
+                      <tr></tr>
+                      {admin?.adminDetails[0]?.deviceIds.map((userId) => (
+                        <>
+                          <th className='newtableth' key={userId}>
+                            {userId}
+                          </th>
+                          <tr></tr>
+                        </>
+                      ))}
+                      <tr>
+                        <TextField
+                          style={{ 'padding-left': '0.5em' }}
+                          id='outlined-basic'
+                          onChange={handleInputChange}
+                          value={textFieldValue}
+                          label='Add Device id'
+                          variant='outlined'
+                        />
+                        <button onClick={() => addDevice(admin._id)}>
+                          Add Device
+                        </button>
+                      </tr>
+                    </table>
                   )}
                 </tr>
-                <td>
-                  {!admin?.doc_verified ? (
-                    <>
-                      <a
-                        href='#'
-                        onClick={(event) => handleOpen(admin._id)}
-                        className='link-button'
-                      >
-                        See documents
-                      </a>
-                      <IconButton onClick={() => handleShowUserIds(admin._id)}>
-                        <KeyboardArrowDownIcon />
-                      </IconButton>
-                    </>
-                  ) : (
-                    <>
-                      <a href='#' className='link-button disabled'>
-                        See documents
-                      </a>
-                      <IconButton onClick={() => handleShowUserIds(admin._id)}>
-                        <KeyboardArrowDownIcon />
-                      </IconButton>
-                    </>
-                  )}
-                </td>
-              </tr>
-
-              <tr>
-                {showUserIds[admin._id] && admin.adminDetails && (
-                  <table className='newtableoutline'>
-                    <th className='newtableth'>Device ID</th>
-                    <tr></tr>
-                    {admin?.adminDetails[0]?.deviceIds.map((userId) => (
-                      <>
-                        <th className='newtableth' key={userId}>
-                          {userId}
-                        </th>
-                        <tr></tr>
-                      </>
-                    ))}
-                    <tr>
-                      <TextField
-                        style={{ 'padding-left': '0.5em' }}
-                        id='outlined-basic'
-                        onChange={handleInputChange}
-                        value={textFieldValue}
-                        label='Add Device id'
-                        variant='outlined'
-                      />
-                      <button onClick={() => addDevice(admin._id)}>
-                        Add Device
-                      </button>
-                    </tr>
-                  </table>
-                )}
-              </tr>
-            </>
-          ))}
-        </tbody>
-      </table>
-      <Box m='1.5rem '></Box>
-    </div>
+              </>
+            ))}
+          </tbody>
+        </table>
+        <Box m='1.5rem '></Box>
+      </div>
+    </>
   );
 };
 
