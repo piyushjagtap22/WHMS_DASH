@@ -71,14 +71,17 @@ const router = createBrowserRouter(
         path='/verify'
         element={<VerifyValidator component={DocumentVerificationScreen} />}
       />
-      <Route
-        path='/superadmin'
-        element={<SuperAdminValidator component={SuperAdminScreen} />}
-      />
+      
+      <Route path='' element={<Layout />}>
       <Route
         path='/dashboard'
         element={<DashboardValidator component={Dashboard} />}
       />
+      <Route
+        path='/superadmin'
+        element={<SuperAdminValidator component={SuperAdminScreen} />}
+      />
+      </Route>
 
       <Route
         path='/emailregister'
@@ -95,7 +98,7 @@ const router = createBrowserRouter(
       {/* <Route path='' element={<UniqueLayout />}/> */}
       <Route path='/Default' element={<DefaultPage />} />
 
-      {/* <Route path='' element={<Layout />}> */}
+      
       {/* <Route path='/profile' element={<ProfileScreen />} /> */}
       {/* <Route path='/home' element={<HomeScreen />} /> */}
       {/* <Route path='/admin' element={<AdminScreen />} /> */}

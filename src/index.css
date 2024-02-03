@@ -85,3 +85,13 @@ word-wrap: break-word
   pointer-events: none; /* Prevent click events when disabled */
   cursor: not-allowed;
 }
+
+.expanded-content {
+  position: absolute;
+  /* top: %; */
+  left: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 5px;
+  z-index: 1;
+}

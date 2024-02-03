@@ -109,9 +109,9 @@ const SensorPage = () => {
 
   const getCellStyle = (stringValue) => {
     const value = parseInt(stringValue, 10) || 0;
-    if (value > 180) {
+    if (value > 80) {
       return { color: 'red' };
-    } else if (value > 150) {
+    } else if (value > 70) {
       return { color: 'orange' };
     } else {
       return { color: 'green' };

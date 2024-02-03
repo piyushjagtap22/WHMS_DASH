@@ -399,7 +399,7 @@ const SuperAdminScreen = () => {
   return (
     <>
       <div>
-        Hello SuperAdmin,
+        {/* Hello SuperAdmin,
         <Button
           onClick={handleLogout}
           style={{
@@ -411,7 +411,7 @@ const SuperAdminScreen = () => {
           fullWidth
         >
           Logout
-        </Button>
+        </Button> */}
         <h1>Admin Management</h1>
         <table>
           <thead>
@@ -463,11 +463,11 @@ const SuperAdminScreen = () => {
                   <td>{admin._id}</td>
                   <td>
                     {admin?.adminDetails[0]?.accountEnabled ? (
-                      <a href='#' onClick={() => disableAdminByID(admin._id)}>
+                      <a href='#' style={{color:'#FF553C'}}onClick={() => disableAdminByID(admin._id)}>
                         Disable Admin
                       </a>
                     ) : (
-                      <a href='#' onClick={() => enableAdminByID(admin._id)}>
+                      <a href='#' style={{color:'#7CD6AB'}} onClick={() => enableAdminByID(admin._id)}>
                         Enable Admin
                       </a>
                     )}
@@ -478,11 +478,11 @@ const SuperAdminScreen = () => {
                     {showUserIds[admin._id] ? 'Hide Admin IDs' : 'Show Admin IDs'}
                   </button>
               </tr> */}
-                  <tr>
+                  <tr style={{borderBottom:"none"}}>
                     {admin?.adminDetails[0]?.accountEnabled ? (
-                      <td>Enabled</td>
+                      <td style={{color:'#7CD6AB' }} >Enabled</td>
                     ) : (
-                      <td>Disabled</td>
+                      <td style={{color:'#FF553C' }}>Disabled</td>
                     )}
                   </tr>
                   <td>
@@ -492,6 +492,7 @@ const SuperAdminScreen = () => {
                           href='#'
                           onClick={(event) => handleOpen(admin._id)}
                           className='link-button'
+                          style={{textDecoration:'underline'}}
                         >
                           See documents
                         </a>
@@ -503,7 +504,7 @@ const SuperAdminScreen = () => {
                       </>
                     ) : (
                       <>
-                        <a href='#' className='link-button disabled'>
+                        <a href='#' style={{textDecoration:'underline'}}  className='link-button disabled'>
                           See documents
                         </a>
                         <IconButton
@@ -518,31 +519,36 @@ const SuperAdminScreen = () => {
 
                 <tr>
                   {showUserIds[admin._id] && admin.adminDetails && (
-                    <table className='newtableoutline'>
-                      <th className='newtableth'>Device ID</th>
-                      <tr></tr>
-                      {admin?.adminDetails[0]?.deviceIds.map((userId) => (
-                        <>
-                          <th className='newtableth' key={userId}>
-                            {userId}
-                          </th>
-                          <tr></tr>
-                        </>
-                      ))}
-                      <tr>
-                        <TextField
-                          style={{ 'padding-left': '0.5em' }}
-                          id='outlined-basic'
-                          onChange={handleInputChange}
-                          value={textFieldValue}
-                          label='Add Device id'
-                          variant='outlined'
-                        />
-                        <button onClick={() => addDevice(admin._id)}>
-                          Add Device
-                        </button>
-                      </tr>
-                    </table>
+                     <div className="">
+                      <table className='newtableoutline'>
+                        <th className='newtableth'>Device ID</th>
+                        <tr></tr>
+                        {admin?.adminDetails[0]?.deviceIds.map((userId) => (
+                          <>
+                            <th className='newtableth' key={userId}>
+                              {userId}
+                            </th>
+                            <tr></tr>
+                          </>
+                        ))}
+                        <div>
+                          {/* <h1>Harsh</h1> */}
+                        <tr>
+                          <TextField
+                            style={{ 'padding-left': '0.5em' }}
+                            id='outlined-basic'
+                            onChange={handleInputChange}
+                            value={textFieldValue}
+                            label='Add Device id'
+                            variant='outlined'
+                          />
+                          <button onClick={() => addDevice(admin._id)}>
+                            Add Device
+                          </button>
+                        </tr>
+                        </div>
+                      </table>
+                    </div>
                   )}
                 </tr>
               </>
