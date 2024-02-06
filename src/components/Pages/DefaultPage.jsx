@@ -35,38 +35,10 @@ const DefaultPage = () => {
   const MonogoUser = useSelector((state) => state.auth.MongoUser);
   const [socketConnected, setSocketConnected] = useState(false);
 
-  // const fetchHeartRateData = async () => {
-  //   try {
-  //     const response = await fetch('http://localhost:3000/api/sensor/getheartrate/qL0scom2VvbsoId8uLYSNIEWxnU2');
-
-  //     if (!response.ok) {
-  //       // Handle non-OK responses here if needed
-  //       console.error('Failed to fetch data');
-  //       return;
-  //     }
-
-  //     const data = await response.json();
-
-  //     // Log the received data for debugging
-  //     console.log('Received data:', data);
-
-  //     // Ensure that the data is an object with a heartrate array
-  //     // if (data && Array.isArray(data.heartrate)) {
-  //     //   // Extracting only the "value" field from each object in the array
-  //     //   const values = data.heartrate.map(item => item.value);
-  //     //   setHeartRateData(values);
-  //     // } else {
-  //     //   console.error('Invalid data format from the API');
-  //     // }
-  //   } catch (error) {
-  //     console.error('Error fetching data', error);
-  //   }
-  // };
-
   useEffect(() => {
     console.log('harsh user data', userData);
     console.log(userData);
-    const id = userData.currentUserId;
+    const id = userData?.currentUserId;
     socket = io(ENDPOINT);
     socket.emit('setup', id);
     socket.on('initialData', (data) => {
