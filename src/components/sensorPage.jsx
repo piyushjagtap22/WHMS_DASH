@@ -6,18 +6,12 @@ import {
   // docById
 } from '../../src/slices/adminApiSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTheme } from '@mui/material';
 
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 
-
-
-
 const SensorPage = () => {
-  
-
-
-
-
+  const theme = useTheme();
   const navigate = useNavigate();
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
@@ -213,74 +207,66 @@ const SensorPage = () => {
 
   return (
     <div className='App'>
-      {!!user && (
-
-        
-        <div className='App-header'>
-          {/* <input
-          type='text'
-          value={searchTerm}
-          onChange={handleSearchChange}
-          onKeyDown={handleKeyDown}
-          placeholder='Search...'
-        /> */}
-        {/* <p>{JSON.stringify(events)}</p> */}
-          <div>
-         
-            <table>
-              <thead>
-              <tr >
-                  
+    {!!user && (
+      <div className='App-header'>
+        <div>
+          <table style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: theme.palette.background.alt,
+            borderRadius: "1px",
+            borderCollapse: 'collapse',
+            
+          }}>
+            <thead>
+              <tr style={{ backgroundColor: theme.palette.secondary[300],
+              borderRadius : "5px",  border: "none", marginBottom : "5px" }}>
+                <td colSpan="5" style={{ borderRadius : "10px"}}>
                   <input
                     type='text'
                     value={searchTerm}
                     onChange={handleSearchChange}
                     onKeyDown={handleKeyDown}
-                    placeholder='Search...'
-                    style={{     
-                    backgroundColor: "#1d1f22",
-                    color: "white",
-                    border: '2px solid #007bff', // Highlighted border color
-                    borderRadius: '5px',        // Border radius
+                    placeholder='Search'
+                    style={{
+                      backgroundColor: theme.palette.secondary[400],
+                      color: theme.palette.secondary.main,
+                      border: '1px solid grey',
+                      borderRadius: '10px',
+                      padding: "0px 5px",
+                      fontSize : "15px",
+                      float: 'right',
+                      lineHeight : "30px",
+                      margin: "8px"
                     }}
                   />
-              
+                </td>
+              </tr>
+              <tr style={{ borderBottom: `1px solid ${theme.palette.secondary[400]}` }}>
+                <td >Device</td>
+                <td style={{  borderRight: `1px solid ${theme.palette.secondary[400]}` }}>Admin Id</td>
+                <td>Heart Rate</td>
+                <td>ECG Sensor</td>
+                <td>BP Sensor</td>
+              </tr>
+            </thead>
+            <tbody>
+              {events.map((e, i) => (
+                <tr style={{ cursor: "pointer", borderBottom: `1px solid ${theme.palette.secondary[300]}`, color : theme.palette.secondary.main }} key={i} onClick={() => handleRowClick(e)}>
+                  <td style={{  }}>{e?.deviceId}</td>
+                  <td style={{ borderRight: `1px solid ${theme.palette.secondary[400]}` }}>{e?.initialUserData?.name || "---"}</td>
+                  <td style={{  ...getCellStyle(e?.heartSensor) }}>{e?.heartSensor || "---"} bpm</td>
+                  <td style={{ ...getCellStyle(e?.xSensor) }}>{e?.xSensor || "---"} bpm</td>
+                  <td style={{ ...getCellStyle(e?.ySensor) }}>{e?.ySensor || "---"} mmhg</td>
                 </tr>
-                <tr>
-                  <td>Device</td>
-                  {/* <td>User Id</td> */}
-                  <td>Admin Id</td>
-                  <td >Heart Rate</td>
-                  <td>ECG Sensor</td>
-                  <td>BP Sensor</td>
-                  
-                </tr>
-              </thead>
-              <tbody>
-                {events.map((e, i) => (
-                 
-                  <tr style={{cursor: "pointer"}} key={i} onClick={() => handleRowClick(e)}>
-                   
-                    <td>{e?.deviceId}</td>
-                    <td>{e?.initialUserData?.name || "------" }</td>
-                    <td style={getCellStyle(e?.heartSensor)} >{e?.heartSensor || "------"} bpm</td>
-                    <td style={getCellStyle(e?.xSensor)}>{e?.xSensor || "------" } bpm</td>
-                    <td style={getCellStyle(e?.ySensor)}>{e?.ySensor || "------" } mmhg</td>
-
-                    {/* <tr>{JSON.stringify(e)}</tr> */}
-
-                  </tr>
-                    
-                ))}
-              </tbody>
-               
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
-    </div>
+      </div>
+    )}
+  </div>
   );
 };
 
 export default SensorPage;
-

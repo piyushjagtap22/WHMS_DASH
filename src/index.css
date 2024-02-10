@@ -10,24 +10,24 @@ body,
     font-family: "Inter", sans-serif;
 }
 a{
-  color: #B8D5FF;
+  color: red;
   text-decoration: none;
 }
 th{
   padding: 2em;
-  color: #E7F1FF;
+  color: red;
   font-size: 14px;
   font-family: Inter;
   font-weight: 600;
   line-height: 20px;
   word-wrap: break-word
 }
-table{
+/* table{
   width: 100%;
   height: 100%; 
   background: #0d1025; 
   border-radius: 16px;
-}
+} */
 tr{
   
   border-bottom: 1px #57647E solid;
@@ -38,7 +38,7 @@ tr{
   text-decoration: none;
 }
 
-.newtable{
+/* .newtable{
 color: #B8D5FF;
 font-size: 14px;
 font-family: Inter;
@@ -67,12 +67,11 @@ word-wrap: break-word
   line-height: 20px;
   word-wrap: break-word
 
-}
+} */
 td{
   line-height: 2em;
   padding-left: 2em;
   padding-right: 0em;
-  color: #B8D5FF;
 font-size: 14px;
 font-family: Inter;
 font-weight: 400;

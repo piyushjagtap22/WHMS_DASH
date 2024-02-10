@@ -87,7 +87,7 @@ const Graph = (props) => {
       gridColumn="span 7"
       gridRow="span 2"
       height="20rem"
-      backgroundColor={theme.palette.background.alt}
+      backgroundColor={theme.palette.secondary[300]}
       p="1.5rem"
       borderRadius="1.55rem"
       zIndex={2}
@@ -125,7 +125,7 @@ const Graph = (props) => {
             <span style={{ display: "flex", alignItems: "center" }}>
               <FiberManualRecordIcon
                 style={{
-                  color: "white",
+                  color: theme.palette.secondary[700],
                   marginRight: "0.2rem",
                   fontSize: "0.8rem",
                 }}

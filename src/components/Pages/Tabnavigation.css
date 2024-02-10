@@ -7,13 +7,6 @@ font-weight: 500;
 word-wrap: break-word
 }
 
-.sidebarvalues{
-margin-top: 0;
-color: white;
-font-size: 14px;
-font-family: Inter;
-font-weight: 500;
-word-wrap: break-word
-}
+
 
 /* there is lot of space etween two p elements what should i do to reduct the space between them */
