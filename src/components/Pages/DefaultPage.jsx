@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import io from 'socket.io-client';
 import UniqueLayout from './UniqueLayout';
 
-const ENDPOINT = 'http://localhost:3000';
+const ENDPOINT = 'https://whms-isro-sxur.vercel.app';
 var socket;
 const DefaultPage = () => {
   const theme = useTheme();

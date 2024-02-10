@@ -35,7 +35,7 @@ const SuperAdminSlice = createSlice({
 //     redirect: 'follow'
 //     };
 
-//     fetch("http://localhost:3000/api/admin/getDeviceData", requestOptions)
+//     fetch("https://whms-isro-sxur.vercel.app/api/admin/getDeviceData", requestOptions)
 //     .then(response => response.text())
 //     .then(result => console.log(result))
 //     .catch(error => console.log('error', error));

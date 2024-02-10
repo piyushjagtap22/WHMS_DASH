@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 
-const USERS_URL = 'http://localhost:3000/api/auth';
+const USERS_URL = 'https://whms-isro-sxur.vercel.app/api/auth';
 
 export const login = (data) => axios.post(`${USERS_URL}/signin`, data);
 
@@ -55,7 +55,7 @@ export const getMongoUser = (token) => axios.get(`${USERS_URL}/get-mongo-user`, 
   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, }
 });
 
-export const getMongoUserByEmail = (email) => axios.get(`http://localhost:3000/api/user/findUserByEmail/${email}`, {
+export const getMongoUserByEmail = (email) => axios.get(`https://whms-isro-sxur.vercel.app/api/user/findUserByEmail/${email}`, {
   headers: { 'Content-Type': 'application/json' }
 });
 

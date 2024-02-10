@@ -9,7 +9,7 @@ const ImageTesting = () => {
     const fetchData = async () => {
       try {
         const response = await axios.post(
-          'http://localhost:3000/api/superadmin/getDocById',
+          'https://whms-isro-sxur.vercel.app/api/superadmin/getDocById',
           {
             _id: '3rZHRorWjVOFShwBSf1Zi8N7hpC3',
           }

@@ -109,7 +109,7 @@ export const initializeAuthUser = () => async (dispatch) => {
             console.log(mgu);
             if (mgu.status === 204) {
               const newMgu = await fetch(
-                'http://localhost:3000/api/auth/create-mongo-user',
+                'https://whms-isro-sxur.vercel.app/api/auth/create-mongo-user',
                 {
                   method: 'POST',
                   headers: {

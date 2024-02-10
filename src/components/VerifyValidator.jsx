@@ -27,7 +27,7 @@ const VerifyValidator = ({ auth: { AuthState, AuthUser, MongoUser } }) => {
             const token = AuthUser.stsTokenManager.accessToken;
 
             const newMgu = await fetch(
-              'http://localhost:3000/api/auth/create-mongo-user',
+              'https://whms-isro-sxur.vercel.app/api/auth/create-mongo-user',
               {
                 method: 'POST',
                 headers: {

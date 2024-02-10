@@ -182,7 +182,7 @@ const EmailRegister = () => {
           if (res.status === 204) {
             try {
               const response = await fetch(
-                'http://localhost:3000/api/auth/create-mongo-user',
+                'https://whms-isro-sxur.vercel.app/api/auth/create-mongo-user',
                 {
                   method: 'POST',
                   headers: {

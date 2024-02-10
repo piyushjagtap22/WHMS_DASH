@@ -33,7 +33,7 @@ export const createAdmin = (data, token) => {
 //     redirect: 'follow'
 //     };
 
-//     fetch("http://localhost:3000/api/admin/getDeviceData", requestOptions)
+//     fetch("https://whms-isro-sxur.vercel.app/api/admin/getDeviceData", requestOptions)
 //     .then(response => response.text())
 //     .then(result => console.log(result))
 //     .catch(error => console.log('error', error));
@@ -98,7 +98,7 @@ export const approveDocById = (data,token) => {
 
 // export const docById = async (data,token) =>{
     
-//     const apiUrl = 'http://localhost:3000/api/superadmin/getDocById';
+//     const apiUrl = 'https://whms-isro-sxur.vercel.app/api/superadmin/getDocById';
 //     const authToken =
 //       `Bearer ${token}`;
 

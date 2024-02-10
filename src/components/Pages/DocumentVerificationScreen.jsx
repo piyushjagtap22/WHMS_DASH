@@ -93,7 +93,7 @@ const DocumentVerificationScreen = () => {
       formData.append('file', file);
 
       const response = await axios.post(
-        'http://localhost:3000/api/admin/uploadDocument',
+        'https://whms-isro-sxur.vercel.app/api/admin/uploadDocument',
         formData,
         {
           headers: {
