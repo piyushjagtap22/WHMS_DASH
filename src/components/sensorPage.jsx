@@ -38,7 +38,7 @@ const SensorPage = () => {
      const handleRealTimeUpdate = (updatedObject) => {
       setData((prevData) => {
         const updatedData = prevData.map((obj) => {
-          console.log("Fata")
+          console.log("updatedObject", updatedObject)
           if (obj._id === updatedObject._id) {
             // If the _id matches, update xSensor and ySensor values
            

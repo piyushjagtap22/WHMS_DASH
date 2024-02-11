@@ -108,6 +108,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
     if (AuthUser && AuthUser.displayName) {
       setName(AuthUser.displayName);
     }
+    console.log("MEri UID", AuthUser.uid);
     console.log(MongoUser);
   }, [AuthUser, MongoUser]);
   return (
@@ -130,7 +131,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
             gap='4rem'
             p='0.1rem 1.5rem'
           >
-            <Typography>{location.pathname.substring(1).toUpperCase()}</Typography>
+            <Typography>{location.pathname === "/Default" ? location.pathname.substring(1).toUpperCase() + " / WHMS-"  + AuthUser.uid.substring(0,4).toUpperCase() : location.pathname.substring(1).toUpperCase()}</Typography>
           </FlexBetween>
         </FlexBetween> 
 
@@ -138,9 +139,9 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
         <FlexBetween gap='1.5rem' >
           <IconButton onClick={() => dispatch(setMode())}>
             {theme.palette.mode === 'dark' ? (
-              <DarkModeOutlined sx={{ fontSize: '25px' }} />
-            ) : (
               <LightModeOutlined sx={{ fontSize: '25px' }} />
+            ) : (
+              <DarkModeOutlined sx={{ fontSize: '25px' }} />
             )}
           </IconButton>
           {/* <IconButton>
