@@ -32,6 +32,14 @@ const Graph = (props) => {
   const theme = useTheme();
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
 
+  function calculateAverage(lastValues) {
+    var sum = lastValues.reduce(function (acc, value) {
+      return acc + value;
+    }, 0);
+  
+    return sum / lastValues.length;
+  }
+
   const options = {
     plugins: {
       legend: {
@@ -76,8 +84,8 @@ const Graph = (props) => {
       {
         label: props.name,
         data: props.data,
-        backgroundColor: "green",
-        borderColor: "green",
+        backgroundColor: calculateAverage(props.data.slice(-10)) > props.max ? "red" : "green",
+        borderColor:  calculateAverage(props.data.slice(-10)) > props.max ? "red" : "green",
       },
     ],
   };

@@ -108,7 +108,6 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
     if (AuthUser && AuthUser.displayName) {
       setName(AuthUser.displayName);
     }
-    console.log("MEri UID", AuthUser.uid);
     console.log(MongoUser);
   }, [AuthUser, MongoUser]);
   return (

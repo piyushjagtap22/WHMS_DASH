@@ -79,12 +79,12 @@ const router = createBrowserRouter(
       />
       <Route path='/Default' element={<DefaultPage />} />
 
+      
+      </Route>
       <Route
         path='/superadmin'
         element={<SuperAdminValidator component={SuperAdminScreen} />}
       />
-      </Route>
-
       <Route
         path='/emailregister'
         element={<EmailRegisterValidator component={EmailRegister} />}
