@@ -39,7 +39,7 @@ import {
   getAdminUsers,
   RemoveUsersFromAdmin,
 } from '../../slices/adminApiSlice';
-
+import Navbar from './Navbar.jsx';
 const style = {
   position: 'absolute',
   top: '30%',
@@ -418,6 +418,13 @@ const SuperAdminScreen = () => {
   console.log('in superadmin');
   return (
     <>
+    <Box flexGrow={1}>
+        <Navbar
+          
+          user={data || {}}
+          
+        />
+      </Box>
       <div>
         Hello SuperAdmin,
         <Button

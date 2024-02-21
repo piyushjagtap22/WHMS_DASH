@@ -13,6 +13,12 @@ import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import { setMode } from '../../slices/modeSlice.js';
 import profileImage from '../../assets/profile.jpeg';
+import { setLoading } from '../../slices/loadingSlice';
+import { setAuthUser } from '../../slices/authSlice';
+import { setMongoUser } from '../../slices/authSlice';
+import { onAuthStateChanged } from 'firebase/auth';
+import { setAuthState } from '../../slices/authSlice';
+
 import {
   AppBar,
   Button,
@@ -31,6 +37,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 import { logout } from '../../slices/authSlice.js';
+import { useLocation } from 'react-router-dom';
 
 
 const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
@@ -45,17 +52,57 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const token = useSelector((state) => state.auth.token);
   const AuthUser = useSelector((state) => state.auth.AuthUser);
   const MongoUser = useSelector((state) => state.auth.MongoUser);
+  const location = useLocation();
   const userSignOut = () => {
     signOut(auth)
-      .then(() => {1
+      .then(() => {
         dispatch(logout(token));
         console.log('Succesfully Signed Out');
-        
       })
       .catch((err) => {
         console.log(err);
       });
   };
+
+  const delay = (milliseconds) =>
+    new Promise((resolve) => {
+      console.log('Delay called ', milliseconds);
+      setTimeout(resolve, milliseconds);
+    });
+
+  const handleLogout = async () => {
+    try {
+      dispatch(setLoading(true));
+      await delay(1000);
+      await signOut(auth);
+      console.log('in');
+      // Listen for changes in authentication state
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          // User is successfully signed out, navigate to '/register'
+          dispatch(setAuthState('/register'));
+          dispatch(setAuthUser(null));
+          dispatch(setMongoUser(null));
+          console.log('here');
+          // dispatch(setLoading(true));
+          console.log('Navigating to /register');
+
+          // Use navigate to trigger navigation
+          navigate('/register');
+
+          // Make sure this log is reached
+          console.log('Navigation completed');
+
+          unsubscribe(); // Unsubscribe to avoid further callbacks
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      dispatch(setLoading(false)); // Hide loader when operation completes
+    }
+  };
+
 
   useEffect(() => {
     if (AuthUser && AuthUser.displayName) {
@@ -69,39 +116,36 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
         position: 'static',
         background: 'none',
         boxShadow: 'none',
+        borderBottom : `1px solid ${theme.palette.secondary[400]}`,
       }}
     >
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
+      <Toolbar sx={{ justifyContent: 'space-between' }} style={{ borderBottom : 'red'}}>
         {/* LEFT SIDE */}
         <FlexBetween>
           <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
             <MenuIcon />
           </IconButton>
           <FlexBetween
-            backgroundColor={theme.palette.background.alt}
             borderRadius='9px'
-            gap='3rem'
+            gap='4rem'
             p='0.1rem 1.5rem'
           >
-            <InputBase placeholder='Search...' />
-            <IconButton>
-              <Search />
-            </IconButton>
+            <Typography>{location.pathname === "/Default" ? location.pathname.substring(1).toUpperCase() + " / WHMS-"  + AuthUser.uid.substring(0,4).toUpperCase() : location.pathname.substring(1).toUpperCase()}</Typography>
           </FlexBetween>
-        </FlexBetween>
+        </FlexBetween> 
 
         {/* RIGHT SIDE */}
-        <FlexBetween gap='1.5rem'>
+        <FlexBetween gap='1.5rem' >
           <IconButton onClick={() => dispatch(setMode())}>
             {theme.palette.mode === 'dark' ? (
-              <DarkModeOutlined sx={{ fontSize: '25px' }} />
-            ) : (
               <LightModeOutlined sx={{ fontSize: '25px' }} />
+            ) : (
+              <DarkModeOutlined sx={{ fontSize: '25px' }} />
             )}
           </IconButton>
-          <IconButton>
+          {/* <IconButton>
             <SettingsOutlined sx={{ fontSize: '25px' }} />
-          </IconButton>
+          </IconButton> */}
 
           <FlexBetween>
             <Button
@@ -139,7 +183,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
                 </Typography>
               </Box>
               <ArrowDropDownOutlined
-                sx={{ color: theme.palette.secondary[300], fontSize: '25px' }}
+                sx={{ color: theme.palette.secondary[800], fontSize: '25px' }}
               />
             </Button>
             <Menu
@@ -147,8 +191,9 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
               open={isOpen}
               onClose={handleClose}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+              color = {theme.palette.secondary[800]}
             >
-              <MenuItem onClick={userSignOut}>Log Out</MenuItem>
+              <MenuItem onClick={handleLogout}>Log Out</MenuItem>
             </Menu>
           </FlexBetween>
         </FlexBetween>

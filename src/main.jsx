@@ -61,9 +61,7 @@ const theme = createTheme(themeSettings('dark'));
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
-      <Route path='/unique' element={<UniqueLayout />} />
-      <Route path='/tabbar' element={<Tabsnavigation />} />
-      <Route path="/err" element={<SomethingWentWrong />} />
+
 
       <Route
         path='/register'
@@ -79,12 +77,14 @@ const router = createBrowserRouter(
         path='/dashboard'
         element={<DashboardValidator component={Dashboard} />}
       />
+      <Route path='/Default' element={<DefaultPage />} />
+
+      
+      </Route>
       <Route
         path='/superadmin'
         element={<SuperAdminValidator component={SuperAdminScreen} />}
       />
-      </Route>
-
       <Route
         path='/emailregister'
         element={<EmailRegisterValidator component={EmailRegister} />}
@@ -98,7 +98,6 @@ const router = createBrowserRouter(
       <Route path='/verify' element={<DocumentVerificationScreen />} /> */}
       {/* <Route path='' element={<PrivateRoute />}> */}
       {/* <Route path='' element={<UniqueLayout />}/> */}
-      <Route path='/Default' element={<DefaultPage />} />
 
       
       {/* <Route path='/profile' element={<ProfileScreen />} /> */}

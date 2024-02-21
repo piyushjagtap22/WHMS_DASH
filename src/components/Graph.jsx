@@ -32,6 +32,14 @@ const Graph = (props) => {
   const theme = useTheme();
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
 
+  function calculateAverage(lastValues) {
+    var sum = lastValues.reduce(function (acc, value) {
+      return acc + value;
+    }, 0);
+  
+    return sum / lastValues.length;
+  }
+
   const options = {
     plugins: {
       legend: {
@@ -76,8 +84,8 @@ const Graph = (props) => {
       {
         label: props.name,
         data: props.data,
-        backgroundColor: "green",
-        borderColor: "green",
+        backgroundColor: calculateAverage(props.data.slice(-10)) > props.max ? "red" : "green",
+        borderColor:  calculateAverage(props.data.slice(-10)) > props.max ? "red" : "green",
       },
     ],
   };
@@ -87,7 +95,7 @@ const Graph = (props) => {
       gridColumn="span 7"
       gridRow="span 2"
       height="20rem"
-      backgroundColor={theme.palette.background.alt}
+      backgroundColor={theme.palette.secondary[300]}
       p="1.5rem"
       borderRadius="1.55rem"
       zIndex={2}
@@ -125,7 +133,7 @@ const Graph = (props) => {
             <span style={{ display: "flex", alignItems: "center" }}>
               <FiberManualRecordIcon
                 style={{
-                  color: "white",
+                  color: theme.palette.secondary[700],
                   marginRight: "0.2rem",
                   fontSize: "0.8rem",
                 }}

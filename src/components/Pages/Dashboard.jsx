@@ -8,21 +8,10 @@ import Header from '../Header';
 import * as Realm from 'realm-web';
 import { setLoading } from '../../slices/loadingSlice';
 // import MapComponent from '../MapComponent';
-import { ToastContainer, toast } from 'react-toastify';
-import Loader from '../Loader';
 import { setMongoUser } from '../../slices/authSlice';
 import { onAuthStateChanged } from 'firebase/auth';
-import {
-  DownloadOutlined,
-  Email,
-  PointOfSale,
-  PersonAdd,
-  Traffic,
-} from '@mui/icons-material';
 import { Box, useTheme, useMediaQuery } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
 // import { useGetUserQuery } from "state/api";
-import { getAllUsers } from './../../slices/superAdminApiSlice';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -99,39 +88,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      dispatch(setLoading(true));
-      await delay(1000);
-      await signOut(auth);
-      console.log('in');
-      // Listen for changes in authentication state
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          // User is successfully signed out, navigate to '/register'
-          dispatch(setAuthState('/register'));
-          dispatch(setAuthUser(null));
-          dispatch(setMongoUser(null));
-          console.log('here');
-          // dispatch(setLoading(true));
-          console.log('Navigating to /register');
-
-          // Use navigate to trigger navigation
-          navigate('/register');
-
-          // Make sure this log is reached
-          console.log('Navigation completed');
-
-          unsubscribe(); // Unsubscribe to avoid further callbacks
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      dispatch(setLoading(false)); // Hide loader when operation completes
-    }
-  };
-
+  
   const handleKeyDown = (e) => {
     if (e.key === 'Backspace') {
       console.log('keydown working');
@@ -307,8 +264,6 @@ const Dashboard = () => {
     <>
       <Box m='1.5rem 2.5rem'>
         <FlexBetween>
-          <Header title='DASHBOARD' subtitle='Welcome to your dashboard' />
-          <button onClick={handleLogout}>Log Out</button>
           {/* <Box>
           <Button
             sx={{
