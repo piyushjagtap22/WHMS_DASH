@@ -11,6 +11,9 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import { IconButton } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+
 import { DataGrid } from '@mui/x-data-grid';
 import { useTheme, useMediaQuery } from '@mui/material';
 import { Card, CardMedia } from '@mui/material';
@@ -236,20 +239,28 @@ const SuperAdminScreen = () => {
 
   const enableAdminByID = async (userId) => {
     // Perform your query or action using the retrieved data
-    console.log(`Clicked user ID: ${userId}`);
-    console.log('enable Admin');
-    try {
-      const response = await enableAdmin({ adminId: `${userId}` }, token);
-      console.log(response);
-      if (response.status === 200) {
-        console.log(response); // Assuming the user data is in the response data
-        setButton(!button);
-      } else {
-        // Handle any errors or show a message
+    const result = window.confirm("Do you want to Navigate to User details Page");
+
+    if (result) {
+      console.log(`Clicked user ID: ${userId}`);
+      console.log('enable Admin');
+      try {
+        const response = await enableAdmin({ adminId: `${userId}` }, token);
+        console.log(response);
+        if (response.status === 200) {
+          console.log(response); // Assuming the user data is in the response data
+          setButton(!button);
+        } else {
+          // Handle any errors or show a message
+        }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
+    } else {
+      console.log("User Denied to Change Status")
     }
+
+  
   };
 
   const addDevice = async (data) => {
@@ -265,6 +276,7 @@ const SuperAdminScreen = () => {
       // const response = await addDeviceID({"adminId": "gL3g7f1sOSUGGyQmrB3mvOn68xm1","deviceIds": ["deviceId9"]}, token);
       if (response.status === 200) {
         console.log(response); // Assuming the user data is in the response data
+        setTextFieldValue("");
         setButton(!button);
       } else {
         // Handle any errors or show a message
@@ -281,20 +293,28 @@ const SuperAdminScreen = () => {
 
   const disableAdminByID = async (userId) => {
     // Perform your query or action using the retrieved data
-    console.log(`Clicked user ID: ${userId}`);
-    console.log('enable Admin');
-    try {
-      const response = await disableAdmin({ adminId: `${userId}` }, token);
-      console.log(response);
-      if (response.status === 200) {
-        console.log(response); // Assuming the user data is in the response data
-        setButton(!button);
-      } else {
-        // Handle any errors or show a message
+
+    const result = window.confirm("Do you want to Navigate to User details Page");
+
+    if (result) {
+      console.log(`Clicked user ID: ${userId}`);
+      console.log('enable Admin');
+      try {
+        const response = await disableAdmin({ adminId: `${userId}` }, token);
+        console.log(response);
+        if (response.status === 200) {
+          console.log(response); // Assuming the user data is in the response data
+          setButton(!button);
+        } else {
+          // Handle any errors or show a message
+        }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
+    } else {
+      console.log("User Denied to Change Status")
     }
+
   };
 
   const handleShowUserIds = (adminId) => {
@@ -406,7 +426,7 @@ const SuperAdminScreen = () => {
         />
       </Box>
       <div>
-        {/* Hello SuperAdmin,
+        Hello SuperAdmin,
         <Button
           onClick={handleLogout}
           style={{
@@ -418,7 +438,7 @@ const SuperAdminScreen = () => {
           fullWidth
         >
           Logout
-        </Button> */}
+        </Button>
         <h1>Admin Management</h1>
         <table>
           <thead>
@@ -457,7 +477,7 @@ const SuperAdminScreen = () => {
                 )}
               </Card>
               <button onClick={() => approveDoc(selectedAdmin)}>
-                Approve Documents{selectedAdmin}
+                Approve Documents
               </button>
             </Box>
           </Modal>
@@ -468,30 +488,6 @@ const SuperAdminScreen = () => {
                   <td>{admin.name}</td>
                   <td>{admin.email}</td>
                   <td>{admin._id}</td>
-                  <td>
-                    {admin?.adminDetails[0]?.accountEnabled ? (
-                      <a href='#' style={{color:'#FF553C'}}onClick={() => disableAdminByID(admin._id)}>
-                        Disable Admin
-                      </a>
-                    ) : (
-                      <a href='#' style={{color:'#7CD6AB'}} onClick={() => enableAdminByID(admin._id)}>
-                        Enable Admin
-                      </a>
-                    )}
-                  </td>
-
-                  {/* <tr>
-              <button onClick={() => handleShowUserIds(admin._id)}>
-                    {showUserIds[admin._id] ? 'Hide Admin IDs' : 'Show Admin IDs'}
-                  </button>
-              </tr> */}
-                  <tr style={{borderBottom:"none"}}>
-                    {admin?.adminDetails[0]?.accountEnabled ? (
-                      <td style={{color:'#7CD6AB' }} >Enabled</td>
-                    ) : (
-                      <td style={{color:'#FF553C' }}>Disabled</td>
-                    )}
-                  </tr>
                   <td>
                     {!admin?.doc_verified ? (
                       <>
@@ -504,10 +500,12 @@ const SuperAdminScreen = () => {
                           See documents
                         </a>
                         <IconButton
-                          onClick={() => handleShowUserIds(admin._id)}
+                          onClick={() => handleOpen(admin._id)}
                         >
-                          <KeyboardArrowDownIcon />
+                             <VisibilityIcon />
                         </IconButton>
+                    
+                      
                       </>
                     ) : (
                       <>
@@ -515,45 +513,94 @@ const SuperAdminScreen = () => {
                           See documents
                         </a>
                         <IconButton
-                          onClick={() => handleShowUserIds(admin._id)}
+                          onClick={() => handleOpen(admin._id)}
                         >
-                          <KeyboardArrowDownIcon />
+                             <VisibilityIcon />
                         </IconButton>
+                       
                       </>
                     )}
                   </td>
+                 
+
+                  {/* <tr>
+              <button onClick={() => handleShowUserIds(admin._id)}>
+                    {showUserIds[admin._id] ? 'Hide Admin IDs' : 'Show Admin IDs'}
+                  </button>
+              </tr> */}
+                  <td>
+                    {admin?.adminDetails[0]?.accountEnabled ? (
+                      <>
+                      <a href='#' style={{color:'#7CD6AB'}}onClick={() => disableAdminByID(admin._id)}>
+                        Enabled
+                      </a>
+                       
+                      </>
+                      
+                    ) : (
+                      <>
+                      <a href='#' style={{color:'#FF553C'}} onClick={() => enableAdminByID(admin._id)}>
+                        Disabled
+                      </a>
+                      
+                     </>
+                    )}
+                  </td> 
+                 
+                  <td>
+                    
+                      <a href='#'  onClick={() => handleShowUserIds(admin._id)} >
+                        Device List
+                        {showUserIds[admin._id] ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
+                      </a>
+                     
+                  </td> 
+
+
                 </tr>
 
                 <tr>
                   {showUserIds[admin._id] && admin.adminDetails && (
                      <div className="">
                       <table className='newtableoutline'>
-                        <th className='newtableth'>Device ID</th>
-                        <tr></tr>
+                        <th className='newtableth'><b>Device ID'S</b></th>
+                        <tr>
+                          
+                        </tr>
                         {admin?.adminDetails[0]?.deviceIds.map((userId) => (
                           <>
                             <th className='newtableth' key={userId}>
                               {userId}
                             </th>
-                            <tr></tr>
+                            <tr>
+                             
+                            </tr>
+                           
                           </>
+                          
                         ))}
-                        <div>
-                          {/* <h1>Harsh</h1> */}
-                        <tr>
+
+                        <tr style={{"position":'absolute',"border-bottom":"none"}}>
                           <TextField
-                            style={{ 'padding-left': '0.5em' }}
+                            style={{ 'padding-left': '0.5em','borderRadius': '30px'}}
                             id='outlined-basic'
                             onChange={handleInputChange}
                             value={textFieldValue}
                             label='Add Device id'
                             variant='outlined'
+                            
                           />
-                          <button onClick={() => addDevice(admin._id)}>
+                      
+                          <button className='tableButton' onClick={() => addDevice(admin._id)}>
                             Add Device
                           </button>
                         </tr>
-                        </div>
+                        <tr style={{"border-bottom":"none"}}>
+                          <p> &nbsp; </p>
+                          <br/>
+                        </tr>
+
+                        
                       </table>
                     </div>
                   )}

@@ -52,6 +52,7 @@ import Tabsnavigation from './components/Pages/Tabsnavigation.tsx';
 // import UniqueLayout from './components/Pages/uniqueLayout.jsx';
 import UniqueLayout from './components/Pages/UniqueLayout.jsx';
 import TempPage from './components/Pages/TempPage.jsx';
+import SomethingWentWrong from './components/Pages/SomethingWentWrong.jsx';
 const theme = createTheme(themeSettings('dark'));
 //
 //Firebase auth Initilialization
@@ -60,8 +61,7 @@ const theme = createTheme(themeSettings('dark'));
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
-      {/* <Route path='/unique' element={<UniqueLayout />} />
-      <Route path='/tabbar' element={<Tabsnavigation />} /> */}
+
 
       <Route
         path='/register'
