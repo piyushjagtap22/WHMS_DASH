@@ -37,7 +37,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 import { logout } from '../../slices/authSlice.js';
-import { useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 
 const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
@@ -52,6 +52,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const token = useSelector((state) => state.auth.token);
   const AuthUser = useSelector((state) => state.auth.AuthUser);
   const MongoUser = useSelector((state) => state.auth.MongoUser);
+  const navigate = useNavigate();
   const location = useLocation();
   const userSignOut = () => {
     signOut(auth)
@@ -89,7 +90,6 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
 
           // Use navigate to trigger navigation
           navigate('/register');
-
           // Make sure this log is reached
           console.log('Navigation completed');
 

@@ -11,6 +11,7 @@ import DocumentVerificationScreen from './Pages/DocumentVerificationScreen';
 const VerifyValidator = ({ auth: { AuthState, AuthUser, MongoUser } }) => {
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch();
+  const API_URL = import.meta.env.VITE_REACT_API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,7 +28,7 @@ const VerifyValidator = ({ auth: { AuthState, AuthUser, MongoUser } }) => {
             const token = AuthUser.stsTokenManager.accessToken;
 
             const newMgu = await fetch(
-              'http://localhost:3000/api/auth/create-mongo-user',
+              `${API_URL}/api/auth/create-mongo-user`,
               {
                 method: 'POST',
                 headers: {

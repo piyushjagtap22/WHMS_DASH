@@ -63,7 +63,7 @@ const SuperAdminScreen = () => {
   const dispatch = useDispatch();
   const [adminInfo, setAdminInfo] = useState();
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
-  const SUPERADMIN_URL = 'http://localhost:3000' + '/api/superadmin';
+  const SUPERADMIN_URL = `${import.meta.env.VITE_REACT_API_URL}/api/superadmin`;
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );

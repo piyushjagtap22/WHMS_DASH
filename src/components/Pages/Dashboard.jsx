@@ -51,7 +51,7 @@ const Dashboard = () => {
   const [events, setEvents] = useState([]);
   const [realTimeData, setRealTimeData] = useState([]);
   const [newRealTimeData, setNewRealTimeData] = useState([]);
-
+  console.log("shiv" + JSON.stringify(import.meta.env.VITE_REACT_API_URL));
   // const {data } = useGetUserQuery();
   console.log(userInfo + 'userInfo');
   const token = useSelector(

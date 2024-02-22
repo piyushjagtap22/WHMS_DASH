@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 
-const USERS_URL = 'http://localhost:3000/api/auth';
+const USERS_URL = `${import.meta.env.VITE_REACT_API_URL}/api/auth`;
 
 export const login = (data) => axios.post(`${USERS_URL}/signin`, data);
 
@@ -14,7 +14,7 @@ export const verify = (data) => axios.post(`${USERS_URL}/verifycode`, data);
 //     Authorization: `Bearer ${token}`,
 //   },
 // });
-
+const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
 export const updateUser = (data, token) => {
   // Make sure to pass the 'token' as an argument to this function
   return axios.post(`${import.meta.env.VITE_API_URL}/api/profile/update-profile`, data, {
@@ -55,7 +55,7 @@ export const getMongoUser = (token) => axios.get(`${USERS_URL}/get-mongo-user`, 
   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, }
 });
 
-export const getMongoUserByEmail = (email) => axios.get(`http://localhost:3000/api/user/findUserByEmail/${email}`, {
+export const getMongoUserByEmail = (email) => axios.get(`${ENDPOINT}/api/user/findUserByEmail/${email}`, {
   headers: { 'Content-Type': 'application/json' }
 });
 

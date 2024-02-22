@@ -90,7 +90,7 @@ export const {
   setAuthState,
 } = authSlice.actions;
 
-
+const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
 export const initializeAuthUser = () => async (dispatch) => {
   try {
     console.log("here");
@@ -109,7 +109,7 @@ export const initializeAuthUser = () => async (dispatch) => {
             console.log(mgu);
             if (mgu.status === 204) {
               const newMgu = await fetch(
-                'http://localhost:3000/api/auth/create-mongo-user',
+                `${ENDPOINT}/api/auth/create-mongo-user`,
                 {
                   method: 'POST',
                   headers: {

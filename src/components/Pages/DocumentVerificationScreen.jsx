@@ -16,6 +16,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useDispatch, useSelector } from 'react-redux';
 import { initializeMongoUser } from '../../slices/authSlice';
 import store from '../../store';
+const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
 
 const DocumentVerificationScreen = () => {
   const [file, setFile] = useState(null);
@@ -93,7 +94,7 @@ const DocumentVerificationScreen = () => {
       formData.append('file', file);
 
       const response = await axios.post(
-        'http://localhost:3000/api/admin/uploadDocument',
+        `${ENDPOINT}/api/admin/uploadDocument`,
         formData,
         {
           headers: {

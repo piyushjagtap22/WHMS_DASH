@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-
+const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
 const ImageTesting = () => {
   console.log('image testing');
   const [imageUrl, setImageUrl] = useState('');
@@ -9,7 +9,7 @@ const ImageTesting = () => {
     const fetchData = async () => {
       try {
         const response = await axios.post(
-          'http://localhost:3000/api/superadmin/getDocById',
+          `${ENDPOINT}/api/superadmin/getDocById`,
           {
             _id: '3rZHRorWjVOFShwBSf1Zi8N7hpC3',
           }
