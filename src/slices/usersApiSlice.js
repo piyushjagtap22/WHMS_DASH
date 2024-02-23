@@ -17,13 +17,13 @@ export const verify = (data) => axios.post(`${USERS_URL}/verifycode`, data);
 const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
 export const updateUser = (data, token) => {
   // Make sure to pass the 'token' as an argument to this function
-  return axios.post(`${import.meta.env.VITE_API_URL}/api/profile/update-profile`, data, {
+  return axios.post(`${import.meta.env.VITE_REACT_API_URL}/api/profile/update-profile`, data, {
     headers: { 'Authorization': `Bearer ${token}` }
   });
 };
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL
+  baseURL: import.meta.env.VITE_REACT_API_URL
 })
 axiosInstance.interceptors.response.use((response) => {
   return response

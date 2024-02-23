@@ -2,10 +2,10 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL
+    baseURL: import.meta.env.VITE_REACT_API_URL
 })
 
-const SUPERADMIN_URL = import.meta.env.VITE_API_URL + '/api/superadmin';
+const SUPERADMIN_URL = import.meta.env.VITE_REACT_API_URL + '/api/superadmin';
 
 export const createAdmin = (data, token) => {
 
@@ -14,7 +14,7 @@ export const createAdmin = (data, token) => {
         headers: { 'Authorization': `Bearer ${token}` }
     });
 }
-
+console.log("superadmin" + SUPERADMIN_URL);
 // export const getUserById =(data,token) => {
 //     alert(data);
 

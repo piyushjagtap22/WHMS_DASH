@@ -110,7 +110,7 @@ const SuperAdminScreen = () => {
     }
   };
   useEffect(() => {
-    // Fetch user data when the component mounts
+    // Fetch user data when the component mountsout
     const fetchData = async () => {
       try {
         console.log('in fetchdata');
@@ -427,7 +427,7 @@ const SuperAdminScreen = () => {
       </Box>
       <div>
         Hello SuperAdmin,
-        <Button
+        {/* <Button
           onClick={handleLogout}
           style={{
             backgroundColor: '#7CD6AB',
@@ -438,7 +438,7 @@ const SuperAdminScreen = () => {
           fullWidth
         >
           Logout
-        </Button>
+        </Button> */}
         <h1>Admin Management</h1>
         <table>
           <thead>

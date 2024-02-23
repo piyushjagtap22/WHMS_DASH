@@ -21,8 +21,8 @@ import UniqueLayout from "./UniqueLayout";
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
-const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
 
+const ENDPOINT = "http://localhost:3000";
 var socket;
 const DefaultPage = () => {
   const theme = useTheme();
