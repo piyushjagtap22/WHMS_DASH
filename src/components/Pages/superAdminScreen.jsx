@@ -440,15 +440,22 @@ const SuperAdminScreen = () => {
           Logout
         </Button> */}
         <h1>Admin Management</h1>
-        <table>
+        <table style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: theme.palette.background.alt,
+            borderRadius: "1px",
+            borderCollapse: 'collapse',
+            
+          }}>
           <thead>
-            <tr>
-              <th>Name</th>
+          <tr style={{ borderBottom: `1px solid ${theme.palette.secondary[400]}` }}>
+              <th >Name</th>
               <th>Email</th>
-              <th>Admin ID</th>
-              <th>Doc Status</th>
-              <th>Admin Status</th>
-              <th>Devices</th>
+              <th >Admin ID</th>
+              <th >Doc Status</th>
+              <th >Admin Status</th>
+              <th >Devices</th>
             </tr>
           </thead>
           <Modal

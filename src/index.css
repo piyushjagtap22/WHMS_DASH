@@ -10,12 +10,12 @@ body,
     font-family: "Inter", sans-serif;
 }
 a{
-  color: red;
+  color: #B8D5FF;
   text-decoration: none;
 }
 th{
   padding: 2em;
-  color: red;
+  color: white;
   font-size: 14px;
   font-family: Inter;
   font-weight: 600;
@@ -32,6 +32,10 @@ tr{
   
   border-bottom: 1px #57647E solid;
 
+}
+
+td{
+  color:#B8D5FF;
 }
 
 :last-child {
