@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { setLoading } from '../../slices/loadingSlice.js';
 import { Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+
 import {
   setAuthState,
   setAuthUser,
@@ -245,7 +247,7 @@ const Register = () => {
             fontWeight='bold'
             style={{ color: '#7CD6AB' }}
           >
-            Register Account
+            Register / Login Account
           </Typography>
           <Typography
             variant='subtitle1'
@@ -269,6 +271,7 @@ const Register = () => {
                 country={'in'}
                 value={phoneNumber}
                 onChange={setPhoneNumber}
+                
                 inputStyle={{
                   fontSize: '16px',
                   background: 'black',
@@ -360,6 +363,15 @@ const Register = () => {
                 error={errors.terms}
               />
             )}
+          <br></br>
+          <Typography
+              variant='subtitle2'
+              style={{ margin: '8px 0', color: '#7CD6AB' }}
+              component={Link} // Render Typography as a link
+              to='/login' // Specify the route to navigate to
+            >
+              Login with Email
+            </Typography>
 
             <Button
               type='submit'

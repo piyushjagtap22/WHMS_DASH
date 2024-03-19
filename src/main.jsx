@@ -92,7 +92,7 @@ const router = createBrowserRouter(
       <Route path='*' element={<NotFoundPage />} />
 
       {/* <Route path='' element={<AuthValidations />}> */}
-      {/* <Route path='/login' element={<LoginScreen />} /> */}
+      <Route path='/login' element={<LoginScreen />} />
       {/* <Route path='/register' element={<Register />} />
       <Route path='/emailregister' element={<EmailRegister />} />
       <Route path='/verify' element={<DocumentVerificationScreen />} /> */}
