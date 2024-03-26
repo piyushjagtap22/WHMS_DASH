@@ -41,10 +41,16 @@ export const AddUsersToAdmin = (data, token) => {
 // }
 
 export const getDeviceIds = (token) => {
-    console.log("getDevice id chsla");
+    console.log("getDevice id chala");
     return axios.get(`${ADMIN_URL}/getDeviceIds`, {
         headers: { 'Authorization': `Bearer ${token}` }
-    }); 
+    });
+}
+
+export const getSensorDB = (token, id) => {
+    return axios.post(`http://localhost:3000/api/admin/getSensordb`, { id }, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
 }
 
 export const RemoveUsersFromAdmin = (data, token) => {
