@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as Realm from 'realm-web';
 import IconButton from '@mui/material/IconButton';
 import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 const ENDPOINT = 'http://localhost:3000';
 var socket;
@@ -22,10 +23,14 @@ const DefaultPage = () => {
   const [user, setUser] = useState();
   const [heartRateData, setHeartRateData] = useState([]);
   const [heartRateTimeStamp, setheartRateTimeStamp] = useState([]);
-  const [xSensorData, setxSensorData] = useState([]);
-  const [xSensorTimeStamp, setxSensorTimeStamp] = useState([]);
-  const [ySensorData, setySensorData] = useState([]);
-  const [ySensorTimeStamp, setySensorTimeStamp] = useState([]);
+  const [BreathRateSensorData, setBreathRateSensorData] = useState([]);
+  const [BreathRateSensorTimeStamp, setBreathRateSensorTimeStamp] = useState(
+    []
+  );
+  const [VentilatonSensorData, setVentilatonSensorData] = useState([]);
+  const [VentilatonSensorTimeStamp, setVentilatonSensorTimeStamp] = useState(
+    []
+  );
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
@@ -36,6 +41,7 @@ const DefaultPage = () => {
       try {
         const id = userData.data.currentUserId;
         if (setEvents.length <= 1) {
+          console.log(id);
           const response = await getSensorDB(token, id);
           if (response.status === 200) {
             setHeartRateData(
@@ -47,16 +53,24 @@ const DefaultPage = () => {
               )
             );
 
-            setxSensorData(response.data.xSensor.map((item) => item.value));
-
-            setxSensorTimeStamp(
-              response.data.xSensor.map((item) => item.timestamp.slice(11, 19))
+            setBreathRateSensorData(
+              response.data.BreathRateSensor.map((item) => item.value)
             );
 
-            setySensorData(response.data.ySensor.map((item) => item.value));
+            setBreathRateSensorTimeStamp(
+              response.data.BreathRateSensor.map((item) =>
+                item.timestamp.slice(11, 19)
+              )
+            );
 
-            setySensorTimeStamp(
-              response.data.ySensor.map((item) => item.timestamp.slice(11, 19))
+            setVentilatonSensorData(
+              response.data.VentilatonSensor.map((item) => item.value)
+            );
+
+            setVentilatonSensorTimeStamp(
+              response.data.VentilatonSensor.map((item) =>
+                item.timestamp.slice(11, 19)
+              )
             );
             setEvents(response.data.deviceDocuments);
             setinitialTable(response.data.deviceDocuments);
@@ -79,22 +93,22 @@ const DefaultPage = () => {
               )
             );
 
-            setxSensorData(
-              change.fullDocument.xSensor.map((item) => item.value)
+            setBreathRateSensorData(
+              change.fullDocument.BreathRateSensor.map((item) => item.value)
             );
 
-            setxSensorTimeStamp(
-              change.fullDocument.xSensor.map((item) =>
+            setBreathRateSensorTimeStamp(
+              change.fullDocument.BreathRateSensor.map((item) =>
                 item.timestamp.slice(11, 19)
               )
             );
 
-            setySensorData(
-              change.fullDocument.ySensor.map((item) => item.value)
+            setVentilatonSensorData(
+              change.fullDocument.VentilatonSensor.map((item) => item.value)
             );
 
-            setySensorTimeStamp(
-              change.fullDocument.ySensor.map((item) =>
+            setVentilatonSensorTimeStamp(
+              change.fullDocument.VentilatonSensor.map((item) =>
                 item.timestamp.slice(11, 19)
               )
             );
@@ -142,17 +156,17 @@ const DefaultPage = () => {
           {/* ROW 2 */}
 
           <Graph
-            name={'XSensor'}
-            data={xSensorData}
-            timestamp={xSensorTimeStamp}
+            name={'BreathRateSensor'}
+            data={BreathRateSensorData}
+            timestamp={BreathRateSensorTimeStamp}
             max={90}
           />
 
           {/* ROW 3 */}
           <Graph
-            name={'YSensor'}
-            data={ySensorData}
-            timestamp={ySensorTimeStamp}
+            name={'VentilatonSensor'}
+            data={VentilatonSensorData}
+            timestamp={VentilatonSensorTimeStamp}
             max={90}
           />
 
