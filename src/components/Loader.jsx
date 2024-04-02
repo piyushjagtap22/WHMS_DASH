@@ -1,20 +1,19 @@
-import { Spinner } from 'react-bootstrap';
+import React from 'react';
 
 const Loader = () => {
   return (
-    <Spinner
-    animation='border'
-    role='status'
-    style={{
-      width: '100px',
-      height: '100px',
-      margin: 'auto',
-      display: 'block',
-      position: 'absolute',
-      top: '50%',
-      left: '45%',
-    }}
-  ></Spinner>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh', /* Set height to 100% of viewport height */
+    }}>
+      <img src="../src/assets/loader.gif" alt="Loading..." style={{
+        width: '100px', /* Adjust the width as needed */
+        height: '100px', 
+        scale: '2'/* Adjust the height as needed */
+      }} />
+    </div>
   );
 };
 
