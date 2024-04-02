@@ -12,7 +12,7 @@ import FlexBetween from '../FlexBetween.jsx';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import { setMode } from '../../slices/modeSlice.js';
-import profileImage from '../../assets/profile.jpeg';
+import profileImage from '../../assets/profile.png';
 import { setLoading } from '../../slices/loadingSlice';
 import { setAuthUser } from '../../slices/authSlice';
 import { setMongoUser } from '../../slices/authSlice';

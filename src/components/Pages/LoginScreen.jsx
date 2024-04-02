@@ -3,8 +3,9 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import { setLoading } from '../../slices/loadingSlice.js';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { InputAdornment } from '@mui/material';
-
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import InputAdornment from '@mui/material/InputAdornment';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import Loader from '../Loader';
 import { initializeAuthUser, setToken } from '../../slices/authSlice.js';
@@ -49,13 +50,16 @@ function LoginScreen() {
   const loading = useSelector((state) => state.loading.loading);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [loginError,setLoginError] = useState(null);
+  const [loginErrorMessage,setLoginErrorMessage] = useState(null);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [isFormValid,setIsFormValid] = useState(false);
 
   const handleResetPassword = () => {
     sendPasswordResetEmail(auth ,email)
@@ -75,11 +79,14 @@ function LoginScreen() {
     setOpen(!open);
   };
 
-
-
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((showPassword) => !showPassword);
+  };
   const submitHandler = async (e) => {
     setIsLoading(true);
     e.preventDefault();
+
+  
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         console.log(userCredential);
@@ -164,9 +171,16 @@ function LoginScreen() {
         }
       })
       .catch((err) => {
+        setLoginErrorMessage("Invalid Credentials");
         console.log(err);
       });
   };
+    useEffect(() => {
+      setIsFormValid(email.trim() !== '' && password.trim() !== '');
+      console.log(isFormValid);
+      console.log("rinnong");
+    }, [email, password]);
+
   return (
     <>
          {loading ? (
@@ -189,7 +203,7 @@ function LoginScreen() {
             fontWeight='bold'
             style={{ color: '#7CD6AB' }}
           >
-           Login Account
+           Login 
           </Typography>
           <Typography
             variant='subtitle1'
@@ -210,30 +224,23 @@ function LoginScreen() {
             </Typography>
 
             <div>
-            <div>
-              <input
+            <div style = {{ position: 'relative'}}>
+            <FaEnvelope style={{ position: 'absolute',marginTop: "19px",marginLeft: "15px",scale: "1.8", color: 'aliceblue' }} />
+ 
+              <TextField
                 type="email"
                 placeholder="Johndoe@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <MailOutlineIcon style={{ color: '#7CD6AB' }} />
-                    </InputAdornment>
-                  ),
-                }}
+                
                 style={{
-                  fontSize: '16px',
-                  background: 'black',
-                  color: 'aliceblue',
                   border: '1px solid #75777B',
                   borderRadius: '5px',
                   width: '349px',
                   outline: 'none',
-                  padding: '23.5px 14px 18.5px 58px',
-                  height: '52px',
-                  transition: 'box-shadow 0.25s ease 0s, border-color 0.25s ease 0s',
+                  paddingLeft: '49px',
+                  height: '53px',
+                  transition: 'box-shadow 0.25s ease 0s',
                 }}
               />
             </div>
@@ -244,79 +251,60 @@ function LoginScreen() {
               Password
             </Typography>
             <div style={{ }}>
-              <input
-                type="password"
+            <FaLock style={{ position: 'absolute',marginTop: "19px",marginLeft: "15px",scale: "1.8",  color: 'aliceblue' }} />
+ 
+              <TextField
+                type={showPassword ? 'text' : 'password'} 
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LockIcon style={{ color: '#7CD6AB' }} />
-                    </InputAdornment>
-                  ),
-                }}
+                
                 style={{
-                  fontSize: '16px',
-                  background: 'black',
-                  color: 'aliceblue',
+                 
                   border: '1px solid #75777B',
                   borderRadius: '5px',
                   width: '349px',
                   outline: 'none',
-                  padding: '23.5px 14px 18.5px 58px',
-                  height: '52px',
-                  transition: 'box-shadow 0.25s ease 0s, border-color 0.25s ease 0s',
+                  paddingLeft: '49px',
+                  height: '53px',
+                  transition: 'box-shadow 0.25s ease 0s',
                 }}
+               
+                InputLabelProps={{ style: { color: 'grey' } }}
+                InputProps={{
+                  
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton
+                        aria-label='toggle password visibility'
+                        onClick={handleTogglePasswordVisibility}
+                      >
+                        {showPassword ? (
+                          <Visibility style={{ color: '#7CD6AB' }} />
+                        ) : (
+                          <VisibilityOff style={{ color: '#7CD6AB' }} />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+
               />
             </div>
 
-              <style>
-                {`
-                .react-tel-input .special-label  {
-                  display: none;
-                }
-                .react-tel-input .selected-flag {
-                  outline: none;
-                  background: black;
-                  color: black;
-                  position: relative;
-                  width: 52px;
-                  height: 100%;
-                  padding: 0 0 0 11px;
-                  border-radius: 3px 0 0 3px;
-                }
-                .react-tel-input .flag-dropdown.open .selected-flag {
-                  background: black;
-                  border-radius: 3px 0 0 0;
-                }
-                .react-tel-input .selected-flag:hover, .react-tel-input .selected-flag:focus {
-                  background-color: black;
-                }
-                .react-tel-input .country-list {
-                  background-color: black;
-                }
-                .react-tel-input .country-list .country.highlight {
-                  background-color: #7CD6AB;
-                  color: black;
-                }
-                .react-tel-input .country-list .country:hover {
-                  background-color: #7CD6AB;
-                  color: black;
-                }
-              `}
-              </style>
+           
             </div>
               
-            <Button variant="outlined" onClick={handleToggleModal}>
+            <Button style={{color: "#7CD6AB" ,marginLeft: "-10px"}} variant="outlined" onClick={handleToggleModal}>
               Forgot Password?
             </Button>
    
+            
+            {loginErrorMessage && <Typography style={{ color: 'red', marginTop: '10px' }}>{loginErrorMessage}</Typography>}
 
-
-            <Modal open={open} onClose={handleToggleModal} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Box sx={{ width: 300, bgcolor: 'background.paper', p: 2, textAlign: 'center' }}>
-                  <Typography variant='subtitle1' style={{ margin: '15px 0', color: '#7CD6AB' }}>
+            <Modal open={open} onClose={handleToggleModal} style={{ display: 'flex',opacity: "99.99999%",backfaceVisibility: "hidden",alignItems: 'center', justifyContent: 'center' }}>
+                <Box sx={{ width: 300, bgcolor: 'black', p: 2, textAlign: 'center' }}>
+                  <Typography variant='subtitle1' style={{ alignContent:"left", margin: '15px 0', color: '#7CD6AB' }}>
                     Forgot Password?
                   </Typography>
                 
@@ -344,9 +332,9 @@ function LoginScreen() {
                     variant="contained"
                     color="primary"
                     onClick={handleResetPassword}
-                    style={{ marginTop: '15px',backgroundColor: '#7CD6AB' }}
+                    style={{ marginTop: '15px',backgroundColor: '#7CD6AB',borderRadius: "5px", width:"100%"}}
                   >
-                    Reset Password
+                    Send Link
                   </Button>
                   {error && <Typography style={{ color: 'red', marginTop: '10px' }}>{error}</Typography>}
                   {message && <Typography style={{ color: 'green', marginTop: '10px' }}>{message}</Typography>}
@@ -354,17 +342,19 @@ function LoginScreen() {
             </Modal >
 
 
-        <Button className='py-3 mt-5 w-100' disabled={isLoading} type='submit'>
-          LOGIN
-        </Button>
+            <Button className='py-3 mt-4 w-100' style={{color:"#75777B",backgroundColor: isFormValid? "#7CD6AB": '#ccc' ,borderRadius: "5px"}} disabled={!isFormValid } type='submit'>
+              LOGIN
+            </Button>
+
             <div id='recaptcha-container' />
 
           
             
           </form>
+
           <Typography
-            variant='subtitle1'
-            style={{ margin: '19px 12px', padding: '0px 0px', color: '#7CD6AB' }}
+            variant=''
+            style={{color: "#7CD6AB" ,textAlign:"left",variant: "outlined",width: "100%", display: "block",paddingLeft:"80px",paddingTop: "12px" }}
             component={Link} // Render Typography as a link
             to='/register' // Specify the route to navigate to
           >

@@ -44,7 +44,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [termsChecked, setTermsChecked] = useState(true);
+  const [termsChecked, setTermsChecked] = useState(false);
   const [errors, setErrors] = useState({});
   const formatPhone = '+' + phoneNumber;
   const navigate = useNavigate();
@@ -78,11 +78,15 @@ const Register = () => {
 
   const onSignup = async (e) => {
     e.preventDefault();
-    setButtonLoader(true);
+    // setButtonLoader(true);
     setErrors('');
 
     if (phoneNumber === '' || phoneNumber === undefined) {
       return toast.error('Please enter a valid number');
+    }
+
+    if (phoneNumber.length !== 12 ) {
+      return toast.error('Please Enter Valid Phone number having 10 digits and Country Code');
     }
 
     if (!termsChecked) {
@@ -247,7 +251,7 @@ const Register = () => {
             fontWeight='bold'
             style={{ color: '#7CD6AB' }}
           >
-            Register / Login Account
+            Register / Login 
           </Typography>
           <Typography
             variant='subtitle1'
@@ -330,6 +334,7 @@ const Register = () => {
                 variant='outlined'
                 fullWidth
                 style={{ margin: '20px 0' }}
+
                 InputLabelProps={{ style: { color: 'grey' } }}
                 InputProps={{
                   endAdornment: (
@@ -376,7 +381,7 @@ const Register = () => {
             <Button
               type='submit'
               style={{
-                backgroundColor: '#7CD6AB',
+                backgroundColor: buttonLoader || !termsChecked ? '#ccc' : '#7CD6AB',
                 color: '#121318',
                 margin: '30px 0',
                 padding: '0.8rem',
@@ -384,7 +389,7 @@ const Register = () => {
               }}
               fullWidth
               onClick={showOtpScreen ? onOtpVerify : onSignup}
-              disabled={buttonLoader}
+              // disabled={buttonLoader || !termsChecked}
             >
               {buttonLoader ? (
                 <i class='fa fa-spinner fa-spin'></i>
