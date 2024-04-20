@@ -385,7 +385,6 @@ function LoginScreen() {
                 )}
               </Box>
             </Modal>
-            outline: 'white',
             <Button
               className='py-3 mt-4 w-100'
               style={{
