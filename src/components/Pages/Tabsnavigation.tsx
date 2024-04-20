@@ -120,7 +120,7 @@ const Tabsnavigation = ({
                                 <Box
                                   component='img'
                                   alt='profile'
-                                  src={"https://qph.cf2.quoracdn.net/main-qimg-a9dacf4f48286b8dd6d9f4e3f2e42f35"}
+                                  src={"https://static.vecteezy.com/system/resources/thumbnails/002/318/271/small/user-profile-icon-free-vector.jpg"}
                                   height='70px'
                                   width='60px'
                                 

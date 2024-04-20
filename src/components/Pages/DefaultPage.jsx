@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import React, { useEffect, useState, useRef } from 'react';
 import FlexBetween from '../FlexBetween';
 import Header from '../Header';
 import { useLocation } from 'react-router-dom';
-import { getSensorDB } from '../../slices/adminApiSlice';
+import { getDeviceIds, getSensorDB, getLoc } from '../../slices/adminApiSlice';
 import { Box, useMediaQuery } from '@mui/material';
 import Body_Male from '../../assets/Body_Male.png';
 import Graph from '../Graph';
@@ -10,11 +11,57 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as Realm from 'realm-web';
 import IconButton from '@mui/material/IconButton';
 import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
+import PowerIcon from '@mui/icons-material/Power';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 const ENDPOINT = 'http://localhost:3000';
 var socket;
+
 const DefaultPage = () => {
+  const [heartRateTimeStamp, setheartRateTimeStamp] = useState([]);
+  const [latitude, setLatitude] = useState(23); // Initial latitude
+  const [longitude, setLongitude] = useState(77); // Initial longitude
+  const [connectionStatus, setConnectionStatus] = useState(false);
+  const [currentTime, setCurrentTime] = useState(
+    new Date().toLocaleTimeString()
+  );
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString());
+
+      // Logic to check time difference and set connectionStatus
+      const latestTimestamp = heartRateTimeStamp[heartRateTimeStamp.length - 1];
+      let connectionStatus = true; // Default to true
+      // console.log(heartRateTimeStamp);
+      // console.log(latestTimestamp);
+      if (latestTimestamp) {
+        const latestTimeParts = latestTimestamp.split(':');
+        const latestTime = new Date();
+        latestTime.setHours(
+          parseInt(latestTimeParts[0]),
+          parseInt(latestTimeParts[1]),
+          parseInt(latestTimeParts[2])
+        );
+
+        const currentTime = new Date();
+        const timeDifference = (currentTime - latestTime) / 1000; // Difference in seconds
+
+        if (timeDifference > 5) {
+          connectionStatus = false;
+        }
+      } else {
+        // heartRateTimeStamp is empty
+        connectionStatus = false;
+      }
+
+      // Assuming you have a state variable named connectionStatus
+      setConnectionStatus(connectionStatus);
+    }, 1000); // Update every second
+
+    return () => clearInterval(intervalId);
+  }, [heartRateTimeStamp]);
+
+  const mapContainerRef = useRef(null);
   const [initialTable, setinitialTable] = useState({});
   const { state: userData } = useLocation();
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
@@ -22,7 +69,7 @@ const DefaultPage = () => {
   var devices = [];
   const [user, setUser] = useState();
   const [heartRateData, setHeartRateData] = useState([]);
-  const [heartRateTimeStamp, setheartRateTimeStamp] = useState([]);
+
   const [BreathRateSensorData, setBreathRateSensorData] = useState([]);
   const [BreathRateSensorTimeStamp, setBreathRateSensorTimeStamp] = useState(
     []
@@ -37,11 +84,226 @@ const DefaultPage = () => {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
+    const devicesdb = async () => {
+      try {
+        const id = userData.data.currentUserId;
+        if (setEvents.length <= 1) {
+          // console.log(id);
+          const response = await getDeviceIds(token, id);
+          console.log('req made ');
+          if (response.status === 200) {
+            // console.log('in 200');
+            // console.log(response.data.deviceDocuments);
+            for (var r in response.data.deviceDocuments) {
+              if (
+                response.data.deviceDocuments[r].currentUserId ==
+                userData.data.currentUserId
+              )
+                // console.log(response.data.deviceDocuments[r].location[0].lat);
+                // console.log(response.data.deviceDocuments[r].location[0].lon);
+                setLatitude(response.data.deviceDocuments[r].location[0].lat);
+              setLongitude(response.data.deviceDocuments[r].location[0].lon);
+            }
+          }
+        }
+        const user2 = await app.logIn(Realm.Credentials.anonymous());
+        setUser(user2);
+        const mongodb2 = app.currentUser.mongoClient('mongodb-atlas');
+        const collection2 = mongodb2.db('test').collection('devices');
+        // console.log('device db watch stream');
+        const changeStream2 = collection2.watch();
+        for await (const change of changeStream2) {
+          // console.log('device db watch stream changes');
+          if (
+            userData.data.currentUserId == change?.fullDocument?.currentUserId
+          ) {
+            // console.log('Here in device changes');
+            // console.log(change.fullDocument.location[0].lat);
+            // console.log(
+            //   change.fullDocument.location[0].lat,
+            //   change.fullDocument.location[0].lon
+            // );
+            const lat = change.fullDocument.location[0].lat;
+            const lon = change.fullDocument.location[0].lon;
+            setLatitude(lat);
+            setLongitude(lon);
+          } else {
+            console.log('Data is Not Relevant');
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    devicesdb();
+    // console.log('mapbox setting up');
+    // Load Mapbox script dynamically
+    const mapboxScript = document.createElement('script');
+    mapboxScript.src =
+      'https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js';
+    mapboxScript.onload = initializeMap;
+    document.body.appendChild(mapboxScript);
+
+    // Load Mapbox stylesheet
+    const mapboxLink = document.createElement('link');
+    mapboxLink.href =
+      'https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css';
+    mapboxLink.rel = 'stylesheet';
+    document.head.appendChild(mapboxLink);
+
+    function initializeMap() {
+      if (mapContainerRef.current) {
+        mapboxgl.accessToken =
+          'pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw';
+
+        const map = new mapboxgl.Map({
+          container: 'map',
+          // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+          style: 'mapbox://styles/mapbox/streets-v12',
+          zoom: 14.0,
+        });
+
+        map.on('load', async () => {
+          // Get the initial location of the International Space Station (ISS).
+          const geojson = await getLocation();
+          // Add the ISS location as a source.
+          map.addSource('iss', {
+            type: 'geojson',
+            data: geojson,
+          });
+          // Add the rocket symbol layer to the map.
+          map.addLayer({
+            id: 'iss',
+            type: 'symbol',
+            source: 'iss',
+            layout: {
+              // This icon is a part of the Mapbox Streets style.
+              // To view all images available in a Mapbox style, open
+              // the style in Mapbox Studio and click the "Images" tab.
+              // To add a new image to the style at runtime see
+              // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
+              'icon-image': 'rocket',
+            },
+          });
+
+          // Update the source from the API every 2 seconds.
+          const updateSource = setInterval(async () => {
+            const geojson = await getLocation(updateSource);
+            map.getSource('iss').setData(geojson);
+          }, 5000);
+
+          async function getLocation(updateSource) {
+            // Make a GET request to the API and return the location of the ISS.
+            try {
+              // const myHeaders = new Headers();
+              // myHeaders.append(
+              //   'apiKey',
+              //   '3eIHUiQwLwgF9VQoiPbfcgMMo5NcmPcK4i6h4QuxBrXWnDUcctRFhw8SU9ZwVmlX'
+              // );
+              // myHeaders.append('Content-Type', 'application/json');
+
+              // const raw = JSON.stringify({
+              //   dataSource: 'whmstestdb',
+              //   database: 'test',
+              //   collection: 'devices',
+              //   filter: {
+              //     currentUserId: 'gk7mhNS7MxNBDLwVQOT08xn5M4W2',
+              //   },
+              // });
+
+              // const requestOptions = {
+              //   method: 'POST',
+              //   headers: myHeaders,
+              //   body: raw,
+              //   redirect: 'follow',
+              //   mode: 'no-cors',
+              // };
+
+              // const response = await fetch(
+              //   'https://data.mongodb-api.com/app/data-atyht/endpoint/data/v1/action/find',
+              //   requestOptions
+              // );
+              // const loc = await response.json();
+              // console.log(loc);
+
+              // let data = JSON.stringify({
+              //   dataSource: 'whmstestdb',
+              //   database: 'test',
+              //   collection: 'devices',
+              //   filter: {
+              //     currentUserId: 'gk7mhNS7MxNBDLwVQOT08xn5M4W2',
+              //   },
+              // });
+
+              // let config = {
+              //   method: 'post',
+              //   maxBodyLength: Infinity,
+              //   url: 'https://cors-anywhere.herokuapp.com/https://data.mongodb-api.com/app/data-atyht/endpoint/data/v1/action/find',
+
+              //   headers: {
+              //     apiKey:
+              //       '3eIHUiQwLwgF9VQoiPbfcgMMo5NcmPcK4i6h4QuxBrXWnDUcctRFhw8SU9ZwVmlX',
+              //     'Content-Type': 'application/json',
+              //   },
+              //   data: data,
+              // };
+              // console.log('In here ', userData.data.currentUserId);
+              // const response = await getLocation(
+              //   token,
+              //   userData.data.currentUserId
+              // ).then((response) => {
+              //   console.log(JSON.stringify(response.data));
+              // });
+              const response = await fetch(
+                'https://api.wheretheiss.at/v1/satellites/25544',
+                { method: 'GET' }
+              );
+
+              const dataloc = await getLoc(token, userData.data.currentUserId);
+
+              const latitude = dataloc.data[0].lat;
+              const longitude = dataloc.data[0].lon;
+
+              // Fly the map to the location.
+              map.flyTo({
+                center: [longitude, latitude],
+                speed: 4.5,
+              });
+              // Return the location of the ISS as GeoJSON.
+              return {
+                type: 'FeatureCollection',
+                features: [
+                  {
+                    type: 'Feature',
+                    geometry: {
+                      type: 'Point',
+                      coordinates: [longitude, latitude], //lon lat
+                    },
+                  },
+                ],
+              };
+            } catch (err) {
+              // If the updateSource interval is defined, clear the interval to stop updating the source.
+              if (updateSource) clearInterval(updateSource);
+              throw new Error(err);
+            }
+          }
+        });
+      }
+    }
+
+    return () => {
+      // Clean up Mapbox instance if needed
+    };
+  }, []); // Empty dependency array: Execute only once on component mount
+
+  useEffect(() => {
     const login = async () => {
       try {
         const id = userData.data.currentUserId;
         if (setEvents.length <= 1) {
-          console.log(id);
+          // console.log(id);
           const response = await getSensorDB(token, id);
           if (response.status === 200) {
             setHeartRateData(
@@ -80,9 +342,10 @@ const DefaultPage = () => {
         setUser(user);
         const mongodb = app.currentUser.mongoClient('mongodb-atlas');
         const collection = mongodb.db('test').collection('sensordbs');
-
+        // console.log('sensor db watch stream');
         const changeStream = collection.watch();
         for await (const change of changeStream) {
+          // console.log('sensor db watch stream changes');
           if (userData.data.currentUserId == change?.fullDocument?._id) {
             setHeartRateData(
               change.fullDocument.heartSensor.map((item) => item.value)
@@ -145,6 +408,13 @@ const DefaultPage = () => {
             },
           }}
         >
+          <div
+            id='map'
+            className='MuiBox-root css-1nt5awt'
+            ref={mapContainerRef}
+            style={{ height: '300px' }}
+          />
+
           {/* ROW 1 */}
           <Graph
             name={'HeartRate'}
@@ -202,6 +472,25 @@ const DefaultPage = () => {
               >
                 <IconButton>
                   <FavoriteRoundedIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip
+                title={`Connection Status :  ${currentTime} and ${
+                  heartRateTimeStamp[heartRateTimeStamp.length - 1]
+                }`}
+                arrow
+                placement='right-end'
+                style={{
+                  fontSize: '15',
+                  position: 'fixed',
+                  top: '14rem',
+                  right: 250,
+                  zIndex: 3,
+                  color: `${connectionStatus ? 'green' : 'red'}`,
+                }}
+              >
+                <IconButton>
+                  <PowerIcon />
                 </IconButton>
               </Tooltip>
             </Box>

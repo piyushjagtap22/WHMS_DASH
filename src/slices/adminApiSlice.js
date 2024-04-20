@@ -6,7 +6,7 @@ const axiosInstance = axios.create({
 })
 
 
-const ADMIN_URL = `${import.meta.env.VITE_REACT_API_URL}/api/admin`;
+const ADMIN_URL = `http://localhost:3000/api/admin`;
 
 export const AddUsersToAdmin = (data, token) => {
     // pass token as an argument to this function
@@ -70,6 +70,15 @@ export const getUnallocatedUsers = (token) => {
 export const getAdminUsers = (token, data) => {
     // pass token as an argument to this function
     return axios.get(`${ADMIN_URL}/get-added-users`, data, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+}
+
+
+export const getLoc = (token, data) => {
+    // pass token as an argument to this function
+    // console.log("in get location", data)
+    return axios.post(`${ADMIN_URL}/getLocation`, { currentUserId: data }, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
 }
