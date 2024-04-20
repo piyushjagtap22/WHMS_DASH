@@ -4,20 +4,21 @@ import { connect } from 'react-redux';
 import Loader from './Loader';
 import React, { useEffect, useRef } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { setAuthState } from '../slices/authSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import { initializeMongoUser } from '../slices/authSlice';
+import { setAuthState } from '../slices/authSlice';
 import Register from './Pages/Register';
 import EmailRegister from './Pages/EmailRegister';
 import UniqueLayout from './Pages/UniqueLayout';
 // import TempPage from './Pages/TempPage';
 // import TempPage2 from './Pages/TempPage2';
 import { TroubleshootOutlined } from '@mui/icons-material';
-const RegisterValidator = ({
+import LoginScreen from './Pages/LoginScreen';
+const LoginValidator = ({
   component: Component,
   auth: { isAuthenticated, loading },
 }) => {
-  console.log('Register validator');
+  console.log('Login validator');
   const navigate = useNavigate();
   const AuthUser = useSelector((state) => state.auth.AuthUser);
 
@@ -26,7 +27,7 @@ const RegisterValidator = ({
   const dispatch = useDispatch();
   console.log(AuthState);
   if (AuthState === '/register' || AuthState === '/login') {
-    return <Register />;
+    return <LoginScreen />;
   } else {
     return <Navigate to={AuthState} />;
   }
@@ -34,7 +35,7 @@ const RegisterValidator = ({
   // return <Navigate to='/unique' />;
 };
 
-RegisterValidator.propTypes = {
+LoginValidator.propTypes = {
   auth: PropTypes.object.isRequired,
 };
 
@@ -42,4 +43,4 @@ const mapStateToProps = (state) => ({
   auth: state.auth,
 });
 
-export default connect(mapStateToProps)(RegisterValidator);
+export default connect(mapStateToProps)(LoginValidator);

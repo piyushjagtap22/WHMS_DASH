@@ -15,6 +15,7 @@ import {
 // import PrivateRoute2 from './components/PrivateRoute2.jsx';
 import DashboardValidator from './components/DashboardValidator.jsx';
 import SuperAdminValidator from './components/SuperAdminValidator.jsx';
+import LoginValidator from './components/LoginValidator.jsx';
 
 import HomeScreen from './components/Pages/HomeScreen.jsx';
 import LoginScreen from './components/Pages/LoginScreen.jsx';
@@ -61,8 +62,6 @@ const theme = createTheme(themeSettings('dark'));
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
-
-
       <Route
         path='/register'
         element={<RegisterValidator component={Register} />}
@@ -71,15 +70,13 @@ const router = createBrowserRouter(
         path='/verify'
         element={<VerifyValidator component={DocumentVerificationScreen} />}
       />
-      
-      <Route path='' element={<Layout />}>
-      <Route
-        path='/dashboard'
-        element={<DashboardValidator component={Dashboard} />}
-      />
-      <Route path='/Default' element={<DefaultPage />} />
 
-      
+      <Route path='' element={<Layout />}>
+        <Route
+          path='/dashboard'
+          element={<DashboardValidator component={Dashboard} />}
+        />
+        <Route path='/Default' element={<DefaultPage />} />
       </Route>
       <Route
         path='/superadmin'
@@ -89,17 +86,20 @@ const router = createBrowserRouter(
         path='/emailregister'
         element={<EmailRegisterValidator component={EmailRegister} />}
       />
+      <Route
+        path='/login'
+        element={<LoginValidator component={LoginScreen} />}
+      />
       <Route path='*' element={<NotFoundPage />} />
 
       {/* <Route path='' element={<AuthValidations />}> */}
-      <Route path='/login' element={<LoginScreen />} />
+      {/* <Route path='/login' element={<LoginScreen />} /> */}
       {/* <Route path='/register' element={<Register />} />
       <Route path='/emailregister' element={<EmailRegister />} />
       <Route path='/verify' element={<DocumentVerificationScreen />} /> */}
       {/* <Route path='' element={<PrivateRoute />}> */}
       {/* <Route path='' element={<UniqueLayout />}/> */}
 
-      
       {/* <Route path='/profile' element={<ProfileScreen />} /> */}
       {/* <Route path='/home' element={<HomeScreen />} /> */}
       {/* <Route path='/admin' element={<AdminScreen />} /> */}

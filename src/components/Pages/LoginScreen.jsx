@@ -3,6 +3,7 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import { setLoading } from '../../slices/loadingSlice.js';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import { InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import InputAdornment from '@mui/material/InputAdornment';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -10,13 +11,16 @@ import { toast } from 'react-toastify';
 import Loader from '../Loader';
 import { initializeAuthUser, setToken } from '../../slices/authSlice.js';
 import FormContainer from '../FormContainer';
-import { signInWithEmailAndPassword , sendPasswordResetEmail } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from 'firebase/auth';
 import { auth } from '../../firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import PhoneInput from 'react-phone-input-2';
 
 import { getMongoUser } from '../../slices/usersApiSlice.js';
-import { Modal , Box} from '@material-ui/core';
+import { Modal, Box } from '@material-ui/core';
 import {
   OAuthProvider,
   getAdditionalUserInfo,
@@ -58,18 +62,19 @@ function LoginScreen() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  dispatch(setAuthState('/login'));
   const [showPassword, setShowPassword] = useState(false);
   const [isFormValid,setIsFormValid] = useState(false);
 
   const handleResetPassword = () => {
-    sendPasswordResetEmail(auth ,email)
+    sendPasswordResetEmail(auth, email)
       .then(() => {
         toast.success('Success');
         setMessage('Password reset email sent. Check your inbox.');
         setError(null);
       })
       .catch((error) => {
-        console.log("error aaya",error)
+        console.log('error aaya', error);
         setError(error.message);
         setMessage(null);
       });
@@ -96,14 +101,17 @@ function LoginScreen() {
         try {
           dispatch(setLoading(true));
           toast.success('Success');
-  
+
           const user = auth.currentUser;
           console.log(user.email);
-  
+
           console.log(userCredential);
-          localStorage.setItem('accessToken', userCredential._tokenResponse.idToken);
+          localStorage.setItem(
+            'accessToken',
+            userCredential._tokenResponse.idToken
+          );
           setToken(userCredential._tokenResponse.idToken);
-  
+
           dispatch(
             setAuthUser({
               email: user.email,
@@ -120,7 +128,7 @@ function LoginScreen() {
               displayName: user.displayName,
             })
           );
-  
+
           if (
             user !== null &&
             (user.email === null || user.emailVerified === false)
@@ -183,7 +191,7 @@ function LoginScreen() {
 
   return (
     <>
-         {loading ? (
+      {loading ? (
         <Loader />
       ) : (
         <Container
@@ -197,7 +205,6 @@ function LoginScreen() {
             borderRadius: '1rem',
           }}
         >
- 
           <Typography
             variant='h2'
             fontWeight='bold'
@@ -213,7 +220,6 @@ function LoginScreen() {
           </Typography>
           <form
             style={{ width: '70%', margin: 'auto', textAlign: 'left' }}
-            
             onSubmit={submitHandler}
           >
             <Typography
@@ -224,6 +230,7 @@ function LoginScreen() {
             </Typography>
 
             <div>
+
             <div style = {{ position: 'relative'}}>
             <FaEnvelope style={{ position: 'absolute',marginTop: "19px",marginLeft: "15px",scale: "1.8", color: 'aliceblue' }} />
  
@@ -292,6 +299,7 @@ function LoginScreen() {
               />
             </div>
 
+
            
             </div>
               
@@ -341,6 +349,8 @@ function LoginScreen() {
                 </Box>
             </Modal >
 
+                    outline: 'white',
+
 
             <Button className='py-3 mt-4 w-100' style={{color:"#75777B",backgroundColor: isFormValid? "#7CD6AB": '#ccc' ,borderRadius: "5px"}} disabled={!isFormValid } type='submit'>
               LOGIN
@@ -348,11 +358,18 @@ function LoginScreen() {
 
             <div id='recaptcha-container' />
 
-          
-            
+            <Button
+              className='py-3 mt-5 w-100'
+              disabled={isLoading}
+              type='submit'
+            >
+              LOGIN
+            </Button>
+            <div id='recaptcha-container' />
           </form>
 
           <Typography
+
             variant=''
             style={{color: "#7CD6AB" ,textAlign:"left",variant: "outlined",width: "100%", display: "block",paddingLeft:"80px",paddingTop: "12px" }}
             component={Link} // Render Typography as a link
@@ -360,13 +377,9 @@ function LoginScreen() {
           >
             New User Register
           </Typography>
-
         </Container>
       )}
-
-    
     </>
-
   );
 }
 
