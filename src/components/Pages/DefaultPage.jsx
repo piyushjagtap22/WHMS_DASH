@@ -709,9 +709,10 @@ const DefaultPage = () => {
         <form
           style={{
             display: "flex",
-            gap: "1rem",
+            gap: "2rem",
             alignItems: "center",
             marginBottom: "2rem",
+            marginLeft: "2rem",
           }}
         >
           <TextField
@@ -798,7 +799,7 @@ const DefaultPage = () => {
 
           {/* ROW 2 */}
 
-          <Graph
+          <ApexGraph
             name={"BreathRateSensor"}
             data={BreathRateSensorData}
             timestamp={BreathRateSensorTimeStamp}

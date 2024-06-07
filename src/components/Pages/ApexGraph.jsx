@@ -50,7 +50,7 @@ const ApexGraph = React.memo((props) => {
               autoSelected: 'zoom'
             }
           },
-          colors: ['#FF5733'],
+          colors: isAboveMax ? ['#FF5733'] : ['#7CD6AB'],
       dataLabels: {
         enabled: false
       },
@@ -80,10 +80,12 @@ const ApexGraph = React.memo((props) => {
         title: {
           text: 'Value'
         },
+        // tickAmount: 4,
       },
       xaxis: {
         
-        categories: labels
+        categories: labels,
+        tickAmount: 10,
       },
       tooltip: {
         shared: false,
