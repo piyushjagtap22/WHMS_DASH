@@ -51,10 +51,6 @@ const Graph = (props) => {
         grid: {
           display: false,
         },
-      //   ticks: {
-      //     maxTicksLimit: 10,
-      // },
-        
       },
       y: {
         grid: {
@@ -65,7 +61,6 @@ const Graph = (props) => {
           callback: (value) => {
             if (value === 0) return value;
             return value + "M";
-            
           },
         },
       },
@@ -77,15 +72,18 @@ const Graph = (props) => {
     },
   };
 
-  const labels = props.timestamp;
+  // Ensure props.data and props.timestamp are arrays
+  const labels = Array.isArray(props.timestamp) ? props.timestamp : [];
+  const data = Array.isArray(props.data) ? props.data : [];
+
   const data2 = {
     labels,
     datasets: [
       {
         label: props.name,
-        data: props.data,
-        backgroundColor: calculateAverage(props.data.slice(-10)) > props.max ? "red" : "green",
-        borderColor:  calculateAverage(props.data.slice(-10)) > props.max ? "red" : "green",
+        data: data,
+        backgroundColor: calculateAverage(data.slice(-10)) > props.max ? "red" : "green",
+        borderColor:  calculateAverage(data.slice(-10)) > props.max ? "red" : "green",
       },
     ],
   };
@@ -101,58 +99,53 @@ const Graph = (props) => {
       zIndex={2}
     >
       <div
+        style={{
+          marginBottom: "1rem",
+          display: "flex",
+          alignItems: "center",
+          width: "100%",
+        }}
+      >
+        <span
+          style={{
+            fontWeight: "bold",
+            marginRight: "1.5rem",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          {props.name}
+        </span>
+        <span
+          style={{
+            marginLeft: "5rem",
+            marginRight: "1rem",
+            color: theme.palette.primary[100],
+          }}
+        >
+          |
+        </span>
+        <span style={{ display: "flex", alignItems: "center" }}>
+          <FiberManualRecordIcon
             style={{
-              marginBottom: "1rem",
-              display: "flex",
-              alignItems: "center",
-              width: "100%", // Make the container width 100%
+              color: theme.palette.secondary[700],
+              marginRight: "0.2rem",
+              fontSize: "0.8rem",
             }}
-          >
-            {/* Text element with red dot icon */}
-            <span
-              style={{
-                fontWeight: "bold",
-                marginRight: "1.5rem",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              {props.name}
-            </span>
-            
-            <span
-              style={{
-                marginLeft: "5rem",
-                marginRight: "1rem",
-                color: theme.palette.primary[100],
-              }}
-            >
-              |
-            </span>
-            {/* Text element with green dot icon */}
-            <span style={{ display: "flex", alignItems: "center" }}>
-              <FiberManualRecordIcon
-                style={{
-                  color: theme.palette.secondary[700],
-                  marginRight: "0.2rem",
-                  fontSize: "0.8rem",
-                }}
-              />
-              Current Week
-            </span>
-          </div>
-          <Box
-          height = "85%"
-          width= "100%"
-          >
-            <Line
-            box-sizing = "border-box"
-            display= "block"
-            height= "230px"
-            width= "850px"
-            options={options} data={data2} />
-          </Box>
-
+          />
+          Current Week
+        </span>
+      </div>
+      <Box height="85%" width="100%">
+        <Line
+          box-sizing="border-box"
+          display="block"
+          height="230px"
+          width="850px"
+          options={options}
+          data={data2}
+        />
+      </Box>
     </Box>
   );
 };

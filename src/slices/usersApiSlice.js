@@ -59,6 +59,7 @@ export const getMongoUserByEmail = (email) => axios.get(`${ENDPOINT}/api/user/fi
   headers: { 'Content-Type': 'application/json' }
 });
 
+
 export const createMongoUser = (data, token) => {
   // pass token as an argument to this function
   return axios.post(`${USERS_URL}/create-mongo-user`, data, {
@@ -66,3 +67,8 @@ export const createMongoUser = (data, token) => {
   });
 }
 
+export const getGraphDataByDate = (data) => {
+  return axios.post(`${ENDPOINT}/api/admin/getGraphData`, data, {
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
