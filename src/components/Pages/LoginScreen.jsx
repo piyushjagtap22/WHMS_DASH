@@ -398,13 +398,7 @@ function LoginScreen() {
               LOGIN
             </Button>
             <div id='recaptcha-container' />
-            <Button
-              className='py-3 mt-5 w-100'
-              disabled={isLoading}
-              type='submit'
-            >
-              LOGIN
-            </Button>
+
             <div id='recaptcha-container' />
           </form>
 
