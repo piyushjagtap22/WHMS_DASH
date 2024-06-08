@@ -1,20 +1,17 @@
-import axios from "axios";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import FlexBetween from "../FlexBetween";
 
-import Header from "../Header";
 
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { getDeviceIds, getSensorDB, getLoc } from "../../slices/adminApiSlice";
+import { getDeviceIds, getLoc, getSensorDB } from "../../slices/adminApiSlice";
 
 import { Box, MenuItem, TextField, useMediaQuery } from "@mui/material";
 
 import Body_Male from "../../assets/Body_Male.png";
 
-import Graph from "../Graph";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -26,12 +23,11 @@ import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 
 import PowerIcon from "@mui/icons-material/Power";
 
-import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
+import Tooltip from "@mui/material/Tooltip";
 
-import { getGraphDataByDate } from "../../slices/usersApiSlice";
+import { useTheme } from "@emotion/react";
 import { Button } from "react-bootstrap";
 import ApexGraph from "./ApexGraph";
-import { useTheme } from "@emotion/react";
 
 const app = new Realm.App({ id: "application-0-vdlpx" });
 
@@ -65,50 +61,26 @@ const DefaultPage = () => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString());
-
-      // Logic to check time difference and set connectionStatus
-
-      const latestTimestamp = heartRateTimeStamp[heartRateTimeStamp.length - 1];
-
-      let connectionStatus = true; // Default to true
-
-      // console.log(heartRateTimeStamp);
-
-      // console.log(latestTimestamp);
-
-      if (latestTimestamp) {
-        const latestTimeParts = latestTimestamp.split(":");
-
-        const latestTime = new Date();
-
-        latestTime.setHours(
-          parseInt(latestTimeParts[0]),
-
-          parseInt(latestTimeParts[1]),
-
-          parseInt(latestTimeParts[2])
-        );
-
+  
+      if (heartRateTimeStamp.length > 0) {
+        const latestTimestamp = heartRateTimeStamp[heartRateTimeStamp.length - 1];
+        const latestTime = new Date(latestTimestamp);
         const currentTime = new Date();
-
+  
         const timeDifference = (currentTime - latestTime) / 1000; // Difference in seconds
-
-        if (timeDifference > 5) {
-          connectionStatus = false;
-        }
+        console.log(currentTime)
+        console.log(latestTime)
+        console.log(timeDifference)
+  
+        setConnectionStatus(timeDifference <= 5);
       } else {
-        // heartRateTimeStamp is empty
-
-        connectionStatus = false;
+        setConnectionStatus(false); // No timestamp available, set connectionStatus to false
       }
-
-      // Assuming you have a state variable named connectionStatus
-
-      setConnectionStatus(connectionStatus);
-    }, 1000); // Update every second
-
+    }, 1000);
+  
     return () => clearInterval(intervalId);
   }, [heartRateTimeStamp]);
+  
 
   const mapContainerRef = useRef(null);
 
@@ -622,7 +594,7 @@ const DefaultPage = () => {
 
             setheartRateTimeStamp(
               response.data.heartSensor.map((item) =>
-                item.timestamp.slice(11, 19)
+                item.timestamp
               )
             );
 
@@ -674,7 +646,7 @@ const DefaultPage = () => {
 
             setheartRateTimeStamp(
               change.fullDocument.heartSensor.map((item) =>
-                item.timestamp.slice(11, 19)
+                item.timestamp
               )
             );
 
@@ -713,7 +685,7 @@ const DefaultPage = () => {
     <>
       {/* <UniqueLayout data={userData} />x */}
 
-      <Box m="1.5rem 2.5rem">
+      <Box m="2rem 2.5rem">
         <FlexBetween></FlexBetween>
 
         <form
@@ -770,11 +742,11 @@ const DefaultPage = () => {
         </form>
 
         <Box
-          margin="20px"
+          margin="2rem 2rem"
           display="grid"
           gridTemplateColumns="repeat(12, 1fr)"
           gridAutoRows="160px"
-          gap="20px"
+          gap="16px"
           zIndex={2}
           sx={{
             "& > div": {
@@ -844,7 +816,7 @@ const DefaultPage = () => {
           {/* ROW 4 */}
 
           {isNonMediumScreens && (
-            <Box position="relative">
+            <Box>
               <img
                 alt="body_male"
                 src={Body_Male}
@@ -867,6 +839,45 @@ const DefaultPage = () => {
                 }}
               />
 
+               {/* Pill shape to display connection status */}
+  <div
+    style={{
+      position: "absolute",
+      top: "6.2rem",
+      right: "4rem",
+      backgroundColor: connectionStatus ? "rgba(124, 214, 171, 0.3)" : "rgba(255, 36, 36, 0.3)",
+      borderRadius: "50px", // Rounded shape
+      padding: "0rem 1rem 0rem 0rem",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      border: connectionStatus ? "2px solid rgba(124, 214, 171, 0.3)" : "2px solid rgba(255, 36, 36, 0.3)", // Border
+
+    }}
+  >
+    <Tooltip
+      title={`Connection Status : ${
+        currentTime
+      } and ${heartRateTimeStamp[heartRateTimeStamp.length - 1]}`}
+      arrow
+      placement="right-end"
+      style={{
+        fontSize: "15",
+        color: "white",
+      }}
+    >
+      <IconButton>
+        <PowerIcon style={{ color: connectionStatus ? "rgba(124, 214, 171, 0.9)" : "rgba(255, 36, 36, 0.9)" }} />
+      </IconButton>
+
+      <span style={{ color: connectionStatus ? "rgba(124, 214, 171, 0.9)" : "rgba(255, 36, 36, 0.9)" }}>  {connectionStatus ? "Connected" : "Disconnected"}</span>
+
+    </Tooltip>
+  </div>
+  
+
+             
+
               <Tooltip
                 title={`Heart rate : ${heartRateData[39]}`}
                 arrow
@@ -887,6 +898,8 @@ const DefaultPage = () => {
                   <FavoriteRoundedIcon />
                 </IconButton>
               </Tooltip>
+
+              
 
               <Tooltip
                 title={`Connection Status :  ${currentTime} and ${

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {
   Box,
-  useTheme,
-  useMediaQuery
+  useMediaQuery,
+  useTheme
 } from "@mui/material";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 
 const ApexGraph = React.memo((props) => {
@@ -50,12 +50,17 @@ const ApexGraph = React.memo((props) => {
               autoSelected: 'zoom'
             }
           },
-          colors: isAboveMax ? ['#FF5733'] : ['#7CD6AB'],
+          colors: isAboveMax ? ['#FF2424'] : ['#7CD6AB'],
       dataLabels: {
         enabled: false
       },
       markers: {
         size: 0,
+      },
+      stroke : {
+        width: 2,
+        curve : 'smooth',
+
       },
       title: {
         text: name,
