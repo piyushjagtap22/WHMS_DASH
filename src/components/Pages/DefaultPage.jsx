@@ -6,7 +6,7 @@ import FlexBetween from "../FlexBetween";
 
 import Header from "../Header";
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { getDeviceIds, getSensorDB, getLoc } from "../../slices/adminApiSlice";
 
@@ -41,6 +41,8 @@ var socket;
 
 const DefaultPage = () => {
   const theme = useTheme();
+
+  const navigate = useNavigate();
 
   const [heartRateTimeStamp, setheartRateTimeStamp] = useState([]);
 
@@ -113,7 +115,6 @@ const DefaultPage = () => {
   const [initialTable, setinitialTable] = useState({});
 
   const { state: userData } = useLocation();
-
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
 
   const dispatch = useDispatch();
@@ -200,12 +201,17 @@ const DefaultPage = () => {
       .then((data) => {
         if (data && data.length > 0) {
           // Extracting values from data
-
           const values = data.map((item) => item.value);
 
           const timestamp = data.map((item) => item.timestamp.slice(11, 19));
-
-          // Assuming setGraphDataByDate is a function to set state in React
+          navigate(`/GraphByDate`, {state : {
+            data1 : values,
+            data2 : timestamp,
+            startDate : startDate,
+            endDate : endDate,
+            sensorType: sensorType,
+          }});
+          
 
           setGraphDataByDate(values);
 
@@ -214,6 +220,10 @@ const DefaultPage = () => {
           console.log("shiv", GraphDataByDate);
 
           console.log("shiv", GraphDataByDateTimestamp);
+        }
+        else{
+          window.confirm("invalid dates");
+          console.log("Invalid dates");
         }
       })
 
@@ -772,13 +782,13 @@ const DefaultPage = () => {
             },
           }}
         >
-          <ApexGraph
+          {/* <ApexGraph
             name={sensorType}
             data={GraphDataByDate}
             timestamp={GraphDataByDateTimestamp}
             max={90}
             zoomEnabled={true}
-          />
+          /> */}
 
           <div
             id="map"
@@ -803,6 +813,14 @@ const DefaultPage = () => {
             name={"BreathRateSensor"}
             data={BreathRateSensorData}
             timestamp={BreathRateSensorTimeStamp}
+            max={90}
+            zoomEnabled={false}
+          />
+
+<ApexGraph
+            name={"VentilationSensor"}
+            data={VentilatonSensorData}
+            timestamp={VentilatonSensorTimeStamp}
             max={90}
             zoomEnabled={false}
           />

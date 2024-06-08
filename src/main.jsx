@@ -54,6 +54,7 @@ import Tabsnavigation from './components/Pages/Tabsnavigation.tsx';
 import UniqueLayout from './components/Pages/UniqueLayout.jsx';
 import TempPage from './components/Pages/TempPage.jsx';
 import SomethingWentWrong from './components/Pages/SomethingWentWrong.jsx';
+import GraphByDate from './components/Pages/GraphByDate.jsx';
 const theme = createTheme(themeSettings('dark'));
 //
 //Firebase auth Initilialization
@@ -76,7 +77,8 @@ const router = createBrowserRouter(
           path='/dashboard'
           element={<DashboardValidator component={Dashboard} />}
         />
-        <Route path='/Default' element={<DefaultPage />} />
+        <Route path='/Default' element={<DefaultPage/>} />
+        <Route path='/GraphByDate' element={<GraphByDate/>} />
       </Route>
       <Route
         path='/superadmin'
