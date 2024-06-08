@@ -840,43 +840,12 @@ const DefaultPage = () => {
               />
 
                {/* Pill shape to display connection status */}
-  <div
-    style={{
-      position: "absolute",
-      top: "6.2rem",
-      right: "4rem",
-      backgroundColor: connectionStatus ? "rgba(124, 214, 171, 0.3)" : "rgba(255, 36, 36, 0.3)",
-      borderRadius: "50px", // Rounded shape
-      padding: "0rem 1rem 0rem 0rem",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      border: connectionStatus ? "2px solid rgba(124, 214, 171, 0.3)" : "2px solid rgba(255, 36, 36, 0.3)", // Border
 
-    }}
-  >
-    <Tooltip
-      title={`Connection Status : ${
-        currentTime
-      } and ${heartRateTimeStamp[heartRateTimeStamp.length - 1]}`}
-      arrow
-      placement="right-end"
-      style={{
-        fontSize: "15",
-        color: "white",
-      }}
-    >
-      <IconButton>
-        <PowerIcon style={{ color: connectionStatus ? "rgba(124, 214, 171, 0.9)" : "rgba(255, 36, 36, 0.9)" }} />
-      </IconButton>
 
-      <span style={{ color: connectionStatus ? "rgba(124, 214, 171, 0.9)" : "rgba(255, 36, 36, 0.9)" }}>  {connectionStatus ? "Connected" : "Disconnected"}</span>
 
-    </Tooltip>
-  </div>
-  
 
-             
+
+
 
               <Tooltip
                 title={`Heart rate : ${heartRateData[39]}`}
@@ -899,9 +868,53 @@ const DefaultPage = () => {
                 </IconButton>
               </Tooltip>
 
-              
+
+
 
               <Tooltip
+  title={`Connection Status: ${
+    currentTime
+  } and ${heartRateTimeStamp[heartRateTimeStamp.length - 1]}`}
+  arrow
+  placement="left-end"
+  style={{
+      fontSize: "15",
+      position: "fixed",
+      top: "6.2rem",
+      right: "4rem",
+      padding: "0rem 1rem 0rem 0.5rem",
+      border: connectionStatus
+      ? "2px solid rgba(124, 214, 171, 0.3)"
+      : "2px solid rgba(255, 36, 36, 0.3)",
+      backgroundColor: connectionStatus
+      ? "rgba(124, 214, 171, 0.3)"
+      : "rgba(255, 36, 36, 0.3)",
+     borderRadius: "50px",
+     zIndex: 3,
+  }}
+> 
+    <IconButton>
+      <PowerIcon
+        style={{
+          color: connectionStatus
+            ? "rgba(124, 214, 171, 0.9)"
+            : "rgba(255, 36, 36, 0.9)",
+        }}
+      />
+      </IconButton>
+    <span
+      style={{
+        color: connectionStatus
+          ? "rgba(124, 214, 171, 0.9)"
+          : "rgba(255, 36, 36, 0.9)",
+      }}>
+      {connectionStatus ? "Connected" : "Disconnected"}
+    </span>
+</Tooltip>
+
+              
+
+              {/* <Tooltip
                 title={`Connection Status :  ${currentTime} and ${
                   heartRateTimeStamp[heartRateTimeStamp.length - 1]
                 }`}
@@ -924,7 +937,7 @@ const DefaultPage = () => {
                 <IconButton>
                   <PowerIcon />
                 </IconButton>
-              </Tooltip>
+              </Tooltip> */}
             </Box>
           )}
         </Box>
