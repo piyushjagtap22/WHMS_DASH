@@ -7,7 +7,7 @@ import {
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import ReactApexChart from 'react-apexcharts';
 
-const ApexGraph = React.memo((props) => {
+const ApexGraphPrint = React.forwardRef((props, ref) => {
   const theme = useTheme();
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
 
@@ -99,7 +99,15 @@ const ApexGraph = React.memo((props) => {
 
 
   return (
-   
+    <div ref={ref} className="print-container">
+        <header className="print-header">
+        <h1>Prodyogik Solutions</h1>
+        <p>Address Line 1, Address Line 2, City, Country</p>
+        <p>Phone: 9406928294 | Email: harshyadav@gmail.com</p>
+        Name - {name} 
+      </header>
+      <main className="print-content">
+      
     <Box
       gridColumn="span 7"
       gridRow="span 2"
@@ -157,8 +165,12 @@ const ApexGraph = React.memo((props) => {
         />
       </Box>
     </Box>
-   
+    </main>
+      <footer className="print-footer">
+        <p>Company Name - All Rights Reserved</p>
+      </footer>
+    </div>
   );
 });
 
-export default ApexGraph;
+export default ApexGraphPrint;
