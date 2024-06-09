@@ -332,7 +332,7 @@ function LoginScreen() {
                     variant="contained"
                     color="primary"
                     onClick={handleResetPassword}
-                    style={{ marginTop: '15px',backgroundColor: '#7CD6AB',borderRadius: "5px", width:"100%"}}
+                    style={{ marginTop: '15px',backgroundColor: '#7CD6AB',borderRadius: "8px", width:"100%"}}
                   >
                     Send Link
                   </Button>
@@ -342,13 +342,11 @@ function LoginScreen() {
             </Modal >
 
 
-            <Button className='py-3 mt-4 w-100' style={{color:"#75777B",backgroundColor: isFormValid? "#7CD6AB": '#ccc' ,borderRadius: "5px"}} disabled={!isFormValid } type='submit'>
+            <Button className='py-3 mt-4 w-100' style={{color:"white",backgroundColor: isFormValid? "#7CD6AB": '#ccc' ,borderRadius: "5px"}} disabled={!isFormValid } type='submit'>
               LOGIN
             </Button>
 
             <div id='recaptcha-container' />
-
-          
             
           </form>
 
