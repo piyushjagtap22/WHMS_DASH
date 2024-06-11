@@ -610,10 +610,14 @@ const SuperAdminScreen = () => {
                           <p> &nbsp; </p>
                           <br/>
                         </tr>
+
+                        
                       </table>
                     </div>
                   )}
                 </tr>
+
+                
               </>
             ))}
             
@@ -626,3 +630,14 @@ const SuperAdminScreen = () => {
 };
 
 export default SuperAdminScreen;
+
+// <tr>
+// <td>{showUserIds[admin._id] && admin.adminDetails && (
+//     <ul>
+//       {admin.adminDetails[0].userIds.map((userId) => (
+//         <li key={userId}>{userId}</li>
+//       ))}
+//     </ul>
+// )}
+// </td>
+// </tr>
