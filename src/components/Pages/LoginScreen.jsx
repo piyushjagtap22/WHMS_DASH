@@ -10,13 +10,16 @@ import { toast } from 'react-toastify';
 import Loader from '../Loader';
 import { initializeAuthUser, setToken } from '../../slices/authSlice.js';
 import FormContainer from '../FormContainer';
-import { signInWithEmailAndPassword , sendPasswordResetEmail } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from 'firebase/auth';
 import { auth } from '../../firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import PhoneInput from 'react-phone-input-2';
 
 import { getMongoUser } from '../../slices/usersApiSlice.js';
-import { Modal , Box} from '@material-ui/core';
+import { Modal, Box } from '@material-ui/core';
 import {
   OAuthProvider,
   getAdditionalUserInfo,
@@ -50,26 +53,27 @@ function LoginScreen() {
   const loading = useSelector((state) => state.loading.loading);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [loginError,setLoginError] = useState(null);
-  const [loginErrorMessage,setLoginErrorMessage] = useState(null);
+  const [loginError, setLoginError] = useState(null);
+  const [loginErrorMessage, setLoginErrorMessage] = useState(null);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  dispatch(setAuthState('/login'));
   const [showPassword, setShowPassword] = useState(false);
-  const [isFormValid,setIsFormValid] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const handleResetPassword = () => {
-    sendPasswordResetEmail(auth ,email)
+    sendPasswordResetEmail(auth, email)
       .then(() => {
         toast.success('Success');
         setMessage('Password reset email sent. Check your inbox.');
         setError(null);
       })
       .catch((error) => {
-        console.log("error aaya",error)
+        console.log('error aaya', error);
         setError(error.message);
         setMessage(null);
       });
@@ -86,7 +90,6 @@ function LoginScreen() {
     setIsLoading(true);
     e.preventDefault();
 
-  
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         console.log(userCredential);
@@ -96,14 +99,17 @@ function LoginScreen() {
         try {
           dispatch(setLoading(true));
           toast.success('Success');
-  
+
           const user = auth.currentUser;
           console.log(user.email);
-  
+
           console.log(userCredential);
-          localStorage.setItem('accessToken', userCredential._tokenResponse.idToken);
+          localStorage.setItem(
+            'accessToken',
+            userCredential._tokenResponse.idToken
+          );
           setToken(userCredential._tokenResponse.idToken);
-  
+
           dispatch(
             setAuthUser({
               email: user.email,
@@ -120,7 +126,7 @@ function LoginScreen() {
               displayName: user.displayName,
             })
           );
-  
+
           if (
             user !== null &&
             (user.email === null || user.emailVerified === false)
@@ -171,19 +177,19 @@ function LoginScreen() {
         }
       })
       .catch((err) => {
-        setLoginErrorMessage("Invalid Credentials");
+        setLoginErrorMessage('Invalid Credentials');
         console.log(err);
       });
   };
-    useEffect(() => {
-      setIsFormValid(email.trim() !== '' && password.trim() !== '');
-      console.log(isFormValid);
-      console.log("rinnong");
-    }, [email, password]);
+  useEffect(() => {
+    setIsFormValid(email.trim() !== '' && password.trim() !== '');
+    console.log(isFormValid);
+    console.log('rinnong');
+  }, [email, password]);
 
   return (
     <>
-         {loading ? (
+      {loading ? (
         <Loader />
       ) : (
         <Container
@@ -197,13 +203,12 @@ function LoginScreen() {
             borderRadius: '1rem',
           }}
         >
- 
           <Typography
             variant='h2'
             fontWeight='bold'
             style={{ color: '#7CD6AB' }}
           >
-           Login 
+            Login
           </Typography>
           <Typography
             variant='subtitle1'
@@ -213,7 +218,6 @@ function LoginScreen() {
           </Typography>
           <form
             style={{ width: '70%', margin: 'auto', textAlign: 'left' }}
-            
             onSubmit={submitHandler}
           >
             <Typography
@@ -222,149 +226,201 @@ function LoginScreen() {
             >
               Email
             </Typography>
-
             <div>
-            <div style = {{ position: 'relative'}}>
-            <FaEnvelope style={{ position: 'absolute',marginTop: "19px",marginLeft: "15px",scale: "1.8", color: 'aliceblue' }} />
- 
-              <TextField
-                type="email"
-                placeholder="Johndoe@gmail.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                
-                style={{
-                  border: '1px solid #75777B',
-                  borderRadius: '5px',
-                  width: '349px',
-                  outline: 'none',
-                  paddingLeft: '49px',
-                  height: '53px',
-                  transition: 'box-shadow 0.25s ease 0s',
-                }}
-              />
+              <div style={{ position: 'relative' }}>
+                <FaEnvelope
+                  style={{
+                    position: 'absolute',
+                    marginTop: '19px',
+                    marginLeft: '15px',
+                    scale: '1.8',
+                    color: 'aliceblue',
+                  }}
+                />
+
+                <TextField
+                  type='email'
+                  placeholder='Johndoe@gmail.com'
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{
+                    border: '1px solid #75777B',
+                    borderRadius: '5px',
+                    width: '349px',
+                    outline: 'none',
+                    paddingLeft: '49px',
+                    height: '53px',
+                    transition: 'box-shadow 0.25s ease 0s',
+                  }}
+                />
+              </div>
+              <Typography
+                variant='subtitle2'
+                style={{ margin: '10px 9px', color: '#75777B' }}
+              >
+                Password
+              </Typography>
+              <div style={{}}>
+                <FaLock
+                  style={{
+                    position: 'absolute',
+                    marginTop: '19px',
+                    marginLeft: '15px',
+                    scale: '1.8',
+                    color: 'aliceblue',
+                  }}
+                />
+
+                <TextField
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder='Password'
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{
+                    border: '1px solid #75777B',
+                    borderRadius: '5px',
+                    width: '349px',
+                    outline: 'none',
+                    paddingLeft: '49px',
+                    height: '53px',
+                    transition: 'box-shadow 0.25s ease 0s',
+                  }}
+                  InputLabelProps={{ style: { color: 'grey' } }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position='end'>
+                        <IconButton
+                          aria-label='toggle password visibility'
+                          onClick={handleTogglePasswordVisibility}
+                        >
+                          {showPassword ? (
+                            <Visibility style={{ color: '#7CD6AB' }} />
+                          ) : (
+                            <VisibilityOff style={{ color: '#7CD6AB' }} />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
             </div>
-            <Typography
-              variant='subtitle2'
-              style={{ margin: '10px 9px', color: '#75777B' }}
+            <Button
+              style={{ color: '#7CD6AB', marginLeft: '-10px' }}
+              variant='outlined'
+              onClick={handleToggleModal}
             >
-              Password
-            </Typography>
-            <div style={{ }}>
-            <FaLock style={{ position: 'absolute',marginTop: "19px",marginLeft: "15px",scale: "1.8",  color: 'aliceblue' }} />
- 
-              <TextField
-                type={showPassword ? 'text' : 'password'} 
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                
-                style={{
-                 
-                  border: '1px solid #75777B',
-                  borderRadius: '5px',
-                  width: '349px',
-                  outline: 'none',
-                  paddingLeft: '49px',
-                  height: '53px',
-                  transition: 'box-shadow 0.25s ease 0s',
-                }}
-               
-                InputLabelProps={{ style: { color: 'grey' } }}
-                InputProps={{
-                  
-                  endAdornment: (
-                    <InputAdornment position='end'>
-                      <IconButton
-                        aria-label='toggle password visibility'
-                        onClick={handleTogglePasswordVisibility}
-                      >
-                        {showPassword ? (
-                          <Visibility style={{ color: '#7CD6AB' }} />
-                        ) : (
-                          <VisibilityOff style={{ color: '#7CD6AB' }} />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-
-              />
-            </div>
-
-           
-            </div>
-              
-            <Button style={{color: "#7CD6AB" ,marginLeft: "-10px"}} variant="outlined" onClick={handleToggleModal}>
               Forgot Password?
             </Button>
-   
-            
-            {loginErrorMessage && <Typography style={{ color: 'red', marginTop: '10px' }}>{loginErrorMessage}</Typography>}
+            {loginErrorMessage && (
+              <Typography style={{ color: 'red', marginTop: '10px' }}>
+                {loginErrorMessage}
+              </Typography>
+            )}
+            <Modal
+              open={open}
+              onClose={handleToggleModal}
+              style={{
+                display: 'flex',
+                opacity: '99.99999%',
+                backfaceVisibility: 'hidden',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Box
+                sx={{ width: 300, bgcolor: 'black', p: 2, textAlign: 'center' }}
+              >
+                <Typography
+                  variant='subtitle1'
+                  style={{
+                    alignContent: 'left',
+                    margin: '15px 0',
+                    color: '#7CD6AB',
+                  }}
+                >
+                  Forgot Password?
+                </Typography>
 
-            <Modal open={open} onClose={handleToggleModal} style={{ display: 'flex',opacity: "99.99999%",backfaceVisibility: "hidden",alignItems: 'center', justifyContent: 'center' }}>
-                <Box sx={{ width: 300, bgcolor: 'black', p: 2, textAlign: 'center' }}>
-                  <Typography variant='subtitle1' style={{ alignContent:"left", margin: '15px 0', color: '#7CD6AB' }}>
-                    Forgot Password?
+                <TextField
+                  type='email'
+                  placeholder='johndoe@gmail.com'
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  fullWidth
+                  style={{
+                    fontSize: '16px',
+                    background: 'black',
+                    color: 'aliceblue',
+                    border: '1px solid #75777B',
+                    borderRadius: '5px',
+
+                    outline: 'white',
+
+                    height: '52px',
+                  }}
+                />
+                <Button
+                  variant='contained'
+                  color='primary'
+                  onClick={handleResetPassword}
+                  style={{
+                    marginTop: '15px',
+                    backgroundColor: '#7CD6AB',
+                    borderRadius: '5px',
+                    width: '100%',
+                  }}
+                >
+                  Send Link
+                </Button>
+                {error && (
+                  <Typography style={{ color: 'red', marginTop: '10px' }}>
+                    {error}
                   </Typography>
-                
-                  <TextField
-                    type="email"
-                    placeholder='johndoe@gmail.com'
-                    
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    fullWidth
-                    style={{
-                      fontSize: '16px',
-                      background: 'black',
-                      color: 'aliceblue',
-                      border: '1px solid #75777B',
-                      borderRadius: '5px',
-                      
-                      outline: 'white',
-                      
-                      height: '52px',
-                      
-                    }}
-                  />
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleResetPassword}
-                    style={{ marginTop: '15px',backgroundColor: '#7CD6AB',borderRadius: "8px", width:"100%"}}
-                  >
-                    Send Link
-                  </Button>
-                  {error && <Typography style={{ color: 'red', marginTop: '10px' }}>{error}</Typography>}
-                  {message && <Typography style={{ color: 'green', marginTop: '10px' }}>{message}</Typography>}
-                </Box>
-            </Modal >
-
-
-            <Button className='py-3 mt-4 w-100' style={{color:"white",backgroundColor: isFormValid? "#7CD6AB": '#ccc' ,borderRadius: "5px"}} disabled={!isFormValid } type='submit'>
+                )}
+                {message && (
+                  <Typography style={{ color: 'green', marginTop: '10px' }}>
+                    {message}
+                  </Typography>
+                )}
+              </Box>
+            </Modal>
+            <Button
+              className='py-3 mt-4 w-100'
+              style={{
+                color: '#75777B',
+                backgroundColor: isFormValid ? '#7CD6AB' : '#ccc',
+                borderRadius: '5px',
+              }}
+              disabled={!isFormValid}
+              type='submit'
+            >
               LOGIN
             </Button>
+            <div id='recaptcha-container' />
 
             <div id='recaptcha-container' />
-            
           </form>
 
           <Typography
             variant=''
-            style={{color: "#7CD6AB" ,textAlign:"left",variant: "outlined",width: "100%", display: "block",paddingLeft:"80px",paddingTop: "12px" }}
+            style={{
+              color: '#7CD6AB',
+              textAlign: 'left',
+              variant: 'outlined',
+              width: '100%',
+              display: 'block',
+              paddingLeft: '80px',
+              paddingTop: '12px',
+            }}
             component={Link} // Render Typography as a link
             to='/register' // Specify the route to navigate to
           >
             New User Register
           </Typography>
-
         </Container>
       )}
-
-    
     </>
-
   );
 }
 

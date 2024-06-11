@@ -116,8 +116,6 @@ const SuperAdminScreen = () => {
         console.log('in fetchdata');
         const response = await getAllAdmin(token);
         console.log('users data ', response.data.admins);
-
-
         if (response.status === 200) {
           setUsers(response.data.admins);
         } else {
@@ -427,7 +425,7 @@ const SuperAdminScreen = () => {
           
         />
       </Box>
-      <div style={{backgroundColor:"#121318",height:"91vh",width:"100%"}}>
+      <div>
         Hello SuperAdmin,
         {/* <Button
           onClick={handleLogout}
@@ -441,19 +439,17 @@ const SuperAdminScreen = () => {
         >
           Logout
         </Button> */}
-     
+        <h1>Admin Management</h1>
         <table style={{
-            width: "98%",
-            // backgroundColor: theme.palette.background.alt,
-            backgroundColor: "#191C23",
-            borderRadius: "8px",
+            width: "100%",
+            height: "100%",
+            backgroundColor: theme.palette.background.alt,
+            borderRadius: "1px",
             borderCollapse: 'collapse',
-            margin: "15px",
-            color: "#B8D5FF",
             
           }}>
           <thead>
-          <tr style={{ borderBottom: `1px solid ${theme.palette.secondary[400]}`}}>
+          <tr style={{ borderBottom: `1px solid ${theme.palette.secondary[400]}` }}>
               <th >Name</th>
               <th>Email</th>
               <th >Admin ID</th>
@@ -487,7 +483,7 @@ const SuperAdminScreen = () => {
                   />
                 )}
               </Card>
-              <button style={{width: "100%",marginTop: "1em",backgroundColor: "#7CD6AB"}} onClick={() => approveDoc(selectedAdmin)}>
+              <button onClick={() => approveDoc(selectedAdmin)}>
                 Approve Documents
               </button>
             </Box>
@@ -495,7 +491,7 @@ const SuperAdminScreen = () => {
           <tbody>
             {users.map((admin) => (
               <>
-                <tr style={{width:"100%"}} key={admin._id}>
+                <tr key={admin._id}>
                   <td>{admin.name}</td>
                   <td>{admin.email}</td>
                   <td>{admin._id}</td>
@@ -561,7 +557,7 @@ const SuperAdminScreen = () => {
                   <td>
                     
                       <a href='#'  onClick={() => handleShowUserIds(admin._id)} >
-                        View devices
+                        Device List
                         {showUserIds[admin._id] ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
                       </a>
                      
@@ -570,7 +566,7 @@ const SuperAdminScreen = () => {
 
                 </tr>
 
-                <tr style={{}}>
+                <tr>
                   {showUserIds[admin._id] && admin.adminDetails && (
                      <div className="">
                       <table className='newtableoutline'>
@@ -580,7 +576,7 @@ const SuperAdminScreen = () => {
                         </tr>
                         {admin?.adminDetails[0]?.deviceIds.map((userId) => (
                           <>
-                            <th style={{color:"#B0B0CA"}} className='newtableth' key={userId}>
+                            <th className='newtableth' key={userId}>
                               {userId}
                             </th>
                             <tr>
@@ -591,9 +587,9 @@ const SuperAdminScreen = () => {
                           
                         ))}
 
-                        <tr style={{"position":'absolute',"border-bottom":"none",textDecoration:"none"}}>
+                        <tr style={{"position":'absolute',"border-bottom":"none"}}>
                           <TextField
-                            style={{ 'padding-left': '0.5em','borderRadius': '30px',padding:"0px"}}
+                            style={{ 'padding-left': '0.5em','borderRadius': '30px'}}
                             id='outlined-basic'
                             onChange={handleInputChange}
                             value={textFieldValue}
@@ -610,13 +606,14 @@ const SuperAdminScreen = () => {
                           <p> &nbsp; </p>
                           <br/>
                         </tr>
+
+                        
                       </table>
                     </div>
                   )}
                 </tr>
               </>
             ))}
-            
           </tbody>
         </table>
         <Box m='1.5rem '></Box>
@@ -626,3 +623,14 @@ const SuperAdminScreen = () => {
 };
 
 export default SuperAdminScreen;
+
+// <tr>
+// <td>{showUserIds[admin._id] && admin.adminDetails && (
+//     <ul>
+//       {admin.adminDetails[0].userIds.map((userId) => (
+//         <li key={userId}>{userId}</li>
+//       ))}
+//     </ul>
+// )}
+// </td>
+// </tr>
