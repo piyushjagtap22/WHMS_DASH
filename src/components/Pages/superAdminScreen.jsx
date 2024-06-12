@@ -1,60 +1,49 @@
-import React, { useMemo } from 'react';
+import React from "react";
 // import { delay } from '@reduxjs/toolkit/dist/utils';
-import { useEffect, useState } from 'react';
-import FlexBetween from '../FlexBetween';
-import Header from '../Header';
-import { Button, Form } from 'react-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import { IconButton } from '@mui/material';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-
-import { DataGrid } from '@mui/x-data-grid';
-import { useTheme, useMediaQuery } from '@mui/material';
-import { Card, CardMedia } from '@mui/material';
-import { setLoading } from '../../slices/loadingSlice';
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import {
-  createAdmin,
-  getAllUsers,
-  removeAdmin,
+  Button,
+  Card,
+  Collapse,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  useMediaQuery,
+  useTheme
+} from "@mui/material";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { auth } from "../../firebase.js";
+import { setAuthState } from "../../slices/authSlice";
+import { setLoading } from "../../slices/loadingSlice";
+import {
+  addDeviceID,
+  approveDocById,
+  disableAdmin,
   enableAdmin,
   getAllAdmin,
-  disableAdmin,
-  approveDocById,
-  addDeviceID,
-  // docById
-} from './../../slices/superAdminApiSlice';
-import { auth } from '../../firebase.js';
-import { onAuthStateChanged } from 'firebase/auth';
-import { signOut } from 'firebase/auth';
-import { setAuthState } from '../../slices/authSlice';
-import {
-  getUnallocatedUsers,
-  AddUsersToAdmin,
-  getAdminUsers,
-  RemoveUsersFromAdmin,
-} from '../../slices/adminApiSlice';
-import Navbar from './Navbar.jsx';
-const style = {
-  position: 'absolute',
-  top: '30%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-};
+} from "./../../slices/superAdminApiSlice";
+import Navbar from "./Navbar.jsx";
 
 const SuperAdminScreen = () => {
   const delay = (milliseconds) =>
     new Promise((resolve) => {
-      console.log('Delay called ', milliseconds);
+      console.log("Delay called ", milliseconds);
       setTimeout(resolve, milliseconds);
     });
   const [users, setUsers] = useState([]);
@@ -62,7 +51,7 @@ const SuperAdminScreen = () => {
   const [currentlyExpandedUser, setCurrentlyExpandedUser] = useState(null);
   const dispatch = useDispatch();
   const [adminInfo, setAdminInfo] = useState();
-  const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
+  const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
   const SUPERADMIN_URL = `${import.meta.env.VITE_REACT_API_URL}/api/superadmin`;
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
@@ -71,13 +60,13 @@ const SuperAdminScreen = () => {
   const [document, setdocument] = useState(null);
   const { userInfo } = useSelector((state) => state.superAdmin);
   const [adminUsers, setAdminUsers] = useState([]); // State to store admin users
-  const [button, setButton] = useState('false');
+  const [button, setButton] = useState("false");
   const [open, setOpen] = React.useState(false);
-  const [selectedAdmin, setselectedAdmin] = useState('');
+  const [selectedAdmin, setselectedAdmin] = useState("");
   const [showUserIds, setShowUserIds] = useState({});
   const theme = useTheme();
   const [data, setData] = useState([]);
-  const [textFieldValue, setTextFieldValue] = useState('');
+  const [textFieldValue, setTextFieldValue] = useState("");
   const handleLogout = async () => {
     try {
       dispatch(setLoading(true));
@@ -88,17 +77,17 @@ const SuperAdminScreen = () => {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
         if (!user) {
           // User is successfully signed out, navigate to '/register'
-          dispatch(setAuthState('/register'));
+          dispatch(setAuthState("/register"));
           dispatch(setAuthUser(null));
           dispatch(setMongoUser(null));
           // dispatch(setLoading(true));
-          console.log('Navigating to /register');
+          console.log("Navigating to /register");
 
           // Use navigate to trigger navigation
-          navigate('/register');
+          navigate("/register");
 
           // Make sure this log is reached
-          console.log('Navigation completed');
+          console.log("Navigation completed");
 
           unsubscribe(); // Unsubscribe to avoid further callbacks
         }
@@ -113,9 +102,9 @@ const SuperAdminScreen = () => {
     // Fetch user data when the component mountsout
     const fetchData = async () => {
       try {
-        console.log('in fetchdata');
+        console.log("in fetchdata");
         const response = await getAllAdmin(token);
-        console.log('users data ', response.data.admins);
+        console.log("users data ", response.data.admins);
         if (response.status === 200) {
           setUsers(response.data.admins);
         } else {
@@ -131,14 +120,14 @@ const SuperAdminScreen = () => {
   const handleOpen = async (userId) => {
     setOpen(true);
 
-    console.log('enable Admin');
+    console.log("enable Admin");
     const apiUrl = `${SUPERADMIN_URL}/getDocById`;
     setselectedAdmin(userId);
     const authToken = `Bearer ${token}`;
     fetch(apiUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: authToken,
       },
       body: JSON.stringify({ _id: userId }),
@@ -148,7 +137,7 @@ const SuperAdminScreen = () => {
         const imageUrl = URL.createObjectURL(blob);
         setdocument(imageUrl);
       })
-      .catch((error) => console.error('Error fetching image:', error));
+      .catch((error) => console.error("Error fetching image:", error));
 
     // try {
     //   const response = await docById({ "_id": `${userId}`}, token);
@@ -167,54 +156,54 @@ const SuperAdminScreen = () => {
   };
   const handleClose = () => setOpen(false);
 
-  const adminToggle = async (user) => {
-    console.log();
-    if (user.roles[0] === 'superadmin') {
-      console.log('Already Superadmin');
-    } else {
-      let response;
-      if (user.roles[0] === 'admin') {
-        response = await removeAdmin({ _id: user._id }, token);
-        if (response.status === 200) {
-          console.log(response);
-          // Update the user's role in the local state
-          setUsers((prevUsers) =>
-            prevUsers.map((prevUser) =>
-              prevUser._id === user._id
-                ? { ...prevUser, roles: ['unallocated'] }
-                : prevUser
-            )
-          );
-        }
-      } else {
-        response = await createAdmin({ _id: user._id }, token);
-        if (response.status === 200) {
-          console.log(response);
-          // Update the user's role in the local state
-          setUsers((prevUsers) =>
-            prevUsers.map((prevUser) =>
-              prevUser._id === user._id
-                ? { ...prevUser, roles: ['admin'] }
-                : prevUser
-            )
-          );
-        }
-      }
-    }
-  };
+  // const adminToggle = async (user) => {
+  //   console.log();
+  //   if (user.roles[0] === 'superadmin') {
+  //     console.log('Already Superadmin');
+  //   } else {
+  //     let response;
+  //     if (user.roles[0] === 'admin') {
+  //       response = await removeAdmin({ _id: user._id }, token);
+  //       if (response.status === 200) {
+  //         console.log(response);
+  //         // Update the user's role in the local state
+  //         setUsers((prevUsers) =>
+  //           prevUsers.map((prevUser) =>
+  //             prevUser._id === user._id
+  //               ? { ...prevUser, roles: ['unallocated'] }
+  //               : prevUser
+  //           )
+  //         );
+  //       }
+  //     } else {
+  //       response = await createAdmin({ _id: user._id }, token);
+  //       if (response.status === 200) {
+  //         console.log(response);
+  //         // Update the user's role in the local state
+  //         setUsers((prevUsers) =>
+  //           prevUsers.map((prevUser) =>
+  //             prevUser._id === user._id
+  //               ? { ...prevUser, roles: ['admin'] }
+  //               : prevUser
+  //           )
+  //         );
+  //       }
+  //     }
+  //   }
+  // };
 
   const approveDoc = async (userId) => {
-    alert('clicked on' + userId);
+    alert("clicked on" + userId);
     const response = await approveDocById({ adminID: `${userId}` }, token);
 
     if (response.status === 200) {
       console.log(response); // Assuming the user data is in the response data
-      alert('Document Verified');
+      alert("Document Verified");
       setdocument(null);
       setOpen(false);
     } else {
       // Handle any errors or show a message
-      alert('something went wrong');
+      alert("something went wrong");
     }
   };
 
@@ -224,7 +213,7 @@ const SuperAdminScreen = () => {
 
   const expandUser = (user) => {
     fetchAdminUsers(user);
-    setAdminInfo('True');
+    setAdminInfo("True");
     //if (expandedUsers.includes(user._id)) {
     if (currentlyExpandedUser === user._id) {
       setCurrentlyExpandedUser(null);
@@ -239,11 +228,13 @@ const SuperAdminScreen = () => {
 
   const enableAdminByID = async (userId) => {
     // Perform your query or action using the retrieved data
-    const result = window.confirm("Do you want to Navigate to User details Page");
+    const result = window.confirm(
+      "Do you want to Navigate to User details Page"
+    );
 
     if (result) {
       console.log(`Clicked user ID: ${userId}`);
-      console.log('enable Admin');
+      console.log("enable Admin");
       try {
         const response = await enableAdmin({ adminId: `${userId}` }, token);
         console.log(response);
@@ -257,17 +248,15 @@ const SuperAdminScreen = () => {
         console.log(error);
       }
     } else {
-      console.log("User Denied to Change Status")
+      console.log("User Denied to Change Status");
     }
-
-  
   };
 
   const addDevice = async (data) => {
     console.log(textFieldValue);
     // console.log("check",data);
     try {
-      alert('Are you sure you want to add device' + textFieldValue);
+      alert("Are you sure you want to add device" + textFieldValue);
 
       const response = await addDeviceID(
         { adminId: `${data}`, deviceIds: [`${textFieldValue}`] },
@@ -294,11 +283,13 @@ const SuperAdminScreen = () => {
   const disableAdminByID = async (userId) => {
     // Perform your query or action using the retrieved data
 
-    const result = window.confirm("Do you want to Navigate to User details Page");
+    const result = window.confirm(
+      "Do you want to Navigate to User details Page"
+    );
 
     if (result) {
       console.log(`Clicked user ID: ${userId}`);
-      console.log('enable Admin');
+      console.log("enable Admin");
       try {
         const response = await disableAdmin({ adminId: `${userId}` }, token);
         console.log(response);
@@ -312,9 +303,8 @@ const SuperAdminScreen = () => {
         console.log(error);
       }
     } else {
-      console.log("User Denied to Change Status")
+      console.log("User Denied to Change Status");
     }
-
   };
 
   const handleShowUserIds = (adminId) => {
@@ -326,7 +316,7 @@ const SuperAdminScreen = () => {
 
   const documentByID = async (userId) => {
     alert(`clicked by ${userId}`);
-    console.log('enable Admin');
+    console.log("enable Admin");
     try {
       if (response.status === 200) {
         console.log(response); // Assuming the user data is in the response data
@@ -352,142 +342,342 @@ const SuperAdminScreen = () => {
     // }
   };
 
-  const addUserToAdmin = async (userId, adminId) => {
-    console.log('mapped');
-    try {
-      console.log('in fetchdata');
-      const data = {
-        adminId: adminId,
-        userIds: [userId],
-      };
-      console.log(data);
-      const response = await AddUsersToAdmin(data, token);
-      console.log(response);
-      if (response.status === 200) {
-        console.log(response); // Assuming the user data is in the response data
-        // setAdminUsers((prevUsers) => [
-        //   ...prevUsers,
-        //   users.find((user) => user._id === userId),
-        // ]);
-        // setUsers((prevUsers) => prevUsers.filter((user) => user._id !== _id));
-      } else {
-        // Handle any errors or show a message
-      }
-    } catch (error) {
-      // Handle any network or API request errors
-    }
-  };
+  // const addUserToAdmin = async (userId, adminId) => {
+  //   console.log('mapped');
+  //   try {
+  //     console.log('in fetchdata');
+  //     const data = {
+  //       adminId: adminId,
+  //       userIds: [userId],
+  //     };
+  //     console.log(data);
+  //     const response = await AddUsersToAdmin(data, token);
+  //     console.log(response);
+  //     if (response.status === 200) {
+  //       console.log(response); // Assuming the user data is in the response data
+  //       // setAdminUsers((prevUsers) => [
+  //       //   ...prevUsers,
+  //       //   users.find((user) => user._id === userId),
+  //       // ]);
+  //       // setUsers((prevUsers) => prevUsers.filter((user) => user._id !== _id));
+  //     } else {
+  //       // Handle any errors or show a message
+  //     }
+  //   } catch (error) {
+  //     // Handle any network or API request errors
+  //   }
+  // };
 
   //const isExpanded = (user) => expandedUsers.includes(user._id);
-  const isExpanded = (user) => user._id === currentlyExpandedUser;
+  // const isExpanded = (user) => user._id === currentlyExpandedUser;
 
-  //Data related to Table
+  function Row({ row }) {
+    const [open, setOpen] = useState(false);
+    console.log(row);
+    return (
+      <React.Fragment>
+        <TableRow>
+          <TableCell >
+            {row.name}
+          </TableCell>
+          <TableCell >
+            {row.email}
+          </TableCell>
+          <TableCell>
+            {row._id}
+          </TableCell>
+          <TableCell >
+            {row?.roles[0] == "admin" ? (
+              <>
+                <a
+                  href="#"
+                  onClick={(event) => handleOpen(row._id)}
+                  className="link-button"
+                  style={{ textDecoration: "underline" }}
+                >
+                  See documents
+                </a>
+                <IconButton onClick={() => handleOpen(row._id)}>
+                  <VisibilityIcon />
+                </IconButton>
+              </>
+            ) : (
+              <>
+                <a
+                  href="#"
+                  style={{ textDecoration: "underline" }}
+                  className="link-button disabled"
+                >
+                  See documents
+                </a>
+                <IconButton onClick={() => handleOpen(row._id)}>
+                  <VisibilityIcon />
+                </IconButton>
+              </>
+            )}
+          </TableCell>
+          <TableCell
+            sx={{
+              
+              width: "10%",
+              color: row.roles[0] == "admin" ? "green" : "red",
+            }}
+          >
+            {row?.adminDetails[0]?.accountEnabled ? (
+              <>
+                <a
+                  href="#"
+                  style={{ color: "#7CD6AB" }}
+                  onClick={() => disableAdminByID(row._id)}
+                >
+                  Enabled
+                </a>
+              </>
+            ) : (
+              <>
+                <a
+                  href="#"
+                  style={{ color: "#FF553C" }}
+                  onClick={() => enableAdminByID(row._id)}
+                >
+                  Disabled
+                </a>
+              </>
+            )}
+          </TableCell>
+          <TableCell >
+            Device List
+            <IconButton
+              aria-label="expand row"
+              size="small"
+              onClick={() => setOpen(!open)}
+            >
+              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <Box
+                margin={2}
+                sx={{
+                  borderRadius: "8px",
+                  padding: "16px",
+                  backgroundColor: "#191C23",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  component="div"
+                  sx={{ fontWeight: "bold" }}
+                >
+                  Devices
+                </Typography>
+                <Table size="small" aria-label="devices">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell
+                        sx={{ fontWeight: "bold", backgroundColor: "#191C23" }}
+                      >
+                        Device ID
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody sx={{ padding: "16px" }}>
+                    {row?.adminDetails[0]?.deviceIds.map((deviceID) => (
+                      <TableRow sx={{ padding: "16px 32px 16px 32px" }} key={deviceID}>
+                        <TableCell sx={{ padding: "16px 32px 16px 32px" }}>
+                          {deviceID}
+                        </TableCell>
+                      </TableRow>
+                    ))}
 
-  const columns = [
-    {
-      field: 'name',
-      headerName: 'Name',
-      flex: 0.4,
-    },
-    {
-      field: 'email',
-      headerName: 'Email',
-      flex: 0.4,
-    },
-    {
-      field: 'admin_id',
-      headerName: 'Admin ID',
-      flex: 0.5,
-    },
-    {
-      field: 'doc_status',
-      headerName: 'Doc Status',
-      flex: 0.4,
-    },
-    {
-      field: 'Admin',
-      headerName: 'Admin Status',
-      flex: 0.3,
-    },
-    {
-      field: 'devices',
-      headerName: 'Devices',
-      flex: 0.3,
-    },
-  ];
-  console.log('in superadmin');
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        padding: "16px",
+                      }}
+                    >
+                      <TextField
+                        label="Add Device id"
+                        variant="outlined"
+                        size="small"
+                        onChange={handleInputChange}
+                        value={textFieldValue}
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            "& fieldset": {
+                              borderColor: "grey", // Default border color
+                            },
+                            "&:hover fieldset": {
+                              borderColor: "#7CD6AB", // Border color on hover
+                            },
+                            "&.Mui-focused fieldset": {
+                              borderColor: "#7CD6AB", // Border color when focused
+                            },
+                          },
+                          "& .MuiInputLabel-root": {
+                            color: "grey", // Default label color
+                          },
+                          "&:hover .MuiInputLabel-root": {
+                            color: "#7CD6AB", // Label color on hover
+                          },
+                          "& .Mui-focused .MuiInputLabel-root": {
+                            color: "#7CD6AB", // Label color when focused
+                          },
+                        }}
+                      />
+                      <Button
+                        sx={{
+                          background: "#7CD6AB",
+                          color: "#121318",
+                          textTransform: "none",
+                        }}
+                        onClick={() => addDevice(row._id)}
+                      >
+                        Add Device
+                      </Button>
+                    </Box>
+                  </TableBody>
+                </Table>
+              </Box>
+            </Collapse>
+          </TableCell>
+        </TableRow>
+      </React.Fragment>
+    );
+  }
+
+  console.log("in superadmin");
   return (
     <>
-    <Box flexGrow={1}>
-        <Navbar
-          
-          user={data || {}}
-          
-        />
+      <Box flexGrow={1}>
+        <Navbar user={data || {}} />
       </Box>
-      <div>
-        Hello SuperAdmin,
-        {/* <Button
-          onClick={handleLogout}
-          style={{
-            backgroundColor: '#7CD6AB',
-            color: '#121318',
-            margin: '20px 0',
-            padding: '0.8rem',
-          }}
-          fullWidth
+      <TableContainer
+        sx={{ padding: "32px 32px 32px 32px", backgroundColor: "#121318" }}
+        // component={Paper}
+      >
+        <Table
+        
+          sx={{ backgroundColor: "#121318",padding:"16px" }}
+          aria-label="collapsible table"
         >
-          Logout
-        </Button> */}
-        <h1>Admin Management</h1>
-        <table style={{
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ color: theme.palette.grey[400] }}>
+                Name
+              </TableCell>
+              <TableCell sx={{ color: theme.palette.grey[400] }}>
+                Email
+              </TableCell>
+              <TableCell sx={{ color: theme.palette.grey[400] }}>
+                Admin ID
+              </TableCell>
+              <TableCell sx={{ color: theme.palette.grey[400] }}>
+                Doc Status
+              </TableCell>
+              <TableCell sx={{ color: theme.palette.grey[400] }}>
+                Admin Status
+              </TableCell>
+              <TableCell sx={{ color: theme.palette.grey[400] }}>
+                Devices
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <Dialog
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="dialog-title"
+            aria-describedby="dialog-description"
+            PaperProps={{ style: { borderRadius: 12, background: "#121318" } }}
+          >
+            <DialogTitle id="dialog-title" sx={{fontWeight:'bold'}}>List of Documents</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="dialog-description" sx={{ mb: 2 }}>
+                Review the documents for the selected admin.
+              </DialogContentText>
+              {document && (
+                <Card
+                  sx={{
+                    background: "#191c23",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    p: 2,
+                    mb: 2,
+                    borderRadius: "2px",
+                  }}
+                >
+                  <img
+                    src={document}
+                    alt="Document"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "40rem",
+                      width: "auto",
+                      height: "auto",
+                      objectFit: "contain",
+                      borderRadius: "12px", // Adds rounded corners to the image
+                    }}
+                  />
+                </Card>
+              )}
+            </DialogContent>
+            <DialogActions sx={{ justifyContent: 'flex-start' }}>
+            <Button
+                onClick={() => approveDoc(selectedAdmin)}
+                color="primary"
+                variant="contained"
+              >
+                Approve Documents
+              </Button>
+              <Button
+                onClick={handleClose}
+                variant="outlined"
+                color="secondary"
+              >
+                Cancel
+              </Button>
+              
+            </DialogActions>
+          </Dialog>
+          <TableBody>
+            {users.map((row) => (
+              <Row key={row._id} row={row} />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      {/* <div>
+        <table
+          style={{
             width: "100%",
             height: "100%",
             backgroundColor: theme.palette.background.alt,
             borderRadius: "1px",
-            borderCollapse: 'collapse',
-            
-          }}>
+            borderCollapse: "collapse",
+          }}
+        >
           <thead>
-          <tr style={{ borderBottom: `1px solid ${theme.palette.secondary[400]}` }}>
-              <th >Name</th>
+            <tr
+              style={{
+                borderBottom: `1px solid ${theme.palette.secondary[400]}`,
+              }}
+            >
+              <th>Name</th>
               <th>Email</th>
-              <th >Admin ID</th>
-              <th >Doc Status</th>
-              <th >Admin Status</th>
-              <th >Devices</th>
+              <th>Admin ID</th>
+              <th>Doc Status</th>
+              <th>Admin Status</th>
+              <th>Devices</th>
             </tr>
           </thead>
-          <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby='modal-modal-title'
-            aria-describedby='modal-modal-description'
-          >
-            <Box sx={style}>
-              <Typography id='modal-modal-title' variant='h6' component='h2'>
-                List of Documents
-              </Typography>
-              <Card>
-                {document && (
-                  <img
-                    src={document}
-                    alt='Image'
-                    style={{
-                      maxWidth: '100%',
-                      maxHeight: '40rem', // Set your desired max-height
-                      width: 'auto',
-                      height: 'auto',
-                      objectFit: 'contain', // Maintain aspect ratio without stretching
-                    }}
-                  />
-                )}
-              </Card>
-              <button onClick={() => approveDoc(selectedAdmin)}>
-                Approve Documents
-              </button>
-            </Box>
-          </Modal>
+
           <tbody>
             {users.map((admin) => (
               <>
@@ -499,115 +689,116 @@ const SuperAdminScreen = () => {
                     {!admin?.doc_verified ? (
                       <>
                         <a
-                          href='#'
+                          href="#"
                           onClick={(event) => handleOpen(admin._id)}
-                          className='link-button'
-                          style={{textDecoration:'underline'}}
+                          className="link-button"
+                          style={{ textDecoration: "underline" }}
                         >
                           See documents
                         </a>
-                        <IconButton
-                          onClick={() => handleOpen(admin._id)}
-                        >
-                             <VisibilityIcon />
+                        <IconButton onClick={() => handleOpen(admin._id)}>
+                          <VisibilityIcon />
                         </IconButton>
-                    
-                      
                       </>
                     ) : (
                       <>
-                        <a href='#' style={{textDecoration:'underline'}}  className='link-button disabled'>
+                        <a
+                          href="#"
+                          style={{ textDecoration: "underline" }}
+                          className="link-button disabled"
+                        >
                           See documents
                         </a>
-                        <IconButton
-                          onClick={() => handleOpen(admin._id)}
-                        >
-                             <VisibilityIcon />
+                        <IconButton onClick={() => handleOpen(admin._id)}>
+                          <VisibilityIcon />
                         </IconButton>
-                       
                       </>
                     )}
                   </td>
-                 
 
-                  {/* <tr>
-              <button onClick={() => handleShowUserIds(admin._id)}>
-                    {showUserIds[admin._id] ? 'Hide Admin IDs' : 'Show Admin IDs'}
-                  </button>
-              </tr> */}
+              
                   <td>
                     {admin?.adminDetails[0]?.accountEnabled ? (
                       <>
-                      <a href='#' style={{color:'#7CD6AB'}}onClick={() => disableAdminByID(admin._id)}>
-                        Enabled
-                      </a>
-                       
+                        <a
+                          href="#"
+                          style={{ color: "#7CD6AB" }}
+                          onClick={() => disableAdminByID(admin._id)}
+                        >
+                          Enabled
+                        </a>
                       </>
-                      
                     ) : (
                       <>
-                      <a href='#' style={{color:'#FF553C'}} onClick={() => enableAdminByID(admin._id)}>
-                        Disabled
-                      </a>
-                      
-                     </>
+                        <a
+                          href="#"
+                          style={{ color: "#FF553C" }}
+                          onClick={() => enableAdminByID(admin._id)}
+                        >
+                          Disabled
+                        </a>
+                      </>
                     )}
-                  </td> 
-                 
+                  </td>
+
                   <td>
-                    
-                      <a href='#'  onClick={() => handleShowUserIds(admin._id)} >
-                        Device List
-                        {showUserIds[admin._id] ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
-                      </a>
-                     
-                  </td> 
-
-
+                    <a href="#" onClick={() => handleShowUserIds(admin._id)}>
+                      Device List
+                      {showUserIds[admin._id] ? (
+                        <KeyboardArrowDownIcon />
+                      ) : (
+                        <KeyboardArrowUpIcon />
+                      )}
+                    </a>
+                  </td>
                 </tr>
 
                 <tr>
                   {showUserIds[admin._id] && admin.adminDetails && (
-                     <div className="">
-                      <table className='newtableoutline'>
-                        <th className='newtableth'><b>Device ID'S</b></th>
-                        <tr>
-                          
-                        </tr>
+                    <div className="">
+                      <table className="newtableoutline">
+                        <th className="newtableth">
+                          <b>Device ID'S</b>
+                        </th>
+                        <tr></tr>
                         {admin?.adminDetails[0]?.deviceIds.map((userId) => (
                           <>
-                            <th className='newtableth' key={userId}>
+                            <th className="newtableth" key={userId}>
                               {userId}
                             </th>
-                            <tr>
-                             
-                            </tr>
-                           
+                            <tr></tr>
                           </>
-                          
                         ))}
 
-                        <tr style={{"position":'absolute',"border-bottom":"none"}}>
+                        <tr
+                          style={{
+                            position: "absolute",
+                            "border-bottom": "none",
+                          }}
+                        >
                           <TextField
-                            style={{ 'padding-left': '0.5em','borderRadius': '30px'}}
-                            id='outlined-basic'
+                            style={{
+                              "padding-left": "0.5em",
+                              borderRadius: "30px",
+                            }}
+                            id="outlined-basic"
                             onChange={handleInputChange}
                             value={textFieldValue}
-                            label='Add Device id'
-                            variant='outlined'
-                            
+                            label="Add Device id"
+                            variant="outlined"
                           />
-                      
-                          <button className='tableButton' onClick={() => addDevice(admin._id)}>
+
+                          <button
+                            className="tableButton"
+                            onClick={() => addDevice(admin._id)}
+                          >
                             Add Device
                           </button>
                         </tr>
-                        <tr style={{"border-bottom":"none"}}>
+                        <tr style={{ "border-bottom": "none" }}>
                           <p> &nbsp; </p>
-                          <br/>
+                          <br />
                         </tr>
-
-                        
                       </table>
                     </div>
                   )}
@@ -616,8 +807,8 @@ const SuperAdminScreen = () => {
             ))}
           </tbody>
         </table>
-        <Box m='1.5rem '></Box>
-      </div>
+        <Box m="1.5rem "></Box>
+      </div> */}
     </>
   );
 };

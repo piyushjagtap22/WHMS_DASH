@@ -10,7 +10,6 @@ import { getDeviceIds, getLoc, getSensorDB } from "../../slices/adminApiSlice";
 
 import { Box, MenuItem, TextField, useMediaQuery } from "@mui/material";
 
-import Body_Male from "../../assets/Body_Male.png";
 
 
 import { useDispatch, useSelector } from "react-redux";
@@ -19,7 +18,6 @@ import * as Realm from "realm-web";
 
 import IconButton from "@mui/material/IconButton";
 
-import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 
 import PowerIcon from "@mui/icons-material/Power";
 
@@ -27,6 +25,7 @@ import Tooltip from "@mui/material/Tooltip";
 
 import { useTheme } from "@emotion/react";
 import { Button } from "react-bootstrap";
+import BodyFigure from "../BodyFigure";
 import ApexGraph from "./ApexGraph";
 
 const app = new Realm.App({ id: "application-0-vdlpx" });
@@ -777,6 +776,7 @@ const DefaultPage = () => {
             timestamp={heartRateTimeStamp}
             max={90}
             zoomEnabled={false}
+            
           />
 
           {/* ROW 2 */}
@@ -816,36 +816,21 @@ const DefaultPage = () => {
           {/* ROW 4 */}
 
           {isNonMediumScreens && (
+
+            
+
+
             <Box>
-              <img
-                alt="body_male"
-                src={Body_Male}
-                style={{
-                  gridColumn: "span 1",
 
-                  gridRow: "span 2",
-
-                  position: "fixed",
-
-                  top: "5rem",
-
-                  right: 2,
-
-                  height: "90vh",
-
-                  width: "38%",
-
-                  zIndex: 2,
-                }}
-              />
-
-               {/* Pill shape to display connection status */}
-
-
-
-
-
-
+            <BodyFigure    sensorData={{
+            "heart rate": heartRateData[heartRateData.length - 1], 
+            "temperature": VentilatonSensorData[VentilatonSensorData.length -1], 
+            "medication": heartRateData[heartRateData.length - 1],
+            "breath rate": BreathRateSensorData[BreathRateSensorData -1],
+            "activity": heartRateData[heartRateData.length - 1],
+          }}/>
+             
+              {/*
 
               <Tooltip
                 title={`Heart rate : ${heartRateData[39]}`}
@@ -868,7 +853,9 @@ const DefaultPage = () => {
                 </IconButton>
               </Tooltip>
 
+ */}
 
+  {/* Pill shape to display connection status*/}
 
 
               <Tooltip

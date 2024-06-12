@@ -62,6 +62,16 @@ const ApexGraph = React.memo((props) => {
         curve : 'smooth',
 
       },
+      grid: {
+        borderColor: 'rgba(100,100,100,0.5)',
+        strokeDashArray: 8,
+        yaxis: {
+          lines: {
+            show: true,
+          }
+        }
+      },
+      
       title: {
         text: name,
         align: 'left'
@@ -85,15 +95,16 @@ const ApexGraph = React.memo((props) => {
         title: {
           text: 'Value'
         },
-        // tickAmount: 4,
+        tickAmount: 5,
       },
       xaxis: {
-        
+      
         categories: labels,
         tickAmount: 10,
       },
       tooltip: {
         shared: false,
+        fillSeriesColor:'rgba(200,200,200,0.5)',
         y: {
           formatter: function (val) {
             return val.toFixed(0) + 'M';
@@ -156,7 +167,7 @@ const ApexGraph = React.memo((props) => {
           options={options}
           series={series}
           type="area"
-          height={250}
+          height={280}
         />
       </Box>
     </Box>
