@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { setLoading } from '../../slices/loadingSlice.js';
 import { Navigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 
 import {
   setAuthState,
@@ -78,15 +80,17 @@ const Register = () => {
 
   const onSignup = async (e) => {
     e.preventDefault();
-    // setButtonLoader(true);
+    setButtonLoader(true);
     setErrors('');
 
     if (phoneNumber === '' || phoneNumber === undefined) {
       return toast.error('Please enter a valid number');
     }
 
-    if (phoneNumber.length !== 12 ) {
-      return toast.error('Please Enter Valid Phone number having 10 digits and Country Code');
+    if (phoneNumber.length !== 12) {
+      return toast.error(
+        'Please Enter Valid Phone number having 10 digits and Country Code'
+      );
     }
 
     if (!termsChecked) {
@@ -251,7 +255,7 @@ const Register = () => {
             fontWeight='bold'
             style={{ color: '#7CD6AB' }}
           >
-            Register / Login 
+            Register / Login
           </Typography>
           <Typography
             variant='subtitle1'
@@ -275,7 +279,6 @@ const Register = () => {
                 country={'in'}
                 value={phoneNumber}
                 onChange={setPhoneNumber}
-                
                 inputStyle={{
                   fontSize: '16px',
                   background: 'black',
@@ -334,7 +337,6 @@ const Register = () => {
                 variant='outlined'
                 fullWidth
                 style={{ margin: '20px 0' }}
-
                 InputLabelProps={{ style: { color: 'grey' } }}
                 InputProps={{
                   endAdornment: (
@@ -368,8 +370,8 @@ const Register = () => {
                 error={errors.terms}
               />
             )}
-          <br></br>
-          <Typography
+            <br></br>
+            <Typography
               variant='subtitle2'
               style={{ margin: '8px 0', color: '#7CD6AB' }}
               component={Link} // Render Typography as a link
@@ -381,7 +383,8 @@ const Register = () => {
             <Button
               type='submit'
               style={{
-                backgroundColor: buttonLoader || !termsChecked ? '#ccc' : '#7CD6AB',
+                backgroundColor:
+                  buttonLoader || !termsChecked ? '#ccc' : '#7CD6AB',
                 color: '#121318',
                 margin: '30px 0',
                 padding: '0.8rem',
@@ -389,10 +392,12 @@ const Register = () => {
               }}
               fullWidth
               onClick={showOtpScreen ? onOtpVerify : onSignup}
-              // disabled={buttonLoader || !termsChecked}
+              disabled={buttonLoader || !termsChecked}
             >
               {buttonLoader ? (
-                <i class='fa fa-spinner fa-spin'></i>
+                <Box sx={{ display: 'flex' }}>
+                  <CircularProgress size={22} />
+                </Box>
               ) : showOtpScreen ? (
                 'Verify OTP'
               ) : (
