@@ -88,12 +88,14 @@ const Register = () => {
     }
 
     if (phoneNumber.length !== 12) {
+      setButtonLoader(false);
       return toast.error(
         'Please Enter Valid Phone number having 10 digits and Country Code'
       );
     }
 
     if (!termsChecked) {
+      // setButtonLoader(false);
       return toast.error('Please agree to terms and conditions');
     }
 
@@ -119,11 +121,12 @@ const Register = () => {
       toast.error('Please enter a valid otp');
     } else {
       try {
-        dispatch(setLoading(true));
-
+        setButtonLoader(true);
         const result = await confirmOtp.confirm(otp);
-        toast.success('Success');
+        console.log(result);
 
+        toast.success('Success');
+        dispatch(setLoading(true));
         const user = auth.currentUser;
         console.log(user.email);
 
@@ -192,8 +195,15 @@ const Register = () => {
         }
       } catch (err) {
         console.log(err.message);
-        toast.error('Invalid verification code');
+        if (
+          err.message == 'Firebase: Error (auth/invalid-verification-code).'
+        ) {
+          toast.error('Invalid OTP');
+        } else {
+          toast.error('Some Error Occured, Please try again later');
+        }
       } finally {
+        setButtonLoader(false);
         dispatch(setLoading(false));
       }
     }
@@ -243,7 +253,7 @@ const Register = () => {
           style={{
             textAlign: 'center',
             padding: '50px',
-            backgroundColor: 'black',
+            // backgroundColor: 'black',
             color: 'white',
             marginTop: '3rem',
             borderRadius: '1rem',
@@ -261,7 +271,7 @@ const Register = () => {
             variant='subtitle1'
             style={{ margin: '15px 0', padding: '0px 120px', color: '#75777B' }}
           >
-            For the purpose of industry regulation, your details are required.
+            Please enter your details
           </Typography>
           <form
             style={{ width: '70%', margin: 'auto', textAlign: 'left' }}
@@ -273,7 +283,6 @@ const Register = () => {
             >
               Phone Number
             </Typography>
-
             <div>
               <PhoneInput
                 country={'in'}
@@ -281,16 +290,17 @@ const Register = () => {
                 onChange={setPhoneNumber}
                 inputStyle={{
                   fontSize: '16px',
-                  background: 'black',
+                  background: '#121318',
                   color: 'aliceblue',
                   border: '1px solid #75777B',
                   borderRadius: '5px',
-                  width: '349px',
+                  width: '22rem',
                   outline: 'none',
                   padding: '23.5px 14px 18.5px 58px',
                   height: '52px',
                   transition:
                     'box-shadow 0.25s ease 0s, border-color 0.25s ease 0s',
+                  margin: '20px 0',
                 }}
               />
               <style>
@@ -300,7 +310,7 @@ const Register = () => {
                 }
                 .react-tel-input .selected-flag {
                   outline: none;
-                  background: black;
+                  background: #121318;
                   color: black;
                   position: relative;
                   width: 52px;
@@ -335,8 +345,8 @@ const Register = () => {
                 label='OTP'
                 type={showPassword ? 'text' : 'password'}
                 variant='outlined'
-                fullWidth
-                style={{ margin: '20px 0' }}
+                // fullWidth
+                style={{ margin: '20px 0', width: '22rem' }}
                 InputLabelProps={{ style: { color: 'grey' } }}
                 InputProps={{
                   endAdornment: (
@@ -370,15 +380,6 @@ const Register = () => {
                 error={errors.terms}
               />
             )}
-            <br></br>
-            <Typography
-              variant='subtitle2'
-              style={{ margin: '8px 0', color: '#7CD6AB' }}
-              component={Link} // Render Typography as a link
-              to='/login' // Specify the route to navigate to
-            >
-              Login with Email
-            </Typography>
 
             <Button
               type='submit'
@@ -404,6 +405,14 @@ const Register = () => {
                 'Send OTP'
               )}
             </Button>
+            <Typography
+              variant='subtitle2'
+              style={{ margin: '8px 0', color: '#7CD6AB' }}
+              component={Link} // Render Typography as a link
+              to='/login' // Specify the route to navigate to
+            >
+              Login with Email
+            </Typography>
           </form>
         </Container>
       )}
