@@ -1,4 +1,4 @@
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -10,40 +10,40 @@ import {
   InputAdornment,
   TextField,
   Typography,
-} from "@mui/material";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import React, { useEffect, useState } from "react";
-import { Toaster, toast } from "react-hot-toast";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/material.css";
-import "react-phone-input-2/lib/style.css";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../../firebase.js";
+} from '@mui/material';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/material.css';
+import 'react-phone-input-2/lib/style.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { auth } from '../../firebase.js';
 import {
   setAuthState,
   setAuthUser,
   setMongoUser,
   setToken,
-} from "../../slices/authSlice.js";
-import { setLoading } from "../../slices/loadingSlice.js";
-import { getMongoUser } from "../../slices/usersApiSlice.js";
-import Loader from "../Loader";
+} from '../../slices/authSlice.js';
+import { setLoading } from '../../slices/loadingSlice.js';
+import { getMongoUser } from '../../slices/usersApiSlice.js';
+import Loader from '../Loader';
 
 const Register = () => {
   const loading = useSelector((state) => state.loading.loading);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [otp, setOtp] = useState("");
-  const [confirmOtp, setConfirmOtp] = useState("");
+  const [otp, setOtp] = useState('');
+  const [confirmOtp, setConfirmOtp] = useState('');
   const [showOtpScreen, setShowOtpScreen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [fullName, setFullName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [fullName, setFullName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [termsChecked, setTermsChecked] = useState(false);
   const [errors, setErrors] = useState({});
   const [buttonLoader, setButtonLoader] = useState(false);
-  const formatPhone = "+" + phoneNumber;
+  const formatPhone = '+' + phoneNumber;
 
   useEffect(() => {
     dispatch(setLoading(false));
@@ -52,8 +52,8 @@ const Register = () => {
   const recaptchaVerifier = (number) => {
     const recaptchaVerifier = new RecaptchaVerifier(
       auth,
-      "recaptcha-container",
-      { size: "invisible" }
+      'recaptcha-container',
+      { size: 'invisible' }
     );
     recaptchaVerifier.render();
     return signInWithPhoneNumber(auth, formatPhone, recaptchaVerifier);
@@ -66,27 +66,27 @@ const Register = () => {
   const onSignup = async (e) => {
     e.preventDefault();
     setButtonLoader(true);
-    setErrors("");
+    setErrors('');
 
-    if (phoneNumber === "" || phoneNumber.length !== 12) {
+    if (phoneNumber === '' || phoneNumber.length !== 12) {
       setButtonLoader(false);
       return toast.error(
-        "Please enter a valid phone number with country code."
+        'Please enter a valid phone number with country code.'
       );
     }
 
     if (!termsChecked) {
-      return toast.error("Please agree to terms and conditions");
+      return toast.error('Please agree to terms and conditions');
     }
 
     try {
       const response = await recaptchaVerifier(formatPhone);
       setConfirmOtp(response);
-      toast.success("OTP sent successfully!");
+      toast.success('OTP sent successfully!');
       setShowOtpScreen(true);
     } catch (err) {
       setErrors(err.message);
-      toast.error("Please retry again");
+      toast.error('Please retry again');
     } finally {
       setButtonLoader(false);
     }
@@ -95,17 +95,17 @@ const Register = () => {
   const onOtpVerify = async (e) => {
     e.preventDefault();
 
-    if (otp === "") {
-      toast.error("Please enter a valid OTP");
+    if (otp === '') {
+      toast.error('Please enter a valid OTP');
     } else {
       try {
         setButtonLoader(true);
         const result = await confirmOtp.confirm(otp);
-        toast.success("Success");
+        toast.success('Success');
         dispatch(setLoading(true));
         const user = auth.currentUser;
 
-        localStorage.setItem("accessToken", result._tokenResponse.idToken);
+        localStorage.setItem('accessToken', result._tokenResponse.idToken);
         setToken(result._tokenResponse.idToken);
 
         dispatch(
@@ -129,23 +129,23 @@ const Register = () => {
         dispatch(setMongoUser(mongoUser.data.initialUserSchema));
 
         if (mongoUser.status === 204) {
-          dispatch(setAuthState("/verify"));
-          navigate("/verify");
-        } else if (mongoUser.data.InitialUserSchema.roles[0] === "superadmin") {
-          dispatch(setAuthState("/superadmin"));
-          navigate("/superadmin");
+          dispatch(setAuthState('/verify'));
+          navigate('/verify');
+        } else if (mongoUser.data.InitialUserSchema.roles[0] === 'superadmin') {
+          dispatch(setAuthState('/superadmin'));
+          navigate('/superadmin');
         } else if (mongoUser.data.InitialUserSchema.doc_verified === true) {
-          dispatch(setAuthState("/dashboard"));
-          navigate("/dashboard");
+          dispatch(setAuthState('/dashboard'));
+          navigate('/dashboard');
         } else {
-          dispatch(setAuthState("/verify"));
-          navigate("/verify");
+          dispatch(setAuthState('/verify'));
+          navigate('/verify');
         }
       } catch (err) {
         toast.error(
-          err.message === "Firebase: Error (auth/invalid-verification-code)."
-            ? "Invalid OTP"
-            : "An error occurred, please try again later"
+          err.message === 'Firebase: Error (auth/invalid-verification-code).'
+            ? 'Invalid OTP'
+            : 'An error occurred, please try again later'
         );
       } finally {
         setButtonLoader(false);
@@ -158,12 +158,12 @@ const Register = () => {
     e.preventDefault();
 
     const newErrors = {};
-    if (!fullName.trim()) newErrors.fullName = "Full Name is required";
-    if (!phoneNumber.trim()) newErrors.phoneNumber = "Phone Number is required";
+    if (!fullName.trim()) newErrors.fullName = 'Full Name is required';
+    if (!phoneNumber.trim()) newErrors.phoneNumber = 'Phone Number is required';
     else if (!/^\d+$/.test(phoneNumber))
-      newErrors.phoneNumber = "Invalid phone number";
+      newErrors.phoneNumber = 'Invalid phone number';
     if (!termsChecked)
-      newErrors.terms = "You must agree to the terms and conditions";
+      newErrors.terms = 'You must agree to the terms and conditions';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -177,21 +177,21 @@ const Register = () => {
         <Loader />
       ) : (
         <div style={styles.wrapper}>
-          <Container maxWidth="sm" style={styles.container}>
+          <Container maxWidth='sm' style={styles.container}>
             <Toaster toastOptions={{ duration: 4000 }} />
-            <Typography variant="h2" style={styles.title}>
+            <Typography variant='h2' style={styles.title}>
               Login or Register
             </Typography>
-            <Typography variant="subtitle1" style={styles.subtitle}>
+            <Typography variant='subtitle1' style={styles.subtitle}>
               Please enter your details
             </Typography>
             <form style={styles.form} onSubmit={handleSubmit}>
-              <Typography variant="subtitle2" style={styles.label}>
+              <Typography variant='subtitle2' style={styles.label}>
                 Phone Number
               </Typography>
               <div>
                 <PhoneInput
-                  country={"in"}
+                  country={'in'}
                   value={phoneNumber}
                   onChange={setPhoneNumber}
                   inputStyle={styles.phoneInput}
@@ -245,22 +245,22 @@ const Register = () => {
 
               {showOtpScreen && (
                 <TextField
-                  label="OTP"
-                  type={showPassword ? "text" : "password"}
-                  variant="outlined"
+                  label='OTP'
+                  type={showPassword ? 'text' : 'password'}
+                  variant='outlined'
                   style={styles.textField}
-                  InputLabelProps={{ style: { color: "grey" } }}
+                  InputLabelProps={{ style: { color: 'grey' } }}
                   InputProps={{
                     endAdornment: (
-                      <InputAdornment position="end">
+                      <InputAdornment position='end'>
                         <IconButton
-                          aria-label="toggle password visibility"
+                          aria-label='toggle password visibility'
                           onClick={handleTogglePassword}
                         >
                           {showPassword ? (
-                            <Visibility style={{ color: "#7CD6AB" }} />
+                            <Visibility style={{ color: '#7CD6AB' }} />
                           ) : (
-                            <VisibilityOff style={{ color: "#7CD6AB" }} />
+                            <VisibilityOff style={{ color: '#7CD6AB' }} />
                           )}
                         </IconButton>
                       </InputAdornment>
@@ -270,12 +270,12 @@ const Register = () => {
                   onChange={(e) => setOtp(e.target.value)}
                 />
               )}
-              <div id="recaptcha-container" />
+              <div id='recaptcha-container' />
 
               {!showOtpScreen && (
                 <FormControlLabel
                   control={<Checkbox style={styles.checkbox} />}
-                  label="I agree to the terms and conditions"
+                  label='I agree to the terms and conditions'
                   style={styles.terms}
                   checked={termsChecked}
                   onChange={() => setTermsChecked(!termsChecked)}
@@ -284,9 +284,11 @@ const Register = () => {
               )}
 
               <Button
-                type="submit"
+                type='submit'
                 style={
-                  showOtpScreen || buttonLoader
+                  buttonLoader || !termsChecked
+                    ? styles.disabledButton
+                    : showOtpScreen && otp.length != 6
                     ? styles.disabledButton
                     : styles.submitButton
                 }
@@ -295,16 +297,16 @@ const Register = () => {
                 disabled={buttonLoader || !termsChecked}
               >
                 {buttonLoader ? (
-                  <Box sx={{ display: "flex" }}>
+                  <Box sx={{ display: 'flex' }}>
                     <CircularProgress size={22} />
                   </Box>
                 ) : showOtpScreen ? (
-                  "Verify OTP"
+                  'Verify OTP'
                 ) : (
-                  "Send OTP"
+                  'Send OTP'
                 )}
               </Button>
-              <Typography component={Link} to="/login" style={styles.loginLink}>
+              <Typography component={Link} to='/login' style={styles.loginLink}>
                 Login with Email
               </Typography>
             </form>
@@ -317,86 +319,85 @@ const Register = () => {
 
 const styles = {
   wrapper: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "100vh",
-    backgroundColor: "#121318",
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
+    backgroundColor: '#121318',
   },
   container: {
-    textAlign: "center",
-    padding: "50px",
-    color: "white",
-    borderRadius: "1rem",
+    textAlign: 'center',
+    padding: '50px',
+    color: 'white',
+    borderRadius: '1rem',
   },
   title: {
-    color: "#7CD6AB",
+    color: '#7CD6AB',
   },
   subtitle: {
-    margin: "15px 0",
-    padding: "0px 120px",
-    color: "#75777B",
+    margin: '15px 0',
+    padding: '0px 120px',
+    color: '#75777B',
   },
   form: {
-    width: "70%",
-    margin: "auto",
-    textAlign: "left",
+    width: '70%',
+    margin: 'auto',
+    textAlign: 'left',
   },
   label: {
-    margin: "8px 0",
-    color: "#75777B",
+    margin: '8px 0',
+    color: '#75777B',
   },
   phoneInput: {
-    width: "100%",
-    height: "40px",
-    border: "1px solid #75777B",
-    borderRadius: "5px",
-    paddingLeft: "60px", // Adjust padding to ensure the flag doesn't overlap the text
-    backgroundColor: "#121318",
-    color: "white",
+    width: '100%',
+    height: '40px',
+    border: '1px solid #75777B',
+    borderRadius: '5px',
+    paddingLeft: '60px', // Adjust padding to ensure the flag doesn't overlap the text
+    backgroundColor: '#121318',
+    color: 'white',
   },
   phoneInputContainer: {
-    width: "100%",
+    width: '100%',
   },
   phoneButton: {
-    backgroundColor: "#121318",
-    color: "white",
+    backgroundColor: '#121318',
+    color: 'white',
   },
   phoneDropdown: {
-    backgroundColor: "#121318",
-
+    backgroundColor: '#121318',
   },
   textField: {
-    margin: "20px 0",
-    width: "22rem",
+    margin: '20px 0',
+    width: '22rem',
   },
   checkbox: {
-    color: "#7CD6AB",
+    color: '#7CD6AB',
   },
   terms: {
-    paddingTop: "10px",
+    paddingTop: '10px',
   },
   submitButton: {
-    backgroundColor: "#7CD6AB",
-    color: "#121318",
-    marginTop: "101px",
-    marginBottom: "30px",
-    padding: "0.8rem",
-    fontWeight: "bold",
+    backgroundColor: '#7CD6AB',
+    color: '#121318',
+    marginTop: '30px',
+    marginBottom: '30px',
+    padding: '0.8rem',
+    fontWeight: 'bold',
   },
   disabledButton: {
-    backgroundColor: "#ccc",
-    color: "#121318",
-    margin: "30px 0",
-    padding: "0.8rem",
-    fontWeight: "bold",
+    backgroundColor: '#ccc',
+    color: '#121318',
+    margin: '30px 0',
+    padding: '0.8rem',
+    fontWeight: 'bold',
   },
   loginLink: {
-    color: "#7CD6AB",
-    textAlign: "left",
-    variant: "outlined",
-    width: "100%",
-    display: "block",
+    color: '#7CD6AB',
+    textAlign: 'left',
+    variant: 'outlined',
+    width: '100%',
+    display: 'block',
   },
 };
 
