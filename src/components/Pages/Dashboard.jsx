@@ -1,7 +1,7 @@
 import { signOut } from 'firebase/auth';
 import { setAuthState } from '../../slices/authSlice';
 import { auth } from '../../firebase';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { setAuthUser } from '../../slices/authSlice';
 import FlexBetween from '../FlexBetween';
 import Header from '../Header';
@@ -11,6 +11,7 @@ import { setLoading } from '../../slices/loadingSlice';
 import { setMongoUser } from '../../slices/authSlice';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Box, useTheme, useMediaQuery } from '@mui/material';
+import Loader from '../Loader';
 // import { useGetUserQuery } from "state/api";
 import {
   Chart as ChartJS,
@@ -36,8 +37,8 @@ ChartJS.register(
 const app = new Realm.App({ id: 'sensor_realtimedb-ujgdc' });
 import { useDispatch, useSelector } from 'react-redux';
 import { Toast } from 'react-bootstrap';
-import SensorPage from '../sensorPage';
 
+const SensorPage = lazy(() => import('../sensorPage'));
 const Dashboard = () => {
   const [data, setUsers] = useState([]);
   const theme = useTheme();
@@ -51,7 +52,7 @@ const Dashboard = () => {
   const [events, setEvents] = useState([]);
   const [realTimeData, setRealTimeData] = useState([]);
   const [newRealTimeData, setNewRealTimeData] = useState([]);
-  console.log("shiv" + JSON.stringify(import.meta.env.VITE_REACT_API_URL));
+  console.log('shiv' + JSON.stringify(import.meta.env.VITE_REACT_API_URL));
   // const {data } = useGetUserQuery();
   console.log(userInfo + 'userInfo');
   const token = useSelector(
@@ -88,7 +89,6 @@ const Dashboard = () => {
     }
   };
 
-  
   const handleKeyDown = (e) => {
     if (e.key === 'Backspace') {
       console.log('keydown working');
@@ -370,7 +370,9 @@ const Dashboard = () => {
                   global: searchTerm,
                 }}
               /> */}
-        <SensorPage />
+        <Suspense fallback={<Loader />}>
+          <SensorPage />
+        </Suspense>
       </Box>
     </>
   );

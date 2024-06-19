@@ -1,43 +1,39 @@
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import {
+  Box,
+  Checkbox,
+  CircularProgress,
+  Container,
+  FormControlLabel,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-import { setLoading } from '../../slices/loadingSlice.js';
-import { Navigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-
+import { Toaster, toast } from 'react-hot-toast';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/material.css';
+import 'react-phone-input-2/lib/style.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { auth } from '../../firebase.js';
 import {
   setAuthState,
   setAuthUser,
   setMongoUser,
+  setToken,
 } from '../../slices/authSlice.js';
-import {
-  Container,
-  Typography,
-  TextField,
-  Checkbox,
-  Button,
-  FormControlLabel,
-  IconButton,
-} from '@mui/material';
-
-import Loader from '../Loader';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { AccountCircle } from '@mui/icons-material';
-import GoogleIcon from '@mui/icons-material/Google';
-
-import OtpInput from 'otp-input-react';
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
-import { auth } from '../../firebase.js';
-import { toast, Toaster } from 'react-hot-toast';
-import 'react-phone-input-2/lib/material.css';
-import { useNavigate } from 'react-router-dom';
-import { initializeAuthUser, setToken } from '../../slices/authSlice.js';
-import { useDispatch, useSelector } from 'react-redux';
-import InputAdornment from '@mui/material/InputAdornment';
+import { setLoading } from '../../slices/loadingSlice.js';
 import { getMongoUser } from '../../slices/usersApiSlice.js';
+import CustomButton from '../Button.jsx';
+import Loader from '../Loader';
 
 const Register = () => {
   const loading = useSelector((state) => state.loading.loading);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [otp, setOtp] = useState('');
   const [confirmOtp, setConfirmOtp] = useState('');
   const [showOtpScreen, setShowOtpScreen] = useState(false);
@@ -46,21 +42,12 @@ const Register = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [termsChecked, setTermsChecked] = useState(false);
   const [errors, setErrors] = useState({});
-  const formatPhone = '+' + phoneNumber;
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [buttonLoader, setButtonLoader] = useState(false);
-  useEffect(() => {
-    console.log('Register component mounted');
-    dispatch(setLoading(false));
-    setLoading(false);
-    console.log('mounted');
+  const formatPhone = '+' + phoneNumber;
 
-    return () => {
-      // Cleanup logic if needed
-      console.log('starting loader');
-    };
-  }, []);
+  useEffect(() => {
+    dispatch(setLoading(false));
+  }, [dispatch]);
 
   const recaptchaVerifier = (number) => {
     const recaptchaVerifier = new RecaptchaVerifier(
@@ -78,15 +65,14 @@ const Register = () => {
 
   const onSignup = async (e) => {
     e.preventDefault();
-    // setButtonLoader(true);
+    setButtonLoader(true);
     setErrors('');
 
-    if (phoneNumber === '' || phoneNumber === undefined) {
-      return toast.error('Please enter a valid number');
-    }
-
-    if (phoneNumber.length !== 12 ) {
-      return toast.error('Please Enter Valid Phone number having 10 digits and Country Code');
+    if (phoneNumber === '' || phoneNumber.length !== 12) {
+      setButtonLoader(false);
+      return toast.error(
+        'Please enter a valid phone number with country code.'
+      );
     }
 
     if (!termsChecked) {
@@ -94,36 +80,31 @@ const Register = () => {
     }
 
     try {
-      // dispatch(setLoading(true));
       const response = await recaptchaVerifier(formatPhone);
       setConfirmOtp(response);
-      toast.success('Otp Send successfully !');
+      toast.success('OTP sent successfully!');
       setShowOtpScreen(true);
     } catch (err) {
       setErrors(err.message);
       toast.error('Please retry again');
     } finally {
       setButtonLoader(false);
-      // dispatsch(setLoading(false));
     }
   };
 
   const onOtpVerify = async (e) => {
     e.preventDefault();
 
-    if (otp === '' || otp === undefined) {
-      toast.error('Please enter a valid otp');
+    if (otp === '') {
+      toast.error('Please enter a valid OTP');
     } else {
       try {
-        dispatch(setLoading(true));
-
+        setButtonLoader(true);
         const result = await confirmOtp.confirm(otp);
         toast.success('Success');
-
+        dispatch(setLoading(true));
         const user = auth.currentUser;
-        console.log(user.email);
 
-        console.log(result);
         localStorage.setItem('accessToken', result._tokenResponse.idToken);
         setToken(result._tokenResponse.idToken);
 
@@ -144,52 +125,30 @@ const Register = () => {
           })
         );
 
-        if (
-          user !== null &&
-          (user.email === null || user.emailVerified === false)
-        ) {
-          dispatch(setAuthState('/emailregister'));
-          console.log('emailregister');
-          navigate('/emailregister');
-        } else if (
-          user !== null &&
-          user.email !== null &&
-          user.emailVerified === true
-        ) {
-          console.log('get mongo and navigate');
-          const mgu = await getMongoUser(user.stsTokenManager.accessToken);
-          console.log(mgu);
-          dispatch(setMongoUser(mgu.data.initialUserSchema));
-          if (mgu.status === 204) {
-            dispatch(setAuthState('/verify'));
-            console.log('verify');
-            navigate('/verify');
-          } else if (mgu.data.InitialUserSchema.roles[0] === 'superadmin') {
-            dispatch(setAuthState('/superadmin'));
-            console.log('superadmin');
-            navigate('/superadmin');
-          } else if (mgu.data.InitialUserSchema.doc_verified === true) {
-            dispatch(setAuthState('/dashboard'));
-            console.log('dashboard');
-            navigate('/dashboard');
-          } else {
-            dispatch(setAuthState('/verify'));
-            console.log('verify');
-            navigate('/verify');
-          }
-        } else if (
-          user !== null &&
-          user.email !== null &&
-          user.emailVerified === false
-        ) {
+        const mongoUser = await getMongoUser(user.stsTokenManager.accessToken);
+        dispatch(setMongoUser(mongoUser.data.initialUserSchema));
+
+        if (mongoUser.status === 204) {
           dispatch(setAuthState('/verify'));
-          console.log('verify');
+          navigate('/verify');
+        } else if (mongoUser.data.InitialUserSchema.roles[0] === 'superadmin') {
+          dispatch(setAuthState('/superadmin'));
+          navigate('/superadmin');
+        } else if (mongoUser.data.InitialUserSchema.doc_verified === true) {
+          dispatch(setAuthState('/dashboard'));
+          navigate('/dashboard');
+        } else {
+          dispatch(setAuthState('/verify'));
           navigate('/verify');
         }
       } catch (err) {
-        console.log(err.message);
-        toast.error('Invalid verification code');
+        toast.error(
+          err.message === 'Firebase: Error (auth/invalid-verification-code).'
+            ? 'Invalid OTP'
+            : 'An error occurred, please try again later'
+        );
       } finally {
+        setButtonLoader(false);
         dispatch(setLoading(false));
       }
     }
@@ -198,212 +157,248 @@ const Register = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Form validation
     const newErrors = {};
-    if (!fullName.trim()) {
-      newErrors.fullName = 'Full Name is required';
-    }
-
-    if (!phoneNumber.trim()) {
-      newErrors.phoneNumber = 'Phone Number is required';
-    } else if (!/^\d+$/.test(phoneNumber)) {
+    if (!fullName.trim()) newErrors.fullName = 'Full Name is required';
+    if (!phoneNumber.trim()) newErrors.phoneNumber = 'Phone Number is required';
+    else if (!/^\d+$/.test(phoneNumber))
       newErrors.phoneNumber = 'Invalid phone number';
-    }
-
-    if (!password.trim()) {
-      newErrors.password = 'Password is required';
-    }
-
-    if (!termsChecked) {
+    if (!termsChecked)
       newErrors.terms = 'You must agree to the terms and conditions';
-    }
 
-    // Set errors and prevent submission if there are errors
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
   };
 
-  // if (loading) {
-  //   return <Loader />;
-  // }
-
   return (
     <>
       {loading ? (
         <Loader />
       ) : (
-        <Container
-          maxWidth='sm'
-          style={{
-            textAlign: 'center',
-            padding: '50px',
-            backgroundColor: 'black',
-            color: 'white',
-            marginTop: '3rem',
-            borderRadius: '1rem',
-          }}
-        >
-          <Toaster toastOptions={{ duration: 4000 }} />
-          <Typography
-            variant='h2'
-            fontWeight='bold'
-            style={{ color: '#7CD6AB' }}
-          >
-            Register / Login 
-          </Typography>
-          <Typography
-            variant='subtitle1'
-            style={{ margin: '15px 0', padding: '0px 120px', color: '#75777B' }}
-          >
-            For the purpose of industry regulation, your details are required.
-          </Typography>
-          <form
-            style={{ width: '70%', margin: 'auto', textAlign: 'left' }}
-            onSubmit={handleSubmit}
-          >
-            <Typography
-              variant='subtitle2'
-              style={{ margin: '8px 0', color: '#75777B' }}
-            >
-              Phone Number
+        <div style={styles.wrapper}>
+          <Container maxWidth='sm' style={styles.container}>
+            <Toaster toastOptions={{ duration: 4000 }} />
+            <Typography variant='h2' style={styles.title}>
+              Login or Register
             </Typography>
-
-            <div>
-              <PhoneInput
-                country={'in'}
-                value={phoneNumber}
-                onChange={setPhoneNumber}
-                
-                inputStyle={{
-                  fontSize: '16px',
-                  background: 'black',
-                  color: 'aliceblue',
-                  border: '1px solid #75777B',
-                  borderRadius: '5px',
-                  width: '349px',
-                  outline: 'none',
-                  padding: '23.5px 14px 18.5px 58px',
-                  height: '52px',
-                  transition:
-                    'box-shadow 0.25s ease 0s, border-color 0.25s ease 0s',
-                }}
-              />
-              <style>
-                {`
-                .react-tel-input .special-label  {
-                  display: none;
-                }
-                .react-tel-input .selected-flag {
-                  outline: none;
-                  background: black;
-                  color: black;
-                  position: relative;
-                  width: 52px;
-                  height: 100%;
-                  padding: 0 0 0 11px;
-                  border-radius: 3px 0 0 3px;
-                }
-                .react-tel-input .flag-dropdown.open .selected-flag {
-                  background: black;
-                  border-radius: 3px 0 0 0;
-                }
-                .react-tel-input .selected-flag:hover, .react-tel-input .selected-flag:focus {
-                  background-color: black;
-                }
-                .react-tel-input .country-list {
-                  background-color: black;
-                }
-                .react-tel-input .country-list .country.highlight {
-                  background-color: #7CD6AB;
-                  color: black;
-                }
-                .react-tel-input .country-list .country:hover {
-                  background-color: #7CD6AB;
-                  color: black;
-                }
-              `}
-              </style>
-            </div>
-
-            {showOtpScreen && (
-              <TextField
-                label='OTP'
-                type={showPassword ? 'text' : 'password'}
-                variant='outlined'
-                fullWidth
-                style={{ margin: '20px 0' }}
-
-                InputLabelProps={{ style: { color: 'grey' } }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position='end'>
-                      <IconButton
-                        aria-label='toggle password visibility'
-                        onClick={handleTogglePassword}
-                      >
-                        {showPassword ? (
-                          <Visibility style={{ color: '#7CD6AB' }} />
-                        ) : (
-                          <VisibilityOff style={{ color: '#7CD6AB' }} />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-              />
-            )}
-            <div id='recaptcha-container' />
-
-            {!showOtpScreen && (
-              <FormControlLabel
-                control={<Checkbox style={{ color: '#7CD6AB' }} />}
-                label='I agree to the terms and conditions'
-                style={{ margin: '20px 0' }}
-                checked={termsChecked}
-                onChange={() => setTermsChecked(!termsChecked)}
-                error={errors.terms}
-              />
-            )}
-          <br></br>
-          <Typography
-              variant='subtitle2'
-              style={{ margin: '8px 0', color: '#7CD6AB' }}
-              component={Link} // Render Typography as a link
-              to='/login' // Specify the route to navigate to
-            >
-              Login with Email
+            <Typography variant='subtitle1' style={styles.subtitle}>
+              Please enter your details
             </Typography>
+            <form style={styles.form} onSubmit={handleSubmit}>
+              <Typography variant='subtitle2' style={styles.label}>
+                Phone Number
+              </Typography>
+              <div>
+                <PhoneInput
+                  country={'in'}
+                  value={phoneNumber}
+                  onChange={setPhoneNumber}
+                  inputStyle={styles.phoneInput}
+                  containerStyle={styles.phoneInputContainer}
+                  buttonStyle={styles.phoneButton}
+                  dropdownStyle={styles.phoneDropdown}
+                />
+                <style>
+                  {`
+          .react-tel-input .special-label { display: none; }
+          .react-tel-input .selected-flag { 
+            outline: none; 
+            background: #121318; 
+            color: black; 
+            position: relative; 
+            width: 52px; 
+            height: 100%; 
+            padding: 0 0 0 11px; 
+            border-radius: 3px 0 0 3px; 
+            display: flex; 
+            align-items: center;
+          }
+          .react-tel-input .flag-dropdown.open .selected-flag { 
+            background: black; 
+            border-radius: 3px 0 0 0; 
+          
+          }
+          // .react-tel-input .selected-flag:hover, .react-tel-input .selected-flag:focus { 
+          //   background-color: black; 
+          // }
+          // .react-tel-input .country-list .country{ 
+          //   padding: 15px 15px 15px 15px;
+          //   background-color: black; 
+          //   width: 300px; 
+            
+          // }
+          
+          // .react-tel-input .country-list .country.highlight { 
+          //   background-color: #7CD6AB; 
+          //   color: black; 
+          // }
+          .react-tel-input .country-list .country:hover { 
+            background-color: #7CD6AB; 
+            color: black; 
+          }
+          .country {
+           
+        `}
+                </style>
+              </div>
 
-            <Button
-              type='submit'
-              style={{
-                backgroundColor: buttonLoader || !termsChecked ? '#ccc' : '#7CD6AB',
-                color: '#121318',
-                margin: '30px 0',
-                padding: '0.8rem',
-                fontWeight: 'bold',
-              }}
-              fullWidth
-              onClick={showOtpScreen ? onOtpVerify : onSignup}
-              // disabled={buttonLoader || !termsChecked}
-            >
-              {buttonLoader ? (
-                <i class='fa fa-spinner fa-spin'></i>
-              ) : showOtpScreen ? (
-                'Verify OTP'
-              ) : (
-                'Send OTP'
+              {showOtpScreen && (
+                <TextField
+                  label='OTP'
+                  type={showPassword ? 'text' : 'password'}
+                  variant='outlined'
+                  style={styles.textField}
+                  InputLabelProps={{ style: { color: 'grey' } }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position='end'>
+                        <IconButton
+                          aria-label='toggle password visibility'
+                          onClick={handleTogglePassword}
+                        >
+                          {showPassword ? (
+                            <Visibility style={{ color: '#7CD6AB' }} />
+                          ) : (
+                            <VisibilityOff style={{ color: '#7CD6AB' }} />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                />
               )}
-            </Button>
-          </form>
-        </Container>
+              <div id='recaptcha-container' />
+
+              {!showOtpScreen && (
+                <FormControlLabel
+                  control={<Checkbox style={styles.checkbox} />}
+                  label='I agree to the terms and conditions'
+                  style={styles.terms}
+                  checked={termsChecked}
+                  onChange={() => setTermsChecked(!termsChecked)}
+                  error={errors.terms}
+                />
+              )}
+
+              <CustomButton
+                type='submit'
+                style={
+                  showOtpScreen || buttonLoader
+                    ? styles.disabledButton
+                    : styles.submitButton
+                }
+                variant='contained'
+                width='100%'
+                // fullWidth
+                onClick={showOtpScreen ? onOtpVerify : onSignup}
+                disabled={buttonLoader || !termsChecked}
+              >
+                {buttonLoader ? (
+                  <Box sx={{ display: 'flex' }}>
+                    <CircularProgress size={22} />
+                  </Box>
+                ) : showOtpScreen ? (
+                  'Verify OTP'
+                ) : (
+                  'Send OTP'
+                )}
+              </CustomButton>
+              <Typography component={Link} to='/login' style={styles.loginLink}>
+                Login with Email
+              </Typography>
+            </form>
+          </Container>
+        </div>
       )}
     </>
   );
+};
+
+const styles = {
+  wrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
+    backgroundColor: '#121318',
+  },
+  container: {
+    textAlign: 'center',
+    padding: '50px',
+    color: 'white',
+    borderRadius: '1rem',
+  },
+  title: {
+    color: '#7CD6AB',
+  },
+  subtitle: {
+    margin: '15px 0',
+    padding: '0px 120px',
+    color: '#75777B',
+  },
+  form: {
+    width: '70%',
+    margin: 'auto',
+    textAlign: 'left',
+  },
+  label: {
+    margin: '8px 0',
+    color: '#75777B',
+  },
+  phoneInput: {
+    width: '100%',
+    height: '40px',
+    border: '1px solid #75777B',
+    borderRadius: '5px',
+    paddingLeft: '60px', // Adjust padding to ensure the flag doesn't overlap the text
+    backgroundColor: '#121318',
+    color: 'white',
+  },
+  phoneInputContainer: {
+    width: '100%',
+  },
+  phoneButton: {
+    backgroundColor: '#121318',
+    color: 'white',
+  },
+  phoneDropdown: {
+    backgroundColor: '#121318',
+  },
+  textField: {
+    margin: '20px 0',
+    width: '22rem',
+  },
+  checkbox: {
+    color: '#7CD6AB',
+  },
+  terms: {
+    paddingTop: '10px',
+  },
+  submitButton: {
+    backgroundColor: '#7CD6AB',
+    color: '#121318',
+    marginTop: '101px',
+    marginBottom: '30px',
+    padding: '0.8rem',
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
+    color: '#121318',
+    margin: '30px 0',
+    padding: '0.8rem',
+    fontWeight: 'bold',
+  },
+  loginLink: {
+    color: '#7CD6AB',
+    textAlign: 'left',
+    variant: 'outlined',
+    width: '100%',
+    display: 'block',
+  },
 };
 
 export default Register;

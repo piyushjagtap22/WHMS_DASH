@@ -39,11 +39,9 @@ import { auth } from '../../firebase';
 import { logout } from '../../slices/authSlice.js';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
-
 const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const dispatch = useDispatch();
   const theme = useTheme();
-
   const [anchorEl, setAnchorEl] = useState(null);
   const isOpen = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(event.currentTarget);
@@ -103,7 +101,6 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
     }
   };
 
-
   useEffect(() => {
     if (AuthUser && AuthUser.displayName) {
       setName(AuthUser.displayName);
@@ -116,26 +113,35 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
         position: 'static',
         background: 'none',
         boxShadow: 'none',
-        borderBottom : `1px solid ${theme.palette.secondary[400]}`,
+        borderBottom: `1px solid ${theme.palette.secondary[400]}`,
       }}
     >
-      <Toolbar sx={{ justifyContent: 'space-between' }} style={{ borderBottom : 'red'}}>
+      <Toolbar
+        sx={{ justifyContent: 'space-between' }}
+        style={{ borderBottom: 'red' }}
+      >
         {/* LEFT SIDE */}
         <FlexBetween>
-          <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-            <MenuIcon />
-          </IconButton>
-          <FlexBetween
-            borderRadius='9px'
-            gap='4rem'
-            p='0.1rem 1.5rem'
-          >
-            <Typography>{location.pathname === "/Default" ? location.pathname.substring(1).toUpperCase() + " / WHMS-"  + AuthUser.uid.substring(0,4).toUpperCase() : location.pathname.substring(1).toUpperCase()}</Typography>
+          {location.pathname !== '/superadmin' ? (
+            <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+              <MenuIcon />
+            </IconButton>
+          ) : (
+            ''
+          )}
+          <FlexBetween borderRadius='9px' gap='4rem' p='0.1rem 1.5rem'>
+            <Typography>
+              {location.pathname === '/Default'
+                ? location.pathname.substring(1).toUpperCase() +
+                  ' / WHMS-' +
+                  AuthUser.uid.substring(0, 4).toUpperCase()
+                : location.pathname.substring(1).toUpperCase()}
+            </Typography>
           </FlexBetween>
-        </FlexBetween> 
+        </FlexBetween>
 
         {/* RIGHT SIDE */}
-        <FlexBetween gap='1.5rem' >
+        <FlexBetween gap='1.5rem'>
           <IconButton onClick={() => dispatch(setMode())}>
             {theme.palette.mode === 'dark' ? (
               <LightModeOutlined sx={{ fontSize: '25px' }} />
@@ -191,7 +197,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
               open={isOpen}
               onClose={handleClose}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-              color = {theme.palette.secondary[800]}
+              color={theme.palette.secondary[800]}
             >
               <MenuItem onClick={handleLogout}>Log Out</MenuItem>
             </Menu>
