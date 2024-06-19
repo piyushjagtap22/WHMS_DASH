@@ -2,12 +2,9 @@ import React from 'react';
 // import { delay } from '@reduxjs/toolkit/dist/utils';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import CircularProgress from '@mui/material/CircularProgress';
-import { toast, Toaster } from 'react-hot-toast';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
   Button,
-  Card,
   Collapse,
   Dialog,
   DialogActions,
@@ -22,17 +19,20 @@ import {
   TableHead,
   TableRow,
   useMediaQuery,
-  useTheme,
+  useTheme
 } from '@mui/material';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { auth } from '../../firebase.js';
 import { setAuthState } from '../../slices/authSlice';
 import { setLoading } from '../../slices/loadingSlice';
+import CustomButton from '../Button.jsx';
 import {
   addDeviceID,
   approveDocById,
@@ -602,7 +602,7 @@ const SuperAdminScreen = () => {
             onClose={handleClose}
             aria-labelledby='dialog-title'
             aria-describedby='dialog-description'
-            PaperProps={{ style: { borderRadius: 12, background: '#121318' } }}
+            PaperProps={{ style: { borderRadius: 12, background: '#191c23' } }}
           >
             <DialogTitle
               id='dialog-title'
@@ -647,12 +647,10 @@ const SuperAdminScreen = () => {
                 paddingBottom: '20px',
               }}
             >
-              <Button
+              <CustomButton
                 onClick={() => approveDoc(selectedAdmin)}
-                color='primary'
                 variant='contained'
                 disabled={buttonLoader}
-                sx={{ width: '175px' }}
               >
                 {buttonLoader ? (
                   <Box sx={{ display: 'flex' }}>
@@ -661,14 +659,13 @@ const SuperAdminScreen = () => {
                 ) : (
                   'Approve Documents'
                 )}
-              </Button>
-              <Button
+              </CustomButton>
+              <CustomButton
                 onClick={handleClose}
                 variant='outlined'
-                color='secondary'
               >
                 Cancel
-              </Button>
+              </CustomButton>
             </DialogActions>
           </Dialog>
 
