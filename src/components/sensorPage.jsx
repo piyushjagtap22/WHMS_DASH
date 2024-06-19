@@ -7,7 +7,7 @@ import {
 } from '../../src/slices/adminApiSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material';
-
+import { Toaster, toast } from 'react-hot-toast';
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 
 const SensorPage = () => {
@@ -23,6 +23,57 @@ const SensorPage = () => {
   const [events, setEvents] = useState([]);
   const handleRowClick = (data) => {
     console.log(data);
+    toast('Hello World', {
+      duration: 4000,
+      position: 'top-center',
+
+      // Styling
+      style: {
+        left: '0px',
+        right: '0px',
+        display: 'flex',
+        position: 'absolute',
+        transition: 'all 230ms cubic-bezier(0.21, 1.02, 0.73, 1) 0s',
+        transform: 'translateY(34.179px)',
+        top: '0px',
+        justifyContent: 'center',
+        zIndex: '9999',
+      },
+      className: '',
+
+      // Custom Icon
+      icon: '👏',
+
+      // Change colors of success/error/loading icon
+      iconTheme: {
+        primary: '#000',
+        secondary: '#fff',
+      },
+
+      // Aria
+      ariaProps: {
+        role: 'status',
+        'aria-live': 'polite',
+      },
+    });
+    toast.success('Hey There', { duration: 4000 });
+    toast.custom(
+      <div>
+        Do you want to Navigate to User details Page
+        <button
+          onClick={() => {
+            navigate(`/Default`, {
+              state: {
+                data: data,
+              },
+            }); // Pass the row data as a prop
+          }}
+        >
+          OK
+        </button>
+        <button>Cancel</button>
+      </div>
+    );
     const result = window.confirm(
       'Do you want to Navigate to User details Page'
     );
@@ -202,6 +253,7 @@ const SensorPage = () => {
 
   return (
     <div className='App'>
+      <Toaster toastOptions={{ duration: 4000 }} />
       {!!user && (
         <div className='App-header'>
           <div>
