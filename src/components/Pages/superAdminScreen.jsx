@@ -19,7 +19,7 @@ import {
   TableHead,
   TableRow,
   useMediaQuery,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -452,7 +452,7 @@ const SuperAdminScreen = () => {
             )}
           </TableCell>
           <TableCell>
-            Device List
+            View Devices
             <IconButton
               aria-label='expand row'
               size='small'
@@ -660,10 +660,7 @@ const SuperAdminScreen = () => {
                   'Approve Documents'
                 )}
               </CustomButton>
-              <CustomButton
-                onClick={handleClose}
-                variant='outlined'
-              >
+              <CustomButton onClick={handleClose} variant='outlined'>
                 Cancel
               </CustomButton>
             </DialogActions>
