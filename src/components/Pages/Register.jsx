@@ -1,7 +1,6 @@
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   Box,
-  Button,
   Checkbox,
   CircularProgress,
   Container,
@@ -28,6 +27,7 @@ import {
 } from '../../slices/authSlice.js';
 import { setLoading } from '../../slices/loadingSlice.js';
 import { getMongoUser } from '../../slices/usersApiSlice.js';
+import CustomButton from '../Button.jsx';
 import Loader from '../Loader';
 
 const Register = () => {
@@ -283,16 +283,16 @@ const Register = () => {
                 />
               )}
 
-              <Button
+              <CustomButton
                 type='submit'
                 style={
-                  buttonLoader || !termsChecked
-                    ? styles.disabledButton
-                    : showOtpScreen && otp.length != 6
+                  showOtpScreen || buttonLoader
                     ? styles.disabledButton
                     : styles.submitButton
                 }
-                fullWidth
+                variant='contained'
+                width='100%'
+                // fullWidth
                 onClick={showOtpScreen ? onOtpVerify : onSignup}
                 disabled={buttonLoader || !termsChecked}
               >
@@ -305,7 +305,7 @@ const Register = () => {
                 ) : (
                   'Send OTP'
                 )}
-              </Button>
+              </CustomButton>
               <Typography component={Link} to='/login' style={styles.loginLink}>
                 Login with Email
               </Typography>
@@ -380,7 +380,7 @@ const styles = {
   submitButton: {
     backgroundColor: '#7CD6AB',
     color: '#121318',
-    marginTop: '30px',
+    marginTop: '101px',
     marginBottom: '30px',
     padding: '0.8rem',
     fontWeight: 'bold',

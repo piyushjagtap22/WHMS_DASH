@@ -72,7 +72,10 @@ function LoginScreen() {
         dispatch(setLoading(true));
         toast.success('Login successful');
 
-        localStorage.setItem('accessToken', userCredential._tokenResponse.idToken);
+        localStorage.setItem(
+          'accessToken',
+          userCredential._tokenResponse.idToken
+        );
         dispatch(setToken(userCredential._tokenResponse.idToken));
         dispatch(setAuthUser(user));
 
@@ -99,95 +102,118 @@ function LoginScreen() {
         <Loader />
       ) : (
         <div style={styles.wrapper}>
-        <Container maxWidth="sm" style={styles.container}>
-          <Typography variant="h2" style={styles.title}>
-            Login with Email
-          </Typography>
-          <Typography variant="subtitle1" style={styles.subtitle}>
-            Please input your email and Password
-          </Typography>
-          <form style={styles.form} onSubmit={submitHandler}>
-            <Typography variant="subtitle2" style={styles.label}>
-              Email
+          <Container maxWidth='sm' style={styles.container}>
+            <Typography variant='h2' style={styles.title}>
+              Login with Email
             </Typography>
-            <div style={styles.inputContainer}>
-              <FaEnvelope style={styles.icon} />
-              <TextField
-                type="email"
-                placeholder="Johndoe@gmail.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={styles.textField}
-              />
-            </div>
-            <Typography variant="subtitle2" style={styles.label}>
-              Password
+            <Typography variant='subtitle1' style={styles.subtitle}>
+              Please input your email and Password
             </Typography>
-            <div style={styles.inputContainer}>
-              <FaLock style={styles.icon} />
-              <TextField
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={styles.textField}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={handleTogglePasswordVisibility}>
-                        {showPassword ? <Visibility style={styles.iconColor} /> : <VisibilityOff style={styles.iconColor} />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </div>
-            <Typography onClick={handleToggleModal} style={styles.forgotButton}>
-            Forgot Password?
-            </Typography>
-
-            {loginErrorMessage && (
-              <Typography style={styles.errorText}>
-                {loginErrorMessage}
+            <form style={styles.form} onSubmit={submitHandler}>
+              <Typography variant='subtitle2' style={styles.label}>
+                Email
               </Typography>
-            )}
-            <Modal open={open} onClose={handleToggleModal} style={styles.modal}>
-              <Box sx={styles.modalBox}>
-                <Typography variant="subtitle1" style={styles.modalTitle}>
-                  Forgot Password?
-                </Typography>
+              <div style={styles.inputContainer}>
+                <FaEnvelope style={styles.icon} />
                 <TextField
-                  type="email"
-                  placeholder="johndoe@gmail.com"
+                  type='email'
+                  placeholder='Johndoe@gmail.com'
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  fullWidth
-                  style={styles.modalTextField}
+                  style={styles.textField}
                 />
-                <Button variant="contained" color="primary" onClick={handleResetPassword} style={styles.modalButton}>
-                  Send Link
-                </Button>
-                {error && (
-                  <Typography style={styles.errorText}>
-                    {error}
-                  </Typography>
-                )}
-                {message && (
-                  <Typography style={styles.successText}>
-                    {message}
-                  </Typography>
-                )}
-              </Box>
-            </Modal>
-            <Button type="submit"  fullWidth style={styles.submitButton} disabled={!isFormValid}>
-              Login
-            </Button>
+              </div>
+              <Typography variant='subtitle2' style={styles.label}>
+                Password
+              </Typography>
+              <div style={styles.inputContainer}>
+                <FaLock style={styles.icon} />
+                <TextField
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder='Password'
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={styles.textField}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position='end'>
+                        <IconButton onClick={handleTogglePasswordVisibility}>
+                          {showPassword ? (
+                            <Visibility style={styles.iconColor} />
+                          ) : (
+                            <VisibilityOff style={styles.iconColor} />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+              <Typography
+                onClick={handleToggleModal}
+                style={styles.forgotButton}
+              >
+                Forgot Password?
+              </Typography>
 
-            <Typography component={Link} to="/register" style={styles.registerLink}>
-              New User? Register
-            </Typography>
-          </form>
-        </Container>
+              {loginErrorMessage && (
+                <Typography style={styles.errorText}>
+                  {loginErrorMessage}
+                </Typography>
+              )}
+              <Modal
+                open={open}
+                onClose={handleToggleModal}
+                style={styles.modal}
+              >
+                <Box sx={styles.modalBox}>
+                  <Typography variant='subtitle1' style={styles.modalTitle}>
+                    Forgot Password?
+                  </Typography>
+                  <TextField
+                    type='email'
+                    placeholder='johndoe@gmail.com'
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    fullWidth
+                    style={styles.modalTextField}
+                  />
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    onClick={handleResetPassword}
+                    style={styles.modalButton}
+                  >
+                    Send Link
+                  </Button>
+                  {error && (
+                    <Typography style={styles.errorText}>{error}</Typography>
+                  )}
+                  {message && (
+                    <Typography style={styles.successText}>
+                      {message}
+                    </Typography>
+                  )}
+                </Box>
+              </Modal>
+              <Button
+                type='submit'
+                fullWidth
+                style={styles.submitButton}
+                disabled={!isFormValid}
+              >
+                Login
+              </Button>
+
+              <Typography
+                component={Link}
+                to='/register'
+                style={styles.registerLink}
+              >
+                New User? Register
+              </Typography>
+            </form>
+          </Container>
         </div>
       )}
     </>
@@ -297,14 +323,11 @@ const styles = {
     width: '100%',
   },
   submitButton: {
- 
-
-    backgroundColor:'#7CD6AB',
+    backgroundColor: '#7CD6AB',
     color: '#121318',
     margin: '30px 0',
     padding: '0.8rem',
     fontWeight: 'bold',
-
   },
   registerLink: {
     color: '#7CD6AB',
@@ -318,4 +341,3 @@ const styles = {
 };
 
 export default LoginScreen;
-
