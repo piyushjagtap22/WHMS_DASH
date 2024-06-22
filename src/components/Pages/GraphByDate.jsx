@@ -1,8 +1,18 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-// import ApexGraph from './ApexGraph';
 import { useReactToPrint } from 'react-to-print';
 import ApexGraphPrint from './ApexGraphPrint';
+import Fab from '@material-ui/core/Fab';
+import PrintIcon from '@material-ui/icons/Print';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+  fab: {
+    position: 'fixed',
+    bottom: theme.spacing(2),
+    right: theme.spacing(2),
+  },
+}));
 
 const GraphByDate = () => {
   const { state: data } = useLocation();
@@ -11,18 +21,26 @@ const GraphByDate = () => {
     content: () => componentRef.current,
   });
 
-  console.log('graphbydate', data);
+  const classes = useStyles();
+
   return (
-    <div>
-      <ApexGraphPrint
-        name='shivanshu'
-        data={data.data1}
-        timestamp={data.data2}
-        max={90}
-        zoomEnabled={true}
-        ref={componentRef}
-      />
-      <button onClick={handlePrint}>Print this out!</button>
+    <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
+      <div>
+        <ApexGraphPrint
+          name='shivanshu'
+          data={data.data1}
+          timestamp={data.data2}
+          max={90}
+          zoomEnabled={true}
+          ref={componentRef}
+        />
+      </div>
+        
+      <div style={{ width: '77%', marginTop: '20px' }}>
+        <Fab color="primary" aria-label="add" className={classes.fab} onClick={handlePrint}>
+          <PrintIcon />
+        </Fab>
+      </div>
     </div>
   );
 };

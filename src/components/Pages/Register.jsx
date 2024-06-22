@@ -101,7 +101,7 @@ const Register = () => {
       try {
         setButtonLoader(true);
         const result = await confirmOtp.confirm(otp);
-        toast.success('Success');
+        // toast.success('Success');
         dispatch(setLoading(true));
         const user = auth.currentUser;
 

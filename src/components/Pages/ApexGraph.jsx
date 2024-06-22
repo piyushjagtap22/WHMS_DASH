@@ -44,8 +44,13 @@ const ApexGraph = React.memo((props) => {
         autoScaleYaxis: true,
       },
       toolbar: {
+        show: true,
+        tools: {
+          download: false
+        },
         autoSelected: 'zoom',
-      },
+
+      }
     },
     colors: isAboveMax ? ['#FF5733'] : ['#7CD6AB'],
     dataLabels: {
@@ -80,8 +85,19 @@ const ApexGraph = React.memo((props) => {
       // tickAmount: 4,
     },
     xaxis: {
-      categories: labels,
+      type: 'category', // Assuming x-axis is categorical based on your labels
+      labels: {
+        formatter: function (val) {
+          const date = new Date(val);
+          return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit',second: "2-digit"})
+        },
+        rotate: 0,
+      },
+      categories: labels, // Ensure labels array contains timestamp strings
       tickAmount: 10,
+      
+       // Ensure x-axis labels are horizontal
+      
     },
     tooltip: {
       shared: false,
