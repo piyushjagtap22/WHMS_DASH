@@ -56,7 +56,7 @@ const SensorPage = () => {
         'aria-live': 'polite',
       },
     });
-    toast.success('Hey There', { duration: 4000 });
+    // toast.success('Hey There', { duration: 4000 });
     toast.custom(
       <div>
         Do you want to Navigate to User details Page

@@ -44,14 +44,6 @@ const navItems = [
     icon: <HomeOutlined />,
   },
   {
-    text: 'Default',
-    icon: <ShoppingCartOutlined />,
-  },
-  {
-    text: 'superadmin',
-    icon: <Groups2Outlined />,
-  },
-  {
     text: 'Privacy & Security',
     icon: <ReceiptLongOutlined />,
   },

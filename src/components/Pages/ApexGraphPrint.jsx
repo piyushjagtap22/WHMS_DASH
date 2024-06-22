@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, useTheme, useMediaQuery } from '@mui/material';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import ReactApexChart from 'react-apexcharts';
-
+import PrayogikLogo from "../../assets/PrayogikLogo.png"
 const ApexGraphPrint = React.forwardRef((props, ref) => {
   const theme = useTheme();
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
@@ -96,6 +96,7 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
   return (
     <div ref={ref} className='print-container'>
       <header className='print-header'>
+        <img src={PrayogikLogo} height="80rem"></img>
         <h1>Prodyogik Solutions</h1>
         <p>Address Line 1, Address Line 2, City, Country</p>
         <p>Phone: 9406928294 | Email: harshyadav@gmail.com</p>

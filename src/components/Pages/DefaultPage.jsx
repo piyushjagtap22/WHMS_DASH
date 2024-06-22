@@ -603,7 +603,7 @@ const DefaultPage = () => {
 
             setBreathRateSensorTimeStamp(
               response.data.BreathRateSensor.map((item) =>
-                item.timestamp.slice(11, 19)
+                item.timestamp
               )
             );
 
@@ -613,7 +613,7 @@ const DefaultPage = () => {
 
             setVentilatonSensorTimeStamp(
               response.data.VentilatonSensor.map((item) =>
-                item.timestamp.slice(11, 19)
+                item.timestamp
               )
             );
 
@@ -703,7 +703,9 @@ const DefaultPage = () => {
             onChange={(e) => setStartDate(e.target.value)}
             InputLabelProps={{
               shrink: true,
+            
             }}
+            
           />
 
           <TextField
