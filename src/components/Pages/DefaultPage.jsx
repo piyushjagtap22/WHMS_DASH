@@ -1,36 +1,31 @@
+import React, { useEffect, useRef, useState } from 'react';
 
-import React, { useEffect, useRef, useState } from "react";
+import FlexBetween from '../FlexBetween';
 
-import FlexBetween from "../FlexBetween";
+import { useLocation, useNavigate } from 'react-router-dom';
 
+import { getDeviceIds, getLoc, getSensorDB } from '../../slices/adminApiSlice';
 
-import { useLocation, useNavigate } from "react-router-dom";
+import { Box, MenuItem, TextField, useMediaQuery } from '@mui/material';
 
-import { getDeviceIds, getLoc, getSensorDB } from "../../slices/adminApiSlice";
+import { useDispatch, useSelector } from 'react-redux';
 
-import { Box, MenuItem, TextField, useMediaQuery } from "@mui/material";
+import * as Realm from 'realm-web';
 
+import IconButton from '@mui/material/IconButton';
 
+import PowerIcon from '@mui/icons-material/Power';
 
-import { useDispatch, useSelector } from "react-redux";
+import Tooltip from '@mui/material/Tooltip';
 
-import * as Realm from "realm-web";
+import { useTheme } from '@emotion/react';
+import { Button } from 'react-bootstrap';
+import BodyFigure from '../BodyFigure';
+import ApexGraph from './ApexGraph';
 
-import IconButton from "@mui/material/IconButton";
+const app = new Realm.App({ id: 'application-0-vdlpx' });
 
-
-import PowerIcon from "@mui/icons-material/Power";
-
-import Tooltip from "@mui/material/Tooltip";
-
-import { useTheme } from "@emotion/react";
-import { Button } from "react-bootstrap";
-import BodyFigure from "../BodyFigure";
-import ApexGraph from "./ApexGraph";
-
-const app = new Realm.App({ id: "application-0-vdlpx" });
-
-const ENDPOINT = "http://localhost:3000";
+const ENDPOINT = 'http://localhost:3000';
 
 var socket;
 
@@ -51,7 +46,7 @@ const DefaultPage = () => {
 
   const [endDate, setEndDate] = useState();
 
-  const [sensorType, setSensorType] = useState("");
+  const [sensorType, setSensorType] = useState('');
 
   const [currentTime, setCurrentTime] = useState(
     new Date().toLocaleTimeString()
@@ -60,33 +55,33 @@ const DefaultPage = () => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString());
-  
+
       if (heartRateTimeStamp.length > 0) {
-        const latestTimestamp = heartRateTimeStamp[heartRateTimeStamp.length - 1];
+        const latestTimestamp =
+          heartRateTimeStamp[heartRateTimeStamp.length - 1];
         const latestTime = new Date(latestTimestamp);
         const currentTime = new Date();
-  
+
         const timeDifference = (currentTime - latestTime) / 1000; // Difference in seconds
-        console.log(currentTime)
-        console.log(latestTime)
-        console.log(timeDifference)
-  
+        console.log(currentTime);
+        console.log(latestTime);
+        console.log(timeDifference);
+
         setConnectionStatus(timeDifference <= 5);
       } else {
         setConnectionStatus(false); // No timestamp available, set connectionStatus to false
       }
     }, 1000);
-  
+
     return () => clearInterval(intervalId);
   }, [heartRateTimeStamp]);
-  
 
   const mapContainerRef = useRef(null);
 
   const [initialTable, setinitialTable] = useState({});
 
   const { state: userData } = useLocation();
-  const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
+  const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
 
   const dispatch = useDispatch();
 
@@ -119,10 +114,10 @@ const DefaultPage = () => {
   const [events, setEvents] = useState([]);
 
   async function getGraphData() {
-    const url = "http://localhost:3000/api/admin/getGraphData";
+    const url = 'http://localhost:3000/api/admin/getGraphData';
 
     const body = JSON.stringify({
-      id: "31vBWopGfQfudlsSHkKS0Prgkg42",
+      id: '31vBWopGfQfudlsSHkKS0Prgkg42',
 
       sensorType: sensorType,
 
@@ -132,41 +127,41 @@ const DefaultPage = () => {
     });
 
     console.log(
-      "dates",
-      convertDateToUnix(startDate) + "  " + convertDateToUnix(endDate)
+      'dates',
+      convertDateToUnix(startDate) + '  ' + convertDateToUnix(endDate)
     );
 
     try {
       const response = await fetch(url, {
-        method: "POST",
+        method: 'POST',
 
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
 
         body: body,
       });
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error('Network response was not ok');
       }
 
       const data = await response.json();
 
       return data;
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error('Error fetching data:', error);
 
       throw error;
     }
   }
 
   const handleSubmit = () => {
-    console.log("startdate", startDate);
-    console.log("enddate", endDate);
-    console.log("sendor", sensorType);
+    console.log('startdate', startDate);
+    console.log('enddate', endDate);
+    console.log('sendor', sensorType);
 
-    console.log("startdate", convertDateToUnix(startDate));
+    console.log('startdate', convertDateToUnix(startDate));
 
     getGraphData()
       .then((data) => {
@@ -175,26 +170,26 @@ const DefaultPage = () => {
           const values = data.map((item) => item.value);
 
           const timestamp = data.map((item) => item.timestamp.slice(11, 19));
-          navigate(`/GraphByDate`, {state : {
-            data1 : values,
-            data2 : timestamp,
-            startDate : startDate,
-            endDate : endDate,
-            sensorType: sensorType,
-          }});
-          
+          navigate(`/GraphByDate`, {
+            state: {
+              data1: values,
+              data2: timestamp,
+              startDate: startDate,
+              endDate: endDate,
+              sensorType: sensorType,
+            },
+          });
 
           setGraphDataByDate(values);
 
           setGraphDataByDateTimestamp(timestamp);
 
-          console.log("shiv", GraphDataByDate);
+          console.log('shiv', GraphDataByDate);
 
-          console.log("shiv", GraphDataByDateTimestamp);
-        }
-        else{
-          window.confirm("invalid dates");
-          console.log("Invalid dates");
+          console.log('shiv', GraphDataByDateTimestamp);
+        } else {
+          window.confirm('invalid dates');
+          console.log('Invalid dates');
         }
       })
 
@@ -206,6 +201,7 @@ const DefaultPage = () => {
   useEffect(() => {
     const devicesdb = async () => {
       try {
+        console.log('user data yaha hai', userData);
         const id = userData.data.currentUserId;
 
         if (setEvents.length <= 1) {
@@ -213,7 +209,7 @@ const DefaultPage = () => {
 
           const response = await getDeviceIds(token, id);
 
-          console.log("req made ");
+          console.log('req made ');
 
           if (response.status === 200) {
             // console.log('in 200');
@@ -240,9 +236,9 @@ const DefaultPage = () => {
 
         setUser(user2);
 
-        const mongodb2 = app.currentUser.mongoClient("mongodb-atlas");
+        const mongodb2 = app.currentUser.mongoClient('mongodb-atlas');
 
-        const collection2 = mongodb2.db("test").collection("devices");
+        const collection2 = mongodb2.db('test').collection('devices');
 
         // console.log('device db watch stream');
 
@@ -274,11 +270,11 @@ const DefaultPage = () => {
 
             setLongitude(lon);
           } else {
-            console.log("Data is Not Relevant");
+            console.log('Data is Not Relevant');
           }
         }
       } catch (error) {
-        console.error("Error:", error);
+        console.error('Error:', error);
       }
     };
 
@@ -320,10 +316,10 @@ const DefaultPage = () => {
 
     // Load Mapbox script dynamically
 
-    const mapboxScript = document.createElement("script");
+    const mapboxScript = document.createElement('script');
 
     mapboxScript.src =
-      "https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js";
+      'https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js';
 
     mapboxScript.onload = initializeMap;
 
@@ -331,39 +327,39 @@ const DefaultPage = () => {
 
     // Load Mapbox stylesheet
 
-    const mapboxLink = document.createElement("link");
+    const mapboxLink = document.createElement('link');
 
     mapboxLink.href =
-      "https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css";
+      'https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css';
 
-    mapboxLink.rel = "stylesheet";
+    mapboxLink.rel = 'stylesheet';
 
     document.head.appendChild(mapboxLink);
 
     function initializeMap() {
       if (mapContainerRef.current) {
         mapboxgl.accessToken =
-          "pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw";
+          'pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw';
 
         const map = new mapboxgl.Map({
-          container: "map",
+          container: 'map',
 
           // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
 
-          style: "mapbox://styles/mapbox/streets-v12",
+          style: 'mapbox://styles/mapbox/streets-v12',
 
           zoom: 14.0,
         });
 
-        map.on("load", async () => {
+        map.on('load', async () => {
           // Get the initial location of the International Space Station (ISS).
 
           const geojson = await getLocation();
 
           // Add the ISS location as a source.
 
-          map.addSource("iss", {
-            type: "geojson",
+          map.addSource('iss', {
+            type: 'geojson',
 
             data: geojson,
           });
@@ -371,11 +367,11 @@ const DefaultPage = () => {
           // Add the rocket symbol layer to the map.
 
           map.addLayer({
-            id: "iss",
+            id: 'iss',
 
-            type: "symbol",
+            type: 'symbol',
 
-            source: "iss",
+            source: 'iss',
 
             layout: {
               // This icon is a part of the Mapbox Streets style.
@@ -388,7 +384,7 @@ const DefaultPage = () => {
 
               // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
 
-              "icon-image": "rocket",
+              'icon-image': 'rocket',
             },
           });
 
@@ -397,7 +393,7 @@ const DefaultPage = () => {
           const updateSource = setInterval(async () => {
             // const geojson = await getLocation(updateSource);
 
-            map.getSource("iss").setData(geojson);
+            map.getSource('iss').setData(geojson);
           }, 5000);
 
           async function getLocation(updateSource) {
@@ -535,14 +531,14 @@ const DefaultPage = () => {
               // Return the location of the ISS as GeoJSON.
 
               return {
-                type: "FeatureCollection",
+                type: 'FeatureCollection',
 
                 features: [
                   {
-                    type: "Feature",
+                    type: 'Feature',
 
                     geometry: {
-                      type: "Point",
+                      type: 'Point',
 
                       coordinates: [longitude, latitude], //lon lat
                     },
@@ -585,16 +581,14 @@ const DefaultPage = () => {
           const response = await getSensorDB(token, id);
 
           if (response.status === 200) {
-            console.log("shivanshu", response.data);
+            console.log('shivanshu', response.data);
 
             setHeartRateData(
               response.data.heartSensor.map((item) => item.value)
             );
 
             setheartRateTimeStamp(
-              response.data.heartSensor.map((item) =>
-                item.timestamp
-              )
+              response.data.heartSensor.map((item) => item.timestamp)
             );
 
             setBreathRateSensorData(
@@ -602,9 +596,7 @@ const DefaultPage = () => {
             );
 
             setBreathRateSensorTimeStamp(
-              response.data.BreathRateSensor.map((item) =>
-                item.timestamp
-              )
+              response.data.BreathRateSensor.map((item) => item.timestamp)
             );
 
             setVentilatonSensorData(
@@ -612,9 +604,7 @@ const DefaultPage = () => {
             );
 
             setVentilatonSensorTimeStamp(
-              response.data.VentilatonSensor.map((item) =>
-                item.timestamp
-              )
+              response.data.VentilatonSensor.map((item) => item.timestamp)
             );
 
             setEvents(response.data.deviceDocuments);
@@ -627,9 +617,9 @@ const DefaultPage = () => {
 
         setUser(user);
 
-        const mongodb = app.currentUser.mongoClient("mongodb-atlas");
+        const mongodb = app.currentUser.mongoClient('mongodb-atlas');
 
-        const collection = mongodb.db("test").collection("sensordbs");
+        const collection = mongodb.db('test').collection('sensordbs');
 
         // console.log('sensor db watch stream');
 
@@ -644,9 +634,7 @@ const DefaultPage = () => {
             );
 
             setheartRateTimeStamp(
-              change.fullDocument.heartSensor.map((item) =>
-                item.timestamp
-              )
+              change.fullDocument.heartSensor.map((item) => item.timestamp)
             );
 
             setBreathRateSensorData(
@@ -669,11 +657,11 @@ const DefaultPage = () => {
               )
             );
           } else {
-            console.log("Data is Not Relevant");
+            console.log('Data is Not Relevant');
           }
         }
       } catch (error) {
-        console.error("Error:", error);
+        console.error('Error:', error);
       }
     };
 
@@ -684,33 +672,31 @@ const DefaultPage = () => {
     <>
       {/* <UniqueLayout data={userData} />x */}
 
-      <Box m="2rem 2.5rem">
+      <Box m='2rem 2.5rem'>
         <FlexBetween></FlexBetween>
 
         <form
           style={{
-            display: "flex",
-            gap: "2rem",
-            alignItems: "center",
-            marginBottom: "2rem",
-            marginLeft: "2rem",
+            display: 'flex',
+            gap: '2rem',
+            alignItems: 'center',
+            marginBottom: '2rem',
+            marginLeft: '2rem',
           }}
         >
           <TextField
-            label="Start Date"
-            type="date"
+            label='Start Date'
+            type='date'
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             InputLabelProps={{
               shrink: true,
-            
             }}
-            
           />
 
           <TextField
-            label="End Date"
-            type="date"
+            label='End Date'
+            type='date'
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             InputLabelProps={{
@@ -719,23 +705,23 @@ const DefaultPage = () => {
           />
 
           <TextField
-            style={{ width: "125px" }}
+            style={{ width: '125px' }}
             select
-            label="Sensor Type"
+            label='Sensor Type'
             value={sensorType}
             onChange={(e) => setSensorType(e.target.value)}
           >
-            <MenuItem value="heartSensor">Heart Rate</MenuItem>
-            <MenuItem value="BloodPressureSensor">Breath Rate</MenuItem>
-            <MenuItem value="VentilatonSensor">VentilatonSensor</MenuItem>
-            <MenuItem value="TidalVolumeSensor">TidalVolumeSensor</MenuItem>
-            <MenuItem value="ActivitySensor">ActivitySensor</MenuItem>
-            <MenuItem value="CadenceSensor">CadenceSensor</MenuItem>
+            <MenuItem value='heartSensor'>Heart Rate</MenuItem>
+            <MenuItem value='BloodPressureSensor'>Breath Rate</MenuItem>
+            <MenuItem value='VentilatonSensor'>VentilatonSensor</MenuItem>
+            <MenuItem value='TidalVolumeSensor'>TidalVolumeSensor</MenuItem>
+            <MenuItem value='ActivitySensor'>ActivitySensor</MenuItem>
+            <MenuItem value='CadenceSensor'>CadenceSensor</MenuItem>
           </TextField>
 
           <Button
             onClick={handleSubmit}
-            variant="contained"
+            variant='contained'
             color={theme.palette.secondary[700]}
           >
             Submit
@@ -743,15 +729,15 @@ const DefaultPage = () => {
         </form>
 
         <Box
-          margin="2rem 2rem"
-          display="grid"
-          gridTemplateColumns="repeat(12, 1fr)"
-          gridAutoRows="160px"
-          gap="16px"
+          margin='2rem 2rem'
+          display='grid'
+          gridTemplateColumns='repeat(12, 1fr)'
+          gridAutoRows='160px'
+          gap='16px'
           zIndex={2}
           sx={{
-            "& > div": {
-              gridColumn: isNonMediumScreens ? undefined : "span 12",
+            '& > div': {
+              gridColumn: isNonMediumScreens ? undefined : 'span 12',
             },
           }}
         >
@@ -764,35 +750,34 @@ const DefaultPage = () => {
           /> */}
 
           <div
-            id="map"
-            className="MuiBox-root css-1nt5awt"
+            id='map'
+            className='MuiBox-root css-1nt5awt'
             ref={mapContainerRef}
-            style={{ height: "300px" }}
+            style={{ height: '300px' }}
           />
 
           {/* ROW 1 */}
 
           <ApexGraph
-            name={"HeartRate"}
+            name={'HeartRate'}
             data={heartRateData}
             timestamp={heartRateTimeStamp}
             max={90}
             zoomEnabled={false}
-            
           />
 
           {/* ROW 2 */}
 
           <ApexGraph
-            name={"BreathRateSensor"}
+            name={'BreathRateSensor'}
             data={BreathRateSensorData}
             timestamp={BreathRateSensorTimeStamp}
             max={90}
             zoomEnabled={false}
           />
 
-<ApexGraph
-            name={"VentilationSensor"}
+          <ApexGraph
+            name={'VentilationSensor'}
             data={VentilatonSensorData}
             timestamp={VentilatonSensorTimeStamp}
             max={90}
@@ -818,20 +803,18 @@ const DefaultPage = () => {
           {/* ROW 4 */}
 
           {isNonMediumScreens && (
-
-            
-
-
             <Box>
+              <BodyFigure
+                sensorData={{
+                  'heart rate': heartRateData[heartRateData.length - 1],
+                  temperature:
+                    VentilatonSensorData[VentilatonSensorData.length - 1],
+                  medication: heartRateData[heartRateData.length - 1],
+                  'breath rate': BreathRateSensorData[BreathRateSensorData - 1],
+                  activity: heartRateData[heartRateData.length - 1],
+                }}
+              />
 
-            <BodyFigure    sensorData={{
-            "heart rate": heartRateData[heartRateData.length - 1], 
-            "temperature": VentilatonSensorData[VentilatonSensorData.length -1], 
-            "medication": heartRateData[heartRateData.length - 1],
-            "breath rate": BreathRateSensorData[BreathRateSensorData -1],
-            "activity": heartRateData[heartRateData.length - 1],
-          }}/>
-             
               {/*
 
               <Tooltip
@@ -857,51 +840,49 @@ const DefaultPage = () => {
 
  */}
 
-  {/* Pill shape to display connection status*/}
-
+              {/* Pill shape to display connection status*/}
 
               <Tooltip
-  title={`Connection Status: ${
-    currentTime
-  } and ${heartRateTimeStamp[heartRateTimeStamp.length - 1]}`}
-  arrow
-  placement="left-end"
-  style={{
-      fontSize: "15",
-      position: "fixed",
-      top: "6.2rem",
-      right: "4rem",
-      padding: "0rem 1rem 0rem 0.5rem",
-      border: connectionStatus
-      ? "2px solid rgba(124, 214, 171, 0.3)"
-      : "2px solid rgba(255, 36, 36, 0.3)",
-      backgroundColor: connectionStatus
-      ? "rgba(124, 214, 171, 0.3)"
-      : "rgba(255, 36, 36, 0.3)",
-     borderRadius: "50px",
-     zIndex: 3,
-  }}
-> 
-    <IconButton>
-      <PowerIcon
-        style={{
-          color: connectionStatus
-            ? "rgba(124, 214, 171, 0.9)"
-            : "rgba(255, 36, 36, 0.9)",
-        }}
-      />
-      </IconButton>
-    <span
-      style={{
-        color: connectionStatus
-          ? "rgba(124, 214, 171, 0.9)"
-          : "rgba(255, 36, 36, 0.9)",
-      }}>
-      {connectionStatus ? "Connected" : "Disconnected"}
-    </span>
-</Tooltip>
-
-              
+                title={`Connection Status: ${currentTime} and ${
+                  heartRateTimeStamp[heartRateTimeStamp.length - 1]
+                }`}
+                arrow
+                placement='left-end'
+                style={{
+                  fontSize: '15',
+                  position: 'fixed',
+                  top: '6.2rem',
+                  right: '4rem',
+                  padding: '0rem 1rem 0rem 0.5rem',
+                  border: connectionStatus
+                    ? '2px solid rgba(124, 214, 171, 0.3)'
+                    : '2px solid rgba(255, 36, 36, 0.3)',
+                  backgroundColor: connectionStatus
+                    ? 'rgba(124, 214, 171, 0.3)'
+                    : 'rgba(255, 36, 36, 0.3)',
+                  borderRadius: '50px',
+                  zIndex: 3,
+                }}
+              >
+                <IconButton>
+                  <PowerIcon
+                    style={{
+                      color: connectionStatus
+                        ? 'rgba(124, 214, 171, 0.9)'
+                        : 'rgba(255, 36, 36, 0.9)',
+                    }}
+                  />
+                </IconButton>
+                <span
+                  style={{
+                    color: connectionStatus
+                      ? 'rgba(124, 214, 171, 0.9)'
+                      : 'rgba(255, 36, 36, 0.9)',
+                  }}
+                >
+                  {connectionStatus ? 'Connected' : 'Disconnected'}
+                </span>
+              </Tooltip>
 
               {/* <Tooltip
                 title={`Connection Status :  ${currentTime} and ${

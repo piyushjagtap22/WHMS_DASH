@@ -6,12 +6,24 @@ import {
   // docById
 } from '../../src/slices/adminApiSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { useTheme } from '@mui/material';
+import {
+  useTheme,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from '@mui/material';
 import { Toaster, toast } from 'react-hot-toast';
+
+import CustomButton from '../components/Button';
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 
 const SensorPage = () => {
+  const [buttonLoader, setButtonLoader] = useState(false);
   const theme = useTheme();
+  const [open, setOpen] = useState(false);
+  const handleClose = () => setOpen(false);
   const navigate = useNavigate();
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
@@ -19,74 +31,25 @@ const SensorPage = () => {
   const [user, setUser] = useState();
   const [rowdata, setData] = useState([]);
   var devices = [];
-  // setDeviceList((prevDeviceList) => [...prevDeviceList, newDevice]);
   const [events, setEvents] = useState([]);
   const handleRowClick = (data) => {
-    console.log(data);
-    toast('Hello World', {
-      duration: 4000,
-      position: 'top-center',
+    setOpen(true);
+    setData(data);
+  };
 
-      // Styling
-      style: {
-        left: '0px',
-        right: '0px',
-        display: 'flex',
-        position: 'absolute',
-        transition: 'all 230ms cubic-bezier(0.21, 1.02, 0.73, 1) 0s',
-        transform: 'translateY(34.179px)',
-        top: '0px',
-        justifyContent: 'center',
-        zIndex: '9999',
-      },
-      className: '',
-
-      // Custom Icon
-      icon: '👏',
-
-      // Change colors of success/error/loading icon
-      iconTheme: {
-        primary: '#000',
-        secondary: '#fff',
-      },
-
-      // Aria
-      ariaProps: {
-        role: 'status',
-        'aria-live': 'polite',
-      },
-    });
-    // toast.success('Hey There', { duration: 4000 });
-    toast.custom(
-      <div>
-        Do you want to Navigate to User details Page
-        <button
-          onClick={() => {
-            navigate(`/Default`, {
-              state: {
-                data: data,
-              },
-            }); // Pass the row data as a prop
-          }}
-        >
-          OK
-        </button>
-        <button>Cancel</button>
-      </div>
-    );
-    const result = window.confirm(
-      'Do you want to Navigate to User details Page'
-    );
-
-    if (result) {
+  const navigateToDefault = async () => {
+    try {
       navigate(`/Default`, {
         state: {
-          data: data,
+          data: rowdata,
         },
       }); // Pass the row data as a prop
-    } else {
+    } catch (err) {
+      return toast.error(err.message);
+    } finally {
     }
   };
+
   // Function to handle real-time updates
   const handleRealTimeUpdate = (updatedObject) => {
     setData((prevData) => {
@@ -314,6 +277,62 @@ const SensorPage = () => {
                   <td>BP Sensor</td>
                 </tr>
               </thead>
+              <Dialog
+                open={open}
+                onClose={handleClose}
+                aria-labelledby='dialog-title'
+                aria-describedby='dialog-description'
+                PaperProps={{
+                  style: { borderRadius: 12, background: '#191c23' },
+                }}
+              >
+                <DialogTitle
+                  id='dialog-title'
+                  sx={{ fontWeight: 'bold', textAlign: 'center' }}
+                >
+                  {/* List of Documents */}
+                </DialogTitle>
+                <DialogContent
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}
+                >
+                  <DialogContentText
+                    id='dialog-description'
+                    sx={{ mb: 2, textAlign: 'center' }}
+                  >
+                    Do you want to Navigate to User details Page
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 1,
+                    paddingBottom: '20px',
+                  }}
+                >
+                  <CustomButton
+                    onClick={() => navigateToDefault()}
+                    variant='contained'
+                    disabled={buttonLoader}
+                  >
+                    {buttonLoader ? (
+                      <Box sx={{ display: 'flex' }}>
+                        <CircularProgress size={21} />
+                      </Box>
+                    ) : (
+                      'Yes'
+                    )}
+                  </CustomButton>
+                  <CustomButton onClick={handleClose} variant='outlined'>
+                    No
+                  </CustomButton>
+                </DialogActions>
+              </Dialog>
               <tbody>
                 {events.map((e, i) => (
                   <tr

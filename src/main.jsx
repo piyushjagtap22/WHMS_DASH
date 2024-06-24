@@ -16,7 +16,7 @@ import {
 import DashboardValidator from './components/DashboardValidator.jsx';
 import SuperAdminValidator from './components/SuperAdminValidator.jsx';
 import LoginValidator from './components/LoginValidator.jsx';
-
+import GraphByDateValidator from './components/GraphByDateValidator.jsx';
 import HomeScreen from './components/Pages/HomeScreen.jsx';
 import LoginScreen from './components/Pages/LoginScreen.jsx';
 // import ImageTesting from './components/Pages/ImageTesting.jsx';
@@ -55,6 +55,7 @@ import UniqueLayout from './components/Pages/UniqueLayout.jsx';
 import TempPage from './components/Pages/TempPage.jsx';
 import SomethingWentWrong from './components/Pages/SomethingWentWrong.jsx';
 import GraphByDate from './components/Pages/GraphByDate.jsx';
+import DefaultPageValidator from './components/DefaultPageValidator.jsx';
 const theme = createTheme(themeSettings('dark'));
 //
 //Firebase auth Initilialization
@@ -62,7 +63,8 @@ const theme = createTheme(themeSettings('dark'));
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path='/' element={<App />}>
+    <Route path='' element={<App />}>
+      <Route path='/' element={<RegisterValidator component={Register} />} />
       <Route
         path='/register'
         element={<RegisterValidator component={Register} />}
@@ -77,8 +79,16 @@ const router = createBrowserRouter(
           path='/dashboard'
           element={<DashboardValidator component={Dashboard} />}
         />
-        <Route path='/Default' element={<DefaultPage/>} />
-        <Route path='/GraphByDate' element={<GraphByDate/>} />
+        <Route
+          path='/Default'
+          element={<DefaultPageValidator component={DefaultPage} />}
+        />
+        <Route
+          path='/GraphByDate'
+          element={<GraphByDateValidator component={GraphByDate} />}
+        />
+        {/* <Route path='/Default' element={<DefaultPage />} /> */}
+        {/* <Route path='/GraphByDate' element={<GraphByDate />} /> */}
       </Route>
       <Route
         path='/superadmin'
