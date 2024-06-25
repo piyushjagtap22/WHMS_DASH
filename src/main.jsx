@@ -54,6 +54,8 @@ const router = createBrowserRouter(
         path='/verify'
         element={<VerifyValidator component={DocumentVerificationScreen} />}
       />
+        <Route path='/GraphByDate' element={<GraphByDate/>} />
+
       <Route path='/Default' element={<DefaultPage/>} />
 
       <Route path='' element={<Layout />}>
@@ -62,7 +64,6 @@ const router = createBrowserRouter(
           path='/dashboard'
           element={<DashboardValidator component={Dashboard} />}
         />
-        <Route path='/GraphByDate' element={<GraphByDate/>} />
       </Route>
       <Route
         path='/superadmin'
