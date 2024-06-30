@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import * as Realm from 'realm-web';
-import { useNavigate } from 'react-router-dom';
-import {
-  getDeviceIds,
-  // docById
-} from '../../src/slices/adminApiSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { useTheme } from '@mui/material';
-import { Toaster, toast } from 'react-hot-toast';
-const app = new Realm.App({ id: 'application-0-vdlpx' });
+import { useTheme } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Toaster, toast } from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import * as Realm from "realm-web";
+import { getDeviceIds } from "../../src/slices/adminApiSlice";
+const app = new Realm.App({ id: "application-0-vdlpx" });
 
 const SensorPage = () => {
   const theme = useTheme();
@@ -23,37 +20,37 @@ const SensorPage = () => {
   const [events, setEvents] = useState([]);
   const handleRowClick = (data) => {
     console.log(data);
-    toast('Hello World', {
+    toast("Hello World", {
       duration: 4000,
-      position: 'top-center',
+      position: "top-center",
 
       // Styling
       style: {
-        left: '0px',
-        right: '0px',
-        display: 'flex',
-        position: 'absolute',
-        transition: 'all 230ms cubic-bezier(0.21, 1.02, 0.73, 1) 0s',
-        transform: 'translateY(34.179px)',
-        top: '0px',
-        justifyContent: 'center',
-        zIndex: '9999',
+        left: "0px",
+        right: "0px",
+        display: "flex",
+        position: "absolute",
+        transition: "all 230ms cubic-bezier(0.21, 1.02, 0.73, 1) 0s",
+        transform: "translateY(34.179px)",
+        top: "0px",
+        justifyContent: "center",
+        zIndex: "9999",
       },
-      className: '',
+      className: "",
 
       // Custom Icon
-      icon: '👏',
+      icon: "👏",
 
       // Change colors of success/error/loading icon
       iconTheme: {
-        primary: '#000',
-        secondary: '#fff',
+        primary: "#000",
+        secondary: "#fff",
       },
 
       // Aria
       ariaProps: {
-        role: 'status',
-        'aria-live': 'polite',
+        role: "status",
+        "aria-live": "polite",
       },
     });
     // toast.success('Hey There', { duration: 4000 });
@@ -75,7 +72,7 @@ const SensorPage = () => {
       </div>
     );
     const result = window.confirm(
-      'Do you want to Navigate to User details Page'
+      "Do you want to Navigate to User details Page"
     );
 
     if (result) {
@@ -91,7 +88,7 @@ const SensorPage = () => {
   const handleRealTimeUpdate = (updatedObject) => {
     setData((prevData) => {
       const updatedData = prevData.map((obj) => {
-        console.log('updatedObject', updatedObject);
+        console.log("updatedObject", updatedObject);
         if (obj._id === updatedObject._id) {
           // If the _id matches, update BreathRateSensor and VentilatonSensor values
 
@@ -115,17 +112,17 @@ const SensorPage = () => {
   };
 
   const [initialTable, setinitialTable] = useState({});
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   // const [user, setUser] = useState();
 
   //Table Searching
   const handleSearchChange = (eve) => {
     setSearchTerm(eve.target.value);
 
-    console.log('THIS IS SEARCH', searchTerm);
+    console.log("THIS IS SEARCH", searchTerm);
 
     if (searchTerm.length >= 2) {
-      console.log('search runinnh');
+      console.log("search runinnh");
       const filteredData = events.filter((row) => {
         return row?.initialUserData?.name
           ?.toUpperCase()
@@ -134,7 +131,7 @@ const SensorPage = () => {
       // const filteredData = row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) || row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
       // setUsers(filteredData);
       setEvents(filteredData);
-      console.log('filtered data', filteredData);
+      console.log("filtered data", filteredData);
     } else {
       // Reset to original data when empty search term
       // console.log('arijit da', initialTable);
@@ -143,9 +140,9 @@ const SensorPage = () => {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Backspace') {
-      console.log('keydown working');
-      setSearchTerm('');
+    if (e.key === "Backspace") {
+      console.log("keydown working");
+      setSearchTerm("");
       // setUsers(initialTable);
       setEvents(initialTable);
     }
@@ -153,12 +150,12 @@ const SensorPage = () => {
 
   const getCellStyle = (stringValue) => {
     const value = parseInt(stringValue, 10) || 0;
-    if (value > 80) {
-      return { color: 'red' };
-    } else if (value > 70) {
-      return { color: 'orange' };
+    if (value > 80 || !value) {
+      return { color: "#FF2424" };
+    } else if (value > 30) {
+      return { color: "#EFBE56" };
     } else {
-      return { color: 'green' };
+      return { color: "#7CD6AB" };
     }
   };
 
@@ -171,8 +168,8 @@ const SensorPage = () => {
 
           const response = await getDeviceIds(token);
           if (response.status === 200) {
-            console.log('Chalao');
-            console.log('Device id data response', response.data);
+            console.log("Chalao");
+            console.log("Device id data response", response.data);
             setEvents(response.data.deviceDocuments);
             setinitialTable(response.data.deviceDocuments);
             const bunnySet = new Set(response.data.devices.flat());
@@ -182,20 +179,20 @@ const SensorPage = () => {
           }
         }
         // setEvents(response.data.deviceDocuments)
-        console.log('list of devices--> Outside', devices);
+        console.log("list of devices--> Outside", devices);
         const user = await app.logIn(Realm.Credentials.anonymous());
         setUser(user);
-        const mongodb = app.currentUser.mongoClient('mongodb-atlas');
+        const mongodb = app.currentUser.mongoClient("mongodb-atlas");
         // const collection = mongodb.db('test').collection('someCollection');
         // const collection = mongodb.db('test').collection('devic/es');
-        const collection = mongodb.db('test').collection('devices');
+        const collection = mongodb.db("test").collection("devices");
 
         const pipeline = [
           {
             $match: {
               $or: [
-                { 'fullDocument.BreathRateSensor.value': 'bunn' },
-                { 'fullDocument.VentilatonSensor.value': 'bunn' },
+                { "fullDocument.BreathRateSensor.value": "bunn" },
+                { "fullDocument.VentilatonSensor.value": "bunn" },
                 // Add more conditions as needed
               ],
             },
@@ -206,16 +203,16 @@ const SensorPage = () => {
         const changeStream = collection.watch(pipeline);
         console.log(changeStream);
         for await (const change of changeStream) {
-          console.log('this is change', change);
+          console.log("this is change", change);
 
-          console.log('list of devices--> --> Inside', devices);
+          console.log("list of devices--> --> Inside", devices);
 
           if (devices.includes(change?.fullDocument?.deviceId)) {
-            console.log('has this value proccing to other things');
+            console.log("has this value proccing to other things");
             setEvents((prevEvents) => {
               // Find the index of the changed document in the events array
-              console.log('this is change', change?.fullDocument?.deviceId);
-              console.log('this is previous', change?.fullDocument?.deviceId);
+              console.log("this is change", change?.fullDocument?.deviceId);
+              console.log("this is previous", change?.fullDocument?.deviceId);
 
               const index = prevEvents.findIndex(
                 (e) => e._id.toString() === change.documentKey._id.toString()
@@ -224,7 +221,7 @@ const SensorPage = () => {
               // If the document is found, update the specific cell content
               if (index !== -1) {
                 const updatedEvents = [...prevEvents];
-                console.log('first', updatedEvents[index]);
+                console.log("first", updatedEvents[index]);
                 updatedEvents[index].heartSensor =
                   change?.fullDocument.heartSensor;
                 updatedEvents[index].BreathRateSensor =
@@ -232,7 +229,7 @@ const SensorPage = () => {
                 updatedEvents[index].VentilatonSensor =
                   change?.fullDocument.VentilatonSensor;
                 // updatedEvents[index] = change.fullDocument;
-                console.log('format kharab ni hone diya', updatedEvents[index]);
+                console.log("format kharab ni hone diya", updatedEvents[index]);
 
                 return updatedEvents;
               } else {
@@ -240,11 +237,11 @@ const SensorPage = () => {
               }
             });
           } else {
-            console.log('Data is Not Relevant');
+            console.log("Data is Not Relevant");
           }
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.error("Error:", error);
       }
     };
 
@@ -252,46 +249,45 @@ const SensorPage = () => {
   }, []);
 
   return (
-    <div className='App'>
+    <div className="App">
       <Toaster toastOptions={{ duration: 4000 }} />
       {!!user && (
-        <div className='App-header'>
+        <div className="App-header">
           <div>
             <table
               style={{
-                width: '100%',
-                height: '100%',
-                backgroundColor: theme.palette.background.alt,
-                borderRadius: '1px',
-                borderCollapse: 'collapse',
+                width: "100%",
+                height: "100%",
+                backgroundColor: theme.palette.secondary[300],
+                borderRadius: "16px",
+                borderCollapse: "collapse",
               }}
             >
               <thead>
                 <tr
                   style={{
                     backgroundColor: theme.palette.secondary[300],
-                    borderRadius: '5px',
-                    border: 'none',
-                    marginBottom: '5px',
+                    borderRadius: "5px",
+                    border: "none",
                   }}
                 >
-                  <td colSpan='5' style={{ borderRadius: '10px' }}>
+                  <td colSpan="5" style={{ borderRadius: "10px" }}>
                     <input
-                      type='text'
+                      type="text"
                       value={searchTerm}
                       onChange={handleSearchChange}
                       onKeyDown={handleKeyDown}
-                      placeholder='Search'
+                      placeholder="Search"
                       style={{
                         backgroundColor: theme.palette.secondary[400],
                         color: theme.palette.secondary.main,
-                        border: '1px solid grey',
-                        borderRadius: '10px',
-                        padding: '0px 5px',
-                        fontSize: '15px',
-                        float: 'right',
-                        lineHeight: '30px',
-                        margin: '8px',
+                        border: "1px solid grey",
+                        borderRadius: "10px",
+                        padding: "0px 5px",
+                        fontSize: "15px",
+                        float: "right",
+                        lineHeight: "30px",
+                        margin: "20px",
                       }}
                     />
                   </td>
@@ -301,46 +297,77 @@ const SensorPage = () => {
                     borderBottom: `1px solid ${theme.palette.secondary[400]}`,
                   }}
                 >
-                  <td>Device</td>
                   <td
                     style={{
-                      borderRight: `1px solid ${theme.palette.secondary[400]}`,
+                      color: "grey",
+                    }}
+                  >
+                    Device
+                  </td>
+                  <td
+                    style={{
+                      color: "grey",
                     }}
                   >
                     Admin Id
                   </td>
-                  <td>Heart Rate</td>
-                  <td>ECG Sensor</td>
-                  <td>BP Sensor</td>
+                  <td
+                    style={{
+                      color: "grey",
+                    }}
+                  >
+                    Heart Rate
+                  </td>
+                  <td
+                    style={{
+                      color: "grey",
+                    }}
+                  >
+                    ECG Sensor
+                  </td>
+                  <td
+                    style={{
+                      color: "grey",
+                    }}
+                  >
+                    BP Sensor
+                  </td>
                 </tr>
               </thead>
               <tbody>
                 {events.map((e, i) => (
                   <tr
                     style={{
-                      cursor: 'pointer',
+                      cursor: "pointer",
                       borderBottom: `1px solid ${theme.palette.secondary[300]}`,
                       color: theme.palette.secondary.main,
                     }}
                     key={i}
                     onClick={() => handleRowClick(e)}
                   >
-                    <td style={{}}>{e?.deviceId}</td>
                     <td
                       style={{
-                        borderRight: `1px solid ${theme.palette.secondary[400]}`,
+                        color: "white",
                       }}
                     >
-                      {e?.initialUserData?.name || '---'}
+                      {e?.deviceId}
+                    </td>
+                    <td
+                      style={{
+                        color: "white",
+                        // borderRight: `1px solid ${theme.palette.secondary[400]}`,
+                      }}
+                    >
+                      {e?.initialUserData?.name || "---"}
                     </td>
                     <td style={{ ...getCellStyle(e?.heartSensor) }}>
-                      {e?.heartSensor || '---'} bpm
+                      {e?.heartSensor || "---"} bpm
                     </td>
                     <td style={{ ...getCellStyle(e?.BreathRateSensor) }}>
-                      {e?.BreathRateSensor || '---'} bpm
+                      {e?.BreathRateSensor || "---"} bpm
                     </td>
                     <td style={{ ...getCellStyle(e?.VentilatonSensor) }}>
-                      {e?.VentilatonSensor || '---'} mmhg
+                      {e?.VentilatonSensor || "---"} mmhg
                     </td>
                   </tr>
                 ))}

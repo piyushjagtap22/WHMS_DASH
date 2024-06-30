@@ -1,6 +1,6 @@
-import React from 'react';
-import { Box, useTheme, useMediaQuery } from "@mui/material";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
+import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 import PrayogikLogo from "../../assets/PrayogikLogo.png";
 
@@ -9,9 +9,7 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
 
   function calculateAverage(lastValues) {
-    var sum = lastValues.reduce(function (acc, value) {
-      return acc + value;
-    }, 0);
+    var sum = lastValues.reduce((acc, value) => acc + value, 0);
     return sum / lastValues.length;
   }
 
@@ -27,11 +25,10 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
     name: name,
     data: data
   }];
-  const options =  {
+  const options = {
     chart: {
       type: 'area',
       stacked: false,
-      height: 350,
       zoom: {
         type: 'x',
         enabled: props.zoomEnabled,
@@ -41,6 +38,13 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
         autoSelected: 'zoom'
       }
     },
+    stroke: {
+      show: true,
+      curve: 'smooth',
+      lineCap: 'butt',
+      width: 2,
+      dashArray: 0, 
+    },
     colors: isAboveMax ? ['#FF5733'] : ['#7CD6AB'],
     dataLabels: {
       enabled: false
@@ -48,40 +52,44 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
     markers: {
       size: 0,
     },
-    title: {
-      text: name,
-      align: 'left'
-    },
     fill: {
       type: 'gradient',
       gradient: {
-        shadeIntensity: 1,
+        shadeIntensity: 0.15,
         inverseColors: false,
         opacityFrom: 0.5,
         opacityTo: 0,
-        stops: [0, 90, 100]
+        stops: [0, 90, 100],
       },
     },
     yaxis: {
       labels: {
-        formatter: function (val) {
-          return val.toFixed(0) + 'M';
-        },
+        formatter: val => `${val.toFixed(0)}M`,
       },
       title: {
-        text: 'Value'
+        text: 'Value',
       },
+      tickAmount: 4,
     },
     xaxis: {
+      type: 'category',
+      labels: {
+        style: {
+          colors: 'rgba(0,0,0,0.4)',
+          fontSize: '12px',
+          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontWeight: 400,
+          cssClass: 'apexcharts-xaxis-label',
+        },
+        rotate: 0,
+      },
       categories: labels,
-      tickAmount: 10,
+      tickAmount: 5,
     },
     tooltip: {
       shared: false,
       y: {
-        formatter: function (val) {
-          return val.toFixed(0) + 'M';
-        }
+        formatter: val => `${val.toFixed(0)}M`,
       }
     }
   }
@@ -89,12 +97,17 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
   const containerStyle = {
     backgroundColor: '#fff',
     color: '#333',
-    padding: '20px',
+    padding: '24px',
     borderRadius: '8px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    width: '100%',
-    maxWidth: '1000px',
-    margin: '0 auto'
+    width: '21cm', // A4 width
+    height: '29.7cm', // A4 height
+    margin: '6px 12px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'start',
+    // overflow: 'hidden', // Ensure content doesn't overflow
+    boxSizing: 'border-box' // Include padding in the element's total width and height
   };
 
   const headerStyle = {
@@ -112,14 +125,18 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
     backgroundColor: '#f9f9f9',
     padding: '1rem',
     borderRadius: '1.55rem',
-    zIndex: 2,
-    height: 'calc(100% - 4rem)' // Adjust height to ensure proper alignment
+    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    // overflow: 'hidden',
+    // width: '100%' // Ensure it takes full width of the container
   };
 
   const infoStyle = {
     marginBottom: '1rem',
     alignItems: 'center',
     justifyContent: 'space-between',
+    display: 'flex'
   };
 
   const titleStyle = {
@@ -128,7 +145,7 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
   };
 
   const separatorStyle = {
-    color: '#ccc'
+    color: '#121212'
   };
 
   const currentWeekStyle = {
@@ -146,20 +163,11 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
           @media print {
             @page {
               size: A4;
-              margin: 10mm;
             }
             .print-header, .print-footer {
               text-align: center;
             }
-            .print-container {
-              width: 90%;
-              height: auto;
-              padding: 10mm;
-              box-sizing: border-box;
-              background-color: #fff;
-              color: #333;
-              page-break-after: avoid;
-            }
+          
           }
         `}
       </style>
@@ -170,8 +178,8 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
         <p>Phone: 9406928294 | Email: harshyadav@gmail.com</p>
         Name - {name}
       </header>
-      <main className="print-container" style={{ height: '100%' }}>
-        <Box style={{ ...boxStyle, height: '20rem' }}>
+      <main className="" >
+        <Box style={boxStyle}>
           <div style={infoStyle}>
             <span style={titleStyle}>{name}</span>
             <span style={separatorStyle}>|</span>
@@ -186,14 +194,13 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
               Current Week
             </span>
           </div>
-          <Box height="100%">
             <ReactApexChart
               options={options}
               series={series}
               type="area"
-              height={250}
+              // height="100%"
+              // width="100%"
             />
-          </Box>
         </Box>
       </main>
       <footer className='print-footer' style={footerStyle}>

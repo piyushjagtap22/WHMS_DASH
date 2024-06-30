@@ -43,8 +43,6 @@ const ApexGraph = React.memo((props) => {
         enabled: props.zoomEnabled,
         autoScaleYaxis: true,
       },
-     
-
       toolbar: {
         show: true,
         tools: {
