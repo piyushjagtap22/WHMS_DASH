@@ -1,6 +1,6 @@
 import { Avatar, Box, Divider, Tab, Tabs, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 
 
@@ -72,14 +72,19 @@ const SidebarNew = (
     isSidebarOpen,
     setIsSidebarOpen,
     isNonMobile,
+    HandleTabChange,
+    setTabValue
   }
 ) => {
   const classes = useStyles();
-  const [tabValue, setTabValue] = React.useState(0);
+
   const AuthUser = useSelector((state) => state.auth.AuthUser);
-  console.log("kirtish checking",AuthUser);
+  const [tabValueSidebar, setTabValueSidebar] = useState(0);
   const handleTabChange = (event, newValue) => {
+    setTabValueSidebar(newValue);
     setTabValue(newValue);
+    
+    localStorage.setItem('tabhistory', newValue);
   };
 
   return (
@@ -88,7 +93,7 @@ const SidebarNew = (
     <Box></Box> :
     <Box className={classes.sidebar}>
       <Tabs
-        value={tabValue}
+        value={tabValueSidebar}
         sx={{
           borderBottom : '1px solid grey',
           "& .MuiTabs-indicator": {
@@ -106,7 +111,7 @@ const SidebarNew = (
         <Tab label="History" className={classes.tab} />
       </Tabs>
       <Divider className={classes.divider} />
-      <Box sx={{padding:'0px'}} hidden={tabValue !== 0} p={2}>
+      <Box sx={{padding:'0px'}} hidden={tabValueSidebar !== 0} p={2}>
       <Box className={classes.row}>
             <Box className={classes.column}>
         <Avatar sx={{height:'80px',width:'80px'}} className={classes.avatar} src="https://s3-alpha-sig.figma.com/img/d2d2/ed85/56ba434e0b18800a9c3c5fd3f621b778?Expires=1719792000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=ewUfYy82O8-mLg0sUT6uFhkoWaDzY9Ek0JK2wOpq5KnmnNUfMbwgi47NPMWOb-PsPaZfchk3kpI9S16pg~C~Eau9xl~Ht7Zjb98E1LXA826kjiOeXvFl8GCLGNCW2zr0nTXHzjLnhONeBbBYC8gwCy0xo5Iac4X0LGl6afy9lgzBm96p5sg5qUaD7XPLQlDMqWMKqdeyalyFBkAkFbqejLHdlr4nH4QdWWqX3xM7euka5if4AZ87XT5~NVuhxX1Zr4N43E1C~d0hxm85E~AOuWiHz3Zc9tNAXhd4J-WjZpGQEKBjOAkeCNZCVjwUDI0fzBdUuITd2qEEq94FizxV9A__" />
@@ -215,7 +220,7 @@ const SidebarNew = (
           </Box>
         </Box>
       </Box>
-      <Box hidden={tabValue !== 1} p={2}>
+      <Box hidden={tabValueSidebar !== 1} p={2}>
         {/* History content goes here */}
       </Box>
     </Box>

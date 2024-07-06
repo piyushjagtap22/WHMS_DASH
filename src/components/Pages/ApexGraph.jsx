@@ -17,14 +17,13 @@ const ApexGraph = React.memo((props) => {
 
   // Dummy data
   const labels = props.timestamp;
-  console.log('apex', props.data.slice(90, 101));
   console.log('apex2', labels);
   console.log(props.zoomEnabled);
   const data = props.data;
   const name = props.name;
   const max = 30;
 
-  const average = calculateAverage(data.slice(-10));
+  const average = calculateAverage(data);
   const isAboveMax = average > max;
 
   const series = [

@@ -479,7 +479,6 @@ const SuperAdminScreen = () => {
                   component='div'
                   sx={{ fontWeight: 'bold' }}
                 >
-                  Devices
                 </Typography>
                 <Table size='small' aria-label='devices'>
                   <TableHead>
