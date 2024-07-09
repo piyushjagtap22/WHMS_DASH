@@ -1,32 +1,29 @@
-
 import React, { useEffect, useRef, useState } from "react";
-
-
 
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { getDeviceIds, getLoc, getSensorDB } from "../../slices/adminApiSlice";
 
-import { Box, MenuItem, TextField, useMediaQuery } from "@mui/material";
+import { Box, Grid, MenuItem, TextField, useMediaQuery } from "@mui/material";
 
-
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from "react-redux";
 
 import * as Realm from "realm-web";
 
 import IconButton from "@mui/material/IconButton";
 
-
 import PowerIcon from "@mui/icons-material/Power";
 
 import Tooltip from "@mui/material/Tooltip";
-
+import { useReactToPrint } from "react-to-print";
 import { useTheme } from "@emotion/react";
 import BodyFigure from "../BodyFigure";
 import CustomButton from "../Button";
 import SidebarNew from "../SideBarNew";
+import GraphByDate from "./GraphByDate";
 import ApexGraph from "./ApexGraph";
 import Navbar from "./Navbar";
+import ApexGraphPrint from "./ApexGraphPrint";
 
 const app = new Realm.App({ id: "application-0-vdlpx" });
 
@@ -36,9 +33,10 @@ var socket;
 
 const DefaultPage = () => {
   const theme = useTheme();
-
-  const navigate = useNavigate();
-
+  const componentRef = useRef();
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
+  });
   const [heartRateTimeStamp, setheartRateTimeStamp] = useState([]);
 
   const [latitude, setLatitude] = useState(23); // Initial latitude
@@ -53,6 +51,8 @@ const DefaultPage = () => {
 
   const [sensorType, setSensorType] = useState("");
 
+  const [tabValue, setTabValue] = useState(0);
+
   const [currentTime, setCurrentTime] = useState(
     new Date().toLocaleTimeString()
   );
@@ -60,26 +60,26 @@ const DefaultPage = () => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString());
-  
+
       if (heartRateTimeStamp.length > 0) {
-        const latestTimestamp = heartRateTimeStamp[heartRateTimeStamp.length - 1];
+        const latestTimestamp =
+          heartRateTimeStamp[heartRateTimeStamp.length - 1];
         const latestTime = new Date(latestTimestamp);
         const currentTime = new Date();
-  
+
         const timeDifference = (currentTime - latestTime) / 1000; // Difference in seconds
-        console.log(currentTime)
-        console.log(latestTime)
-        console.log(timeDifference)
-  
+        console.log(currentTime);
+        console.log(latestTime);
+        console.log(timeDifference);
+
         setConnectionStatus(timeDifference <= 5);
       } else {
         setConnectionStatus(false); // No timestamp available, set connectionStatus to false
       }
     }, 1000);
-  
+
     return () => clearInterval(intervalId);
   }, [heartRateTimeStamp]);
-  
 
   const mapContainerRef = useRef(null);
 
@@ -94,6 +94,9 @@ const DefaultPage = () => {
 
   const [user, setUser] = useState();
 
+  const [graphByDateData, setGraphByDateData] = useState([]);
+  const [graphByDateTimeStamp, setGraphByDateTimeStamp] = useState([]);
+
   const [heartRateData, setHeartRateData] = useState([]);
 
   const [BreathRateSensorData, setBreathRateSensorData] = useState([]);
@@ -103,14 +106,42 @@ const DefaultPage = () => {
   );
 
   const [VentilatonSensorData, setVentilatonSensorData] = useState([]);
-
-  const [GraphDataByDate, setGraphDataByDate] = useState([]);
-
-  const [GraphDataByDateTimestamp, setGraphDataByDateTimestamp] = useState([]);
-
   const [VentilatonSensorTimeStamp, setVentilatonSensorTimeStamp] = useState(
     []
   );
+
+  const [ActivitySensorData, setActivitySensorData] = useState([]);
+  const [ActivitySensorTimeStamp, setActivitySensorTimeStamp] = useState([]);
+
+  const [BPSensorData, setBPSensorData] = useState([]);
+  const [BPSensorTimeStamp, setBPSensorTimeStamp] = useState([]);
+
+  const [CadenceSensorData, setCadenceSensorData] = useState([]);
+  const [CadenceSensorTimeStamp, setCadenceSensorTimeStamp] = useState([]);
+
+  const [OxygenSaturationSensorData, setOxygenSaturationSensorData] = useState(
+    []
+  );
+  const [OxygenSaturationSensorTimeStamp, setOxygenSaturationSensorTimeStamp] =
+    useState([]);
+
+  const [TemperatureSensorData, setTemperatureSensorData] = useState([]);
+  const [TemperatureSensorTimeStamp, setTemperatureSensorTimeStamp] = useState(
+    []
+  );
+
+  const [TidalVolumeSensorData, setTidalVolumeSensorData] = useState([]);
+  const [TidalVolumeSensorTimeStamp, setTidalVolumeSensorTimeStamp] = useState(
+    []
+  );
+
+  const [VentilationSensorData, setVentilationSensorData] = useState([]);
+  const [VentilationSensorTimeStamp, setVentilationSensorTimeStamp] = useState(
+    []
+  );
+
+  const [GraphDataByDate, setGraphDataByDate] = useState([]);
+  const [GraphDataByDateTimestamp, setGraphDataByDateTimestamp] = useState([]);
 
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
@@ -160,16 +191,9 @@ const DefaultPage = () => {
       throw error;
     }
   }
-  const isNonMobile = useMediaQuery('(min-width: 600px)');
-
+  const isNonMobile = useMediaQuery("(min-width: 600px)");
 
   const handleSubmit = () => {
-    console.log("startdate", startDate);
-    console.log("enddate", endDate);
-    console.log("sendor", sensorType);
-
-    console.log("startdate", convertDateToUnix(startDate));
-
     getGraphData()
       .then((data) => {
         if (data && data.length > 0) {
@@ -177,14 +201,8 @@ const DefaultPage = () => {
           const values = data.map((item) => item.value);
 
           const timestamp = data.map((item) => item.timestamp.slice(11, 19));
-          navigate(`/GraphByDate`, {state : {
-            data1 : values,
-            data2 : timestamp,
-            startDate : startDate,
-            endDate : endDate,
-            sensorType: sensorType,
-          }});
-          
+          setGraphByDateData(values);
+          setGraphByDateTimeStamp(timestamp);
 
           setGraphDataByDate(values);
 
@@ -193,8 +211,7 @@ const DefaultPage = () => {
           console.log("shiv", GraphDataByDate);
 
           console.log("shiv", GraphDataByDateTimestamp);
-        }
-        else{
+        } else {
           window.confirm("invalid dates");
           console.log("Invalid dates");
         }
@@ -317,7 +334,6 @@ const DefaultPage = () => {
     // });
 
     devicesdb();
-
 
     // console.log('mapbox setting up');
 
@@ -564,6 +580,7 @@ const DefaultPage = () => {
   };
 
   useEffect(() => {
+    console.log("shivnashu 22", localStorage.getItem("tabhistory"));
     const login = async () => {
       try {
         const id = userData.data.currentUserId;
@@ -573,20 +590,15 @@ const DefaultPage = () => {
 
           const response = await getSensorDB(token, id);
 
-          
-
           if (response.status === 200) {
             console.log("shivanshu", response.data);
 
-                        
             setHeartRateData(
               response.data.heartSensor.map((item) => item.value)
             );
 
             setheartRateTimeStamp(
-              response.data.heartSensor.map((item) =>
-                item.timestamp
-              )
+              response.data.heartSensor.map((item) => item.timestamp)
             );
 
             setBreathRateSensorData(
@@ -594,9 +606,7 @@ const DefaultPage = () => {
             );
 
             setBreathRateSensorTimeStamp(
-              response.data.BreathRateSensor.map((item) =>
-                item.timestamp
-              )
+              response.data.BreathRateSensor.map((item) => item.timestamp)
             );
 
             setVentilatonSensorData(
@@ -604,19 +614,76 @@ const DefaultPage = () => {
             );
 
             setVentilatonSensorTimeStamp(
-              response.data.VentilatonSensor.map((item) =>
-                item.timestamp
-              )
+              response.data.VentilatonSensor.map((item) => item.timestamp)
+            );
+
+            setActivitySensorData(
+              response.data.ActivitySensor.map((item) => item.value)
+            );
+
+            setActivitySensorTimeStamp(
+              response.data.ActivitySensor.map((item) => item.timestamp)
+            );
+
+            setBPSensorData(
+              response.data.BloodPressureSensor.map((item) => item.value)
+            );
+
+            setBPSensorTimeStamp(
+              response.data.BloodPressureSensor.map((item) => item.timestamp)
+            );
+
+            setCadenceSensorData(
+              response.data.CadenceSensor.map((item) => item.value)
+            );
+
+            setCadenceSensorTimeStamp(
+              response.data.CadenceSensor.map((item) => item.timestamp)
+            );
+
+            setOxygenSaturationSensorData(
+              response.data.OxygenSaturationSensor.map((item) => item.value)
+            );
+
+            setOxygenSaturationSensorTimeStamp(
+              response.data.OxygenSaturationSensor.map((item) => item.timestamp)
+            );
+
+            setTemperatureSensorData(
+              response.data.TemperatureSensor.map((item) => item.value)
+            );
+
+            setTemperatureSensorTimeStamp(
+              response.data.TemperatureSensor.map((item) => item.timestamp)
+            );
+
+            setTemperatureSensorData(
+              response.data.TemperatureSensor.map((item) => item.value)
+            );
+
+            setTemperatureSensorTimeStamp(
+              response.data.TemperatureSensor.map((item) => item.timestamp)
+            );
+
+            setTidalVolumeSensorData(
+              response.data.TidalVolumeSensor.map((item) => item.value)
+            );
+
+            setTidalVolumeSensorTimeStamp(
+              response.data.TidalVolumeSensor.map((item) => item.timestamp)
+            );
+
+            setVentilationSensorData(
+              response.data.VentilatonSensor.map((item) => item.value)
+            );
+
+            setVentilationSensorTimeStamp(
+              response.data.VentilatonSensor.map((item) => item.timestamp)
             );
 
             setEvents(response.data.deviceDocuments);
 
-
-
             setinitialTable(response.data.deviceDocuments);
-            const bunnySensorData = useSelector(
-              (state) => response
-            );
           }
         }
 
@@ -641,9 +708,7 @@ const DefaultPage = () => {
             );
 
             setheartRateTimeStamp(
-              change.fullDocument.heartSensor.map((item) =>
-                item.timestamp
-              )
+              change.fullDocument.heartSensor.map((item) => item.timestamp)
             );
 
             setBreathRateSensorData(
@@ -677,188 +742,283 @@ const DefaultPage = () => {
     login();
   }, []);
 
-  console.log('in layout');
+  console.log("in layout");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  console.log("sidebar", userData);
-  const bunnySensorData = useSelector(
-    (state) => userData
-  );
-  
+  console.log("sidebar", userData.data.initialUserData.name);
 
   return (
-
-   
-
-
     <>
       <Navbar />
 
       <Box display="flex" flexDirection="row">
-        <SidebarNew 
-        user={userData   || {}}
-        isNonMobile={isNonMobile}
-        drawerWidth='250px'
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
+        <SidebarNew
+          user={userData || {}}
+          isNonMobile={isNonMobile}
+          drawerWidth="250px"
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          setTabValue={setTabValue}
         />
         <Box flexGrow={1} m="2rem 0rem">
-          <form
-            style={{
-              display: 'flex',
-              gap: '2rem',
-              alignItems: 'center',
-              marginBottom: '1rem',
-              marginLeft: '2rem',
-            }}
-          >
-            <TextField
-              label="Start Date"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              InputLabelProps={{
-                shrink: true,
+          {tabValue === 0 ? (
+            <Box
+              margin="2rem 2rem"
+              display="grid"
+              gridTemplateColumns="repeat(12, 1fr)"
+              gridAutoRows="160px"
+              gap="12px"
+              zIndex={2}
+              sx={{
+                "& > div": {
+                  gridColumn: isNonMediumScreens ? undefined : "span 12",
+                },
               }}
-            />
-
-            <TextField
-              label="End Date"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-
-            <TextField
-              style={{ width: '125px' }}
-              select
-              label="Sensor Type"
-              value={sensorType}
-              onChange={(e) => setSensorType(e.target.value)}
             >
-              <MenuItem value="heartSensor">Heart Rate</MenuItem>
-              <MenuItem value="BloodPressureSensor">Breath Rate</MenuItem>
-              <MenuItem value="VentilatonSensor">VentilatonSensor</MenuItem>
-              <MenuItem value="TidalVolumeSensor">TidalVolumeSensor</MenuItem>
-              <MenuItem value="ActivitySensor">ActivitySensor</MenuItem>
-              <MenuItem value="CadenceSensor">CadenceSensor</MenuItem>
-            </TextField>
-
-            <CustomButton
-              onClick={handleSubmit}
-              variant="contained"
-              // color={theme.palette.secondary[700]}
-            >
-              Submit
-            </CustomButton>
-          </form>
-
-          <Box
-            margin="2rem 2rem"
-            display="grid"
-            gridTemplateColumns="repeat(12, 1fr)"
-            gridAutoRows="160px"
-            gap="12px"
-            zIndex={2}
-            sx={{
-              '& > div': {
-                gridColumn: isNonMediumScreens ? undefined : 'span 12',
-              },
-            }}
-          >
-            <div
-              id="map"
-              className="MuiBox-root css-1nt5awt"
-              ref={mapContainerRef}
-              style={{ height: '300px',margin:0,padding:0 }}
-            />
-
-            {/* ROW 1 */}
-            <ApexGraph
-              name="HeartRate"
+              {" "}
+              <div
+                id="map"
+                className="MuiBox-root css-1nt5awt"
+                ref={mapContainerRef}
+                style={{ height: "300px", margin: 0, padding: 0 }}
+              />
+              <ApexGraph
+                name="Activity"
+                data={ActivitySensorData}
+                timestamp={ActivitySensorTimeStamp}
+                max={90}
+                zoomEnabled={false}
+              />
+              <ApexGraph
+                name="Blood Pressure"
+                data={BPSensorData}
+                timestamp={BPSensorTimeStamp}
+                max={90}
+                zoomEnabled={false}
+              />
+              <ApexGraph
+                name="BreathRateSensor"
+                data={BreathRateSensorData}
+                timestamp={BreathRateSensorTimeStamp}
+                max={90}
+                zoomEnabled={false}
+              />
+              <ApexGraph
+                name="Cadence"
+                data={CadenceSensorData}
+                timestamp={CadenceSensorTimeStamp}
+                max={90}
+                zoomEnabled={false}
+              />
+              <ApexGraph
+                name="Oxygen Saturation"
+                data={OxygenSaturationSensorData}
+                timestamp={OxygenSaturationSensorTimeStamp}
+                max={90}
+                zoomEnabled={false}
+              />
+              <ApexGraph
+                name="Temperature"
+                data={TemperatureSensorData}
+                timestamp={TemperatureSensorTimeStamp}
+                max={90}
+                zoomEnabled={false}
+              />
+              <ApexGraph
+                name="Tidal Volume"
+                data={TidalVolumeSensorData}
+                timestamp={TidalVolumeSensorTimeStamp}
+                max={90}
+                zoomEnabled={false}
+              />
+              <ApexGraph
+                name="BreathRateSensor"
+                data={BreathRateSensorData}
+                timestamp={BreathRateSensorTimeStamp}
+                max={90}
+                zoomEnabled={false}
+              />
+              <ApexGraph
+                name="VentilationSensor"
+                data={VentilatonSensorData}
+                timestamp={VentilatonSensorTimeStamp}
+                max={90}
+                zoomEnabled={false}
+              />
+              <ApexGraph
+              name="Heart Rate"
               data={heartRateData}
               timestamp={heartRateTimeStamp}
               max={90}
               zoomEnabled={false}
-            />
-
-            {/* ROW 2 */}
-            <ApexGraph
-              name="BreathRateSensor"
-              data={BreathRateSensorData}
-              timestamp={BreathRateSensorTimeStamp}
-              max={90}
-              zoomEnabled={false}
-            />
-
-            <ApexGraph
-              name="VentilationSensor"
-              data={VentilatonSensorData}
-              timestamp={VentilatonSensorTimeStamp}
-              max={90}
-              zoomEnabled={false}
-            />
-
-            {/* ROW 3 */}
-            {/* ROW 4 */}
-            {isNonMediumScreens && (
-              <Box>
-                <BodyFigure
-                  sensorData={{
-                    'heart rate': heartRateData[heartRateData.length - 1],
-                    temperature: VentilatonSensorData[VentilatonSensorData.length - 1],
-                    medication: heartRateData[heartRateData.length - 1],
-                    'breath rate': BreathRateSensorData[BreathRateSensorTimeStamp.length - 1],
-                    activity: heartRateData[heartRateData.length - 1],
+            />{" "}
+            </Box>
+          ) : (
+            <>
+              <form
+                style={{
+                  display: "flex",
+                  gap: "2rem",
+                  alignItems: "center",
+                  marginBottom: "1rem",
+                  marginLeft: "2rem",
+                }}
+              >
+                <TextField
+                  label="Start Date"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  InputLabelProps={{
+                    shrink: true,
                   }}
                 />
 
-                <Tooltip
-                  title={`Connection Status: ${currentTime} and ${
-                    heartRateTimeStamp[heartRateTimeStamp.length - 1]
-                  }`}
-                  arrow
-                  placement="left-end"
-                  style={{
-                    fontSize: '15',
-                    position: 'fixed',
-                    top: '6.2rem',
-                    right: '4rem',
-                    padding: '0rem 1rem 0rem 0.5rem',
-                    border: connectionStatus
-                      ? '2px solid rgba(124, 214, 171, 0.3)'
-                      : '2px solid rgba(255, 36, 36, 0.3)',
-                    backgroundColor: connectionStatus
-                      ? 'rgba(124, 214, 171, 0.1)'
-                      : 'rgba(255, 36, 36, 0.1)',
-                    borderRadius: '50px',
-                    zIndex: 3,
+                <TextField
+                  label="End Date"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  InputLabelProps={{
+                    shrink: true,
                   }}
+                />
+
+                <TextField
+                  style={{ width: "125px" }}
+                  select
+                  label="Sensor Type"
+                  value={sensorType}
+                  onChange={(e) => setSensorType(e.target.value)}
                 >
-                  <IconButton>
-                    <PowerIcon
-                      style={{
-                        color: connectionStatus
-                          ? 'rgba(124, 214, 171, 0.9)'
-                          : 'rgba(255, 36, 36, 0.9)',
-                      }}
+                  <MenuItem value="heartSensor">Heart Rate</MenuItem>
+                  <MenuItem value="BloodPressureSensor">Breath Rate</MenuItem>
+                  <MenuItem value="VentilatonSensor">VentilatonSensor</MenuItem>
+                  <MenuItem value="TidalVolumeSensor">
+                    TidalVolumeSensor
+                  </MenuItem>
+                  <MenuItem value="ActivitySensor">ActivitySensor</MenuItem>
+                  <MenuItem value="CadenceSensor">CadenceSensor</MenuItem>
+                </TextField>
+
+                <CustomButton
+                  onClick={handleSubmit}
+                  variant="contained"
+                  // color={theme.palette.secondary[700]}
+                >
+                  Submit
+                </CustomButton>
+              </form>
+              <Grid container>
+                <Grid item></Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  container
+                  direction="column"
+                  alignItems="flex-start"
+                >
+                  <div style={{ padding: "20px", width: "100%" }}>
+                    <ApexGraphPrint
+                      name={userData.data.initialUserData.name}
+                      email={userData.data.initialUserData.email}
+                      phone={userData.data.initialUserData.phone}
+                      data={graphByDateData}
+                      timestamp={graphByDateTimeStamp}
+                      max={90}
+                      zoomEnabled={true}
+                      ref={componentRef}
+                      startDate={startDate}
+                      endDate={endDate}
+                      sensorType={sensorType}
                     />
-                  </IconButton>
-                  <span
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        marginTop: "20px",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <button
+                        onClick={handlePrint}
+                        style={{
+                          padding: "10px 20px",
+                          fontSize: "1rem",
+                          color: "#121318",
+                          backgroundColor: "#7CD6AB",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          transition: "background-color 0.3s ease",
+                        }}
+                      >
+                        Print this out!
+                      </button>
+                    </div>
+                  </div>
+                </Grid>
+              </Grid>
+            </>
+          )}
+
+          {isNonMediumScreens && tabValue === 0 && (
+            <Box>
+              <BodyFigure
+                sensorData={{
+                  "heart rate": heartRateData[heartRateData.length - 1],
+                  temperature:
+                    VentilatonSensorData[VentilatonSensorData.length - 1],
+                  medication: heartRateData[heartRateData.length - 1],
+                  "breath rate":
+                    BreathRateSensorData[BreathRateSensorTimeStamp.length - 1],
+                  activity: heartRateData[heartRateData.length - 1],
+                }}
+              />
+
+              <Tooltip
+                title={`Connection Status: ${currentTime} and ${
+                  heartRateTimeStamp[heartRateTimeStamp.length - 1]
+                }`}
+                arrow
+                placement="left-end"
+                style={{
+                  fontSize: "15",
+                  position: "fixed",
+                  top: "6.2rem",
+                  right: "4rem",
+                  padding: "0rem 1rem 0rem 0.5rem",
+                  border: connectionStatus
+                    ? "2px solid rgba(124, 214, 171, 0.3)"
+                    : "2px solid rgba(255, 36, 36, 0.3)",
+                  backgroundColor: connectionStatus
+                    ? "rgba(124, 214, 171, 0.1)"
+                    : "rgba(255, 36, 36, 0.1)",
+                  borderRadius: "50px",
+                  zIndex: 3,
+                }}
+              >
+                <IconButton>
+                  <PowerIcon
                     style={{
                       color: connectionStatus
-                        ? 'rgba(124, 214, 171, 0.9)'
-                        : 'rgba(255, 36, 36, 0.9)',
+                        ? "rgba(124, 214, 171, 0.9)"
+                        : "rgba(255, 36, 36, 0.9)",
                     }}
-                  >
-                    {connectionStatus ? 'Connected' : 'Disconnected'}
-                  </span>
-                </Tooltip>
-              </Box>
-            )}
-          </Box>
+                  />
+                </IconButton>
+                <span
+                  style={{
+                    color: connectionStatus
+                      ? "rgba(124, 214, 171, 0.9)"
+                      : "rgba(255, 36, 36, 0.9)",
+                  }}
+                >
+                  {connectionStatus ? "Connected" : "Disconnected"}
+                </span>
+              </Tooltip>
+            </Box>
+          )}
         </Box>
       </Box>
     </>

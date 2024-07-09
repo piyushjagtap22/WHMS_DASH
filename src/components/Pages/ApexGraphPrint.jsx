@@ -17,6 +17,9 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
   const data = props.data;
   const name = props.name;
   const max = 30;
+  const email = props.email;
+  const phone = props.phone;
+  const sensorType = props.sensorType;
 
   const average = calculateAverage(data.slice(-10));
   const isAboveMax = average > max;
@@ -175,13 +178,13 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
         <img src={PrayogikLogo} height="80rem" alt="Prayogik Logo" />
         <h1>Prodyogik Solutions</h1>
         <p>Address Line 1, Address Line 2, City, Country</p>
-        <p>Phone: 9406928294 | Email: harshyadav@gmail.com</p>
+        <p>Phone: {phone} | Email: {email}</p>
         Name - {name}
       </header>
       <main className="" >
         <Box style={boxStyle}>
           <div style={infoStyle}>
-            <span style={titleStyle}>{name}</span>
+            <span style={titleStyle}>{sensorType}</span>
             <span style={separatorStyle}>|</span>
             <span style={currentWeekStyle}>
               <FiberManualRecordIcon
