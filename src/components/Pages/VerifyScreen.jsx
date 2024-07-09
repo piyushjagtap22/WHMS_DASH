@@ -8,6 +8,7 @@ import '../../css/theme.css';
 import { setToken } from '../../slices/authSlice';
 import { verify, login } from '../../slices/usersApiSlice';
 import Loader from '../Loader';
+import CustomButton from '../Button';
 
 const VerifyScreen = () => {
   const [otp, setOtp] = useState('');
@@ -98,14 +99,14 @@ const VerifyScreen = () => {
             </Form.Group>
 
             {isLoading && <Loader />}
-            <Button
+            <CustomButton
               type='submit'
               variant='outline-primary'
               className='w-100 mt-3 py-3'
             >
               Submit
-            </Button>
-            <Button
+            </CustomButton>
+            <CustomButton
               disabled={isButtonDisabled}
               onClick={handleButtonClick}
               variant='outline-primary'
@@ -114,7 +115,7 @@ const VerifyScreen = () => {
               {isButtonDisabled
                 ? `Wait ${timer} seconds`
                 : 'Resend Verification Code'}
-            </Button>
+            </CustomButton>
           </Form>
         </FormContainer>
       )}

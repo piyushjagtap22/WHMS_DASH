@@ -1,26 +1,40 @@
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { Button, Container, TextField, Typography } from '@mui/material';
-import axios from 'axios';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import React, { useEffect, useRef, useState } from 'react';
-import { Toaster } from 'react-hot-toast';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { auth } from '../../firebase.js';
 import {
   setAuthState,
   setAuthUser,
   setMongoUser,
 } from '../../slices/authSlice';
+import { setLoading } from '../../slices/loadingSlice';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
+import { auth } from '../../firebase.js';
 import Loader from '../Loader.jsx';
+import React, { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
+import {
+  Box,
+  CircularProgress,
+  Button,
+  Container,
+  TextField,
+  Typography,
+} from '@mui/material';
 
-
-
+import { Toaster, toast } from 'react-hot-toast';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { useDispatch, useSelector } from 'react-redux';
+import { initializeMongoUser } from '../../slices/authSlice';
+import CustomButton from '../Button.jsx';
+import store from '../../store';
 const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
 
-const DocumentVerificationScreen = () => {
+const DocumentVerificationScreen = (props) => {
+  console.log(props.mongoUser);
   const [file, setFile] = useState(null);
+  const [orgName, setOrgName] = useState(''); // State for organization name
+  const [deptName, setDeptName] = useState(''); // State for department name
   const fileInputRef = useRef(null);
+
+  const [buttonLoader, setButtonLoader] = useState(false);
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
@@ -28,49 +42,28 @@ const DocumentVerificationScreen = () => {
   const mongoUser = useSelector((state) => state.auth.MongoUser);
   const [docUploadedSuccess, setDocUploadedSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [docUploaded, setDocUploaded] = useState('load');
+
   const handleLogout = async () => {
     try {
-      console.log('0');
-      // dispatch(setLoading(true));
-
-      // await delay(1000);
-      console.log('1');
       await signOut(auth);
-      console.log('2');
-      // Listen for changes in authentication state
       const unsubscribe = onAuthStateChanged(auth, (user) => {
         if (!user) {
-          // User is successfully signed out, navigate to '/register'
           dispatch(setAuthState('/register'));
           dispatch(setAuthUser(null));
           dispatch(setMongoUser(null));
-          // dispatch(setLoading(true));
-          console.log('Navigating to /register');
-
-          // Use navigate to trigger navigation
           navigate('/register');
-
-          // Make sure this log is reached
-          console.log('Navigation completed');
-
-          unsubscribe(); // Unsubscribe to avoid further callbacks
+          unsubscribe();
         }
       });
     } catch (error) {
       console.log(error);
-    } finally {
-      // dispatch(setLoading(false)); // Hide loader when operation completes
     }
   };
 
   useEffect(() => {
-    console.log('Doc Verification');
-    console.log('docUploaded:', docUploaded);
-    console.log('mongoUser:', mongoUser);
     if (mongoUser?.doc_uploaded === true) {
       setDocUploadedSuccess(true);
       console.log('if');
@@ -89,13 +82,20 @@ const DocumentVerificationScreen = () => {
 
   const handleUpload = async () => {
     try {
-      console.log(token);
-      console.log(authUser);
+      // Check if Organization and Department are provided
+      if (!orgName || !deptName) {
+        toast.error('Please fill in all required fields');
+        return;
+      }
+
+      setButtonLoader(true);
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('orgName', orgName); // Include orgName in FormData
+      formData.append('deptName', deptName); // Include deptName in FormData
 
       const response = await axios.post(
-        `${ENDPOINT}/api/admin/uploadDocument`,
+        `${ENDPOINT}/api/profile/uploadDocument`,
         formData,
         {
           headers: {
@@ -104,26 +104,20 @@ const DocumentVerificationScreen = () => {
           },
         }
       );
-
       console.log(response.data.message);
       if (response.data.message === 'File uploaded successfully') {
         setDocUploadedSuccess(true);
         setDocUploaded('yes');
       }
     } catch (error) {
-      console.error('Error uploading file:', error.response?.data?.message);
+      console.log(error.response);
+      if (error.response.status === 400) {
+        toast.error('Please attach document');
+      }
+    } finally {
+      setButtonLoader(false);
     }
   };
-
-  // const handleSubmit = async () => {
-  //   if (token) {
-  //     await store.dispatch(initializeMongoUser(token));
-  //   }
-  // }
-
-  // if (loading) {
-  //   return null;
-  // }
 
   return (
     <>
@@ -132,10 +126,15 @@ const DocumentVerificationScreen = () => {
         style={{
           textAlign: 'center',
           padding: '50px',
-          backgroundColor: 'transparent',
+          backgroundColor: 'rgb(18, 19, 24)',
           color: 'white',
           marginTop: '3rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
           borderRadius: '1rem',
+          height: '100vh', // Take full viewport height
         }}
       >
         <Toaster toastOptions={{ duration: 4000 }} />
@@ -158,7 +157,7 @@ const DocumentVerificationScreen = () => {
             >
               Verification in Progress ..... Wait till admin verifies your doc
             </Typography>
-            <Button
+            <CustomButton
               onClick={handleLogout}
               style={{
                 backgroundColor: '#7CD6AB',
@@ -169,7 +168,7 @@ const DocumentVerificationScreen = () => {
               fullWidth
             >
               Not You, Sign in With Different Account
-            </Button>
+            </CustomButton>
           </>
         ) : (
           <>
@@ -184,12 +183,14 @@ const DocumentVerificationScreen = () => {
 
             <div style={{ width: '70%', margin: 'auto', textAlign: 'left' }}>
               <TextField
-                label='Organization*'
+                label='Organization'
                 variant='outlined'
                 fullWidth
                 style={{ margin: '15px 0' }}
                 InputLabelProps={{ style: { color: 'grey' } }}
-                // value={''}
+                value={orgName}
+                onChange={(e) => setOrgName(e.target.value)}
+                required // Make Organization field required
               />
 
               <TextField
@@ -198,6 +199,9 @@ const DocumentVerificationScreen = () => {
                 fullWidth
                 style={{ margin: '15px 0' }}
                 InputLabelProps={{ style: { color: 'grey' } }}
+                value={deptName}
+                onChange={(e) => setDeptName(e.target.value)}
+                required // Make Department field required
               />
 
               <Typography
@@ -228,29 +232,33 @@ const DocumentVerificationScreen = () => {
                   <CloudUploadIcon
                     style={{ fontSize: '3rem', color: '#7CD6AB' }}
                   />
-                  <Typography m='10px' variant='body2' style={{ color: 'grey' }}>
+                  <Typography
+                    m='10px'
+                    variant='body2'
+                    style={{ color: 'grey' }}
+                  >
                     Click or drag file to this area to upload
                   </Typography>
-                  <label style={
-                    {
-                      padding:"5px 15px",
-                      border:'1px solid #7cd6ab',
-                      borderRadius:'4px',
-                      color:'#7cd6ab'
-                    }
-                  }>
-                  <input
-                  type='file'
-                  accept='.jpg, .jpeg, .png, .pdf'
-                  style={{ 
-                    display:'none',
-                    background:'#7CD6AB',
-                    color:'#121318',
-                    
-                   }}
-                  onChange={handleFileChange}
-                />
-                  choose</label>
+                  <label
+                    style={{
+                      padding: '5px 15px',
+                      border: '1px solid #7cd6ab',
+                      borderRadius: '4px',
+                      color: '#7cd6ab',
+                    }}
+                  >
+                    <input
+                      type='file'
+                      accept='.jpg, .jpeg, .png, .pdf'
+                      style={{
+                        display: 'none',
+                        background: '#7CD6AB',
+                        color: '#121318',
+                      }}
+                      onChange={handleFileChange}
+                    />
+                    choose
+                  </label>
                 </div>
                 <Typography
                   variant='body2'
@@ -258,8 +266,8 @@ const DocumentVerificationScreen = () => {
                 >
                   Formats accepted are jpg, jpeg, png, and PDF
                 </Typography>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <Button
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <CustomButton
                     variant='outlined'
                     style={{
                       color: '#7CD6AB',
@@ -268,8 +276,8 @@ const DocumentVerificationScreen = () => {
                     }}
                   >
                     Cancel
-                  </Button>
-                  <Button
+                  </CustomButton>
+                  <CustomButton
                     style={{
                       backgroundColor: '#7CD6AB',
                       color: '#121318',
@@ -277,34 +285,36 @@ const DocumentVerificationScreen = () => {
                     }}
                     onClick={handleUpload}
                   >
-                    Upload
-                  </Button>
+                    {buttonLoader ? (
+                      <Box sx={{ display: 'flex' }}>
+                        <CircularProgress size={22} />
+                      </Box>
+                    ) : (
+                      'Upload'
+                    )}
+                  </CustomButton>
                 </div>
               </div>
-              <Button
-                type='submit'
+              <div
                 style={{
-                  backgroundColor: '#7CD6AB',
-                  color: '#121318',
-                  margin: '20px 0',
-                  padding: '0.8rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
                 }}
-                fullWidth
               >
-                Submit
-              </Button>
-              <Button
-                onClick={handleLogout}
-                style={{
-                  backgroundColor: '#7CD6AB',
-                  color: '#121318',
-                  margin: '20px 0',
-                  padding: '0.8rem',
-                }}
-                fullWidth
-              >
-                Not You, Sign in With Different Account
-              </Button>
+                <CustomButton
+                  onClick={handleLogout}
+                  style={{
+                    backgroundColor: '#7CD6AB',
+                    color: '#121318',
+                    margin: '10px 0',
+                    padding: '0.8rem',
+                    width: '100%', // Ensure button takes full width
+                  }}
+                >
+                  Not You, Sign in With Different Account
+                </CustomButton>
+              </div>
             </div>
           </>
         )}
