@@ -36,7 +36,6 @@ ChartJS.register(
 
 const app = new Realm.App({ id: 'sensor_realtimedb-ujgdc' });
 import { useDispatch, useSelector } from 'react-redux';
-import { Toast } from 'react-bootstrap';
 
 const SensorPage = lazy(() => import('../sensorPage'));
 const Dashboard = () => {

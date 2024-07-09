@@ -21,7 +21,7 @@ import '../css/BodyFigure.css';
           { id: 1, type: 'Heart Rate', icon: <FavoriteIcon fontSize="small" />, position: { top: '25%', left: '55%' } },
           { id: 2, type: 'Temperature', icon: <ThermostatIcon fontSize="small" />, position: { top: '25%', left: '40%' } },
           { id: 3, type: 'Medication', icon: <MedicationIcon fontSize="small" />, position: { top: '30%', left: '35%' } },
-          { id: 4, type: 'Breath Rate', icon: <AirIcon fontSize="small" />, position: { top: '30%', left: '45%' } },
+          { id: 4, type: 'Breath Rate', icon: <AirIcon fontSize="small" />, position: { top: '30%', left: '48%' } },
           { id: 5, type: 'Activity', icon: <DirectionsRunIcon fontSize="small" />, position: { top: '55%', left: '60%' } },
         ];
 

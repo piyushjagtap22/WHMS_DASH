@@ -1,12 +1,17 @@
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { Button, Container, TextField, Typography } from '@mui/material';
+import axios from 'axios';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import React, { useEffect, useRef, useState } from 'react';
+import { Toaster } from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { auth } from '../../firebase.js';
 import {
   setAuthState,
   setAuthUser,
   setMongoUser,
 } from '../../slices/authSlice';
-import { setLoading } from '../../slices/loadingSlice';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
-import { auth } from '../../firebase.js';
 import Loader from '../Loader.jsx';
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
@@ -25,6 +30,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { initializeMongoUser } from '../../slices/authSlice';
 import CustomButton from '../Button.jsx';
 import store from '../../store';
+
 const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
 
 const DocumentVerificationScreen = (props) => {
@@ -42,6 +48,7 @@ const DocumentVerificationScreen = (props) => {
   const mongoUser = useSelector((state) => state.auth.MongoUser);
   const [docUploadedSuccess, setDocUploadedSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [docUploaded, setDocUploaded] = useState('load');
@@ -126,7 +133,7 @@ const DocumentVerificationScreen = (props) => {
         style={{
           textAlign: 'center',
           padding: '50px',
-          backgroundColor: 'rgb(18, 19, 24)',
+          backgroundColor: 'transparent',
           color: 'white',
           marginTop: '3rem',
           display: 'flex',
@@ -232,15 +239,29 @@ const DocumentVerificationScreen = (props) => {
                   <CloudUploadIcon
                     style={{ fontSize: '3rem', color: '#7CD6AB' }}
                   />
-                  <Typography variant='body2' style={{ color: 'grey' }}>
+                  <Typography m='10px' variant='body2' style={{ color: 'grey' }}>
                     Click or drag file to this area to upload
                   </Typography>
+                  <label style={
+                    {
+                      padding:"5px 15px",
+                      border:'1px solid #7cd6ab',
+                      borderRadius:'4px',
+                      color:'#7cd6ab'
+                    }
+                  }>
                   <input
-                    type='file'
-                    accept='.jpg, .jpeg, .png, .pdf'
-                    style={{ display: '' }}
-                    onChange={handleFileChange}
-                  />
+                  type='file'
+                  accept='.jpg, .jpeg, .png, .pdf'
+                  style={{ 
+                    display:'none',
+                    background:'#7CD6AB',
+                    color:'#121318',
+                    
+                   }}
+                  onChange={handleFileChange}
+                />
+                  choose</label>
                 </div>
                 <Typography
                   variant='body2'

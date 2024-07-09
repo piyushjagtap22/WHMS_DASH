@@ -577,7 +577,7 @@ word-wrap: break-word
 }
 
 .print-container {
-  width: 310mm;
+  width: 240mm;
   /* height: 297mm; A4 height */
   padding: 20mm;
   box-sizing: border-box;

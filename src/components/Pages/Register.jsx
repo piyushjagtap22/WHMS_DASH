@@ -286,7 +286,7 @@ const Register = () => {
               <CustomButton
                 type='submit'
                 style={
-                  showOtpScreen || buttonLoader
+                  (!phoneNumber || !termsChecked) ||  (showOtpScreen && !otp)
                     ? styles.disabledButton
                     : styles.submitButton
                 }
@@ -388,7 +388,8 @@ const styles = {
   disabledButton: {
     backgroundColor: '#ccc',
     color: '#121318',
-    margin: '30px 0',
+    marginTop: '101px',
+    marginBottom: '30px',
     padding: '0.8rem',
     fontWeight: 'bold',
   },

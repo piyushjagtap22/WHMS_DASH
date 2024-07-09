@@ -17,6 +17,7 @@ import IconButton from '@mui/material/IconButton';
 import PowerIcon from '@mui/icons-material/Power';
 
 import Tooltip from '@mui/material/Tooltip';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { useTheme } from '@emotion/react';
 import { Button } from 'react-bootstrap';
@@ -25,7 +26,21 @@ import ApexGraph from './ApexGraph';
 
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 
-const ENDPOINT = 'http://localhost:3000';
+
+import PowerIcon from "@mui/icons-material/Power";
+
+import Tooltip from "@mui/material/Tooltip";
+
+import { useTheme } from "@emotion/react";
+import BodyFigure from "../BodyFigure";
+import CustomButton from "../Button";
+import SidebarNew from "../SideBarNew";
+import ApexGraph from "./ApexGraph";
+import Navbar from "./Navbar";
+
+const app = new Realm.App({ id: "application-0-vdlpx" });
+
+const ENDPOINT = "http://localhost:3000";
 
 var socket;
 
@@ -155,6 +170,8 @@ const DefaultPage = () => {
       throw error;
     }
   }
+  const isNonMobile = useMediaQuery('(min-width: 600px)');
+
 
   const handleSubmit = () => {
     console.log('startdate', startDate);
@@ -312,6 +329,7 @@ const DefaultPage = () => {
 
     devicesdb();
 
+
     // console.log('mapbox setting up');
 
     // Load Mapbox script dynamically
@@ -388,17 +406,13 @@ const DefaultPage = () => {
             },
           });
 
-          // Update the source from the API every 2 seconds.
-
           const updateSource = setInterval(async () => {
             // const geojson = await getLocation(updateSource);
-
-            map.getSource('iss').setData(geojson);
+            map.getSource("iss").setData(geojson);
           }, 5000);
 
           async function getLocation(updateSource) {
             // Make a GET request to the API and return the location of the ISS.
-
             try {
               // const myHeaders = new Headers();
 
@@ -580,9 +594,12 @@ const DefaultPage = () => {
 
           const response = await getSensorDB(token, id);
 
+          
+
           if (response.status === 200) {
             console.log('shivanshu', response.data);
 
+                        
             setHeartRateData(
               response.data.heartSensor.map((item) => item.value)
             );
@@ -609,7 +626,12 @@ const DefaultPage = () => {
 
             setEvents(response.data.deviceDocuments);
 
+
+
             setinitialTable(response.data.deviceDocuments);
+            const bunnySensorData = useSelector(
+              (state) => response
+            );
           }
         }
 
@@ -668,259 +690,191 @@ const DefaultPage = () => {
     login();
   }, []);
 
+  console.log('in layout');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  console.log("sidebar", userData);
+  const bunnySensorData = useSelector(
+    (state) => userData
+  );
+  
+
   return (
+
+   
+
+
     <>
-      {/* <UniqueLayout data={userData} />x */}
 
-      <Box m='2rem 2.5rem'>
-        <FlexBetween></FlexBetween>
+      <Navbar />
 
-        <form
-          style={{
-            display: 'flex',
-            gap: '2rem',
-            alignItems: 'center',
-            marginBottom: '2rem',
-            marginLeft: '2rem',
-          }}
-        >
-          <TextField
-            label='Start Date'
-            type='date'
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
+      <Box display="flex" flexDirection="row">
+        <SidebarNew 
+        user={userData   || {}}
+        isNonMobile={isNonMobile}
+        drawerWidth='250px'
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        />
+        <Box flexGrow={1} m="2rem 0rem">
+          <form
+            style={{
+              display: 'flex',
+              gap: '2rem',
+              alignItems: 'center',
+              marginBottom: '1rem',
+              marginLeft: '2rem',
             }}
-          />
+          >
+            <TextField
+              label="Start Date"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
 
-          <TextField
-            label='End Date'
-            type='date'
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
+            <TextField
+              label="End Date"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+
+            <TextField
+              style={{ width: '125px' }}
+              select
+              label="Sensor Type"
+              value={sensorType}
+              onChange={(e) => setSensorType(e.target.value)}
+            >
+              <MenuItem value="heartSensor">Heart Rate</MenuItem>
+              <MenuItem value="BloodPressureSensor">Breath Rate</MenuItem>
+              <MenuItem value="VentilatonSensor">VentilatonSensor</MenuItem>
+              <MenuItem value="TidalVolumeSensor">TidalVolumeSensor</MenuItem>
+              <MenuItem value="ActivitySensor">ActivitySensor</MenuItem>
+              <MenuItem value="CadenceSensor">CadenceSensor</MenuItem>
+            </TextField>
+
+            <CustomButton
+              onClick={handleSubmit}
+              variant="contained"
+              // color={theme.palette.secondary[700]}
+            >
+              Submit
+            </CustomButton>
+          </form>
+
+          <Box
+            margin="2rem 2rem"
+            display="grid"
+            gridTemplateColumns="repeat(12, 1fr)"
+            gridAutoRows="160px"
+            gap="12px"
+            zIndex={2}
+            sx={{
+              '& > div': {
+                gridColumn: isNonMediumScreens ? undefined : 'span 12',
+              },
             }}
-          />
-
-          <TextField
-            style={{ width: '125px' }}
-            select
-            label='Sensor Type'
-            value={sensorType}
-            onChange={(e) => setSensorType(e.target.value)}
           >
-            <MenuItem value='heartSensor'>Heart Rate</MenuItem>
-            <MenuItem value='BloodPressureSensor'>Breath Rate</MenuItem>
-            <MenuItem value='VentilatonSensor'>VentilatonSensor</MenuItem>
-            <MenuItem value='TidalVolumeSensor'>TidalVolumeSensor</MenuItem>
-            <MenuItem value='ActivitySensor'>ActivitySensor</MenuItem>
-            <MenuItem value='CadenceSensor'>CadenceSensor</MenuItem>
-          </TextField>
+            <div
+              id="map"
+              className="MuiBox-root css-1nt5awt"
+              ref={mapContainerRef}
+              style={{ height: '300px',margin:0,padding:0 }}
+            />
 
-          <Button
-            onClick={handleSubmit}
-            variant='contained'
-            color={theme.palette.secondary[700]}
-          >
-            Submit
-          </Button>
-        </form>
+            {/* ROW 1 */}
+            <ApexGraph
+              name="HeartRate"
+              data={heartRateData}
+              timestamp={heartRateTimeStamp}
+              max={90}
+              zoomEnabled={false}
+            />
 
-        <Box
-          margin='2rem 2rem'
-          display='grid'
-          gridTemplateColumns='repeat(12, 1fr)'
-          gridAutoRows='160px'
-          gap='16px'
-          zIndex={2}
-          sx={{
-            '& > div': {
-              gridColumn: isNonMediumScreens ? undefined : 'span 12',
-            },
-          }}
-        >
-          {/* <ApexGraph
-            name={sensorType}
-            data={GraphDataByDate}
-            timestamp={GraphDataByDateTimestamp}
-            max={90}
-            zoomEnabled={true}
-          /> */}
+            {/* ROW 2 */}
+            <ApexGraph
+              name="BreathRateSensor"
+              data={BreathRateSensorData}
+              timestamp={BreathRateSensorTimeStamp}
+              max={90}
+              zoomEnabled={false}
+            />
 
-          <div
-            id='map'
-            className='MuiBox-root css-1nt5awt'
-            ref={mapContainerRef}
-            style={{ height: '300px' }}
-          />
+            <ApexGraph
+              name="VentilationSensor"
+              data={VentilatonSensorData}
+              timestamp={VentilatonSensorTimeStamp}
+              max={90}
+              zoomEnabled={false}
+            />
 
-          {/* ROW 1 */}
+            {/* ROW 3 */}
+            {/* ROW 4 */}
+            {isNonMediumScreens && (
+              <Box>
+                <BodyFigure
+                  sensorData={{
+                    'heart rate': heartRateData[heartRateData.length - 1],
+                    temperature: VentilatonSensorData[VentilatonSensorData.length - 1],
+                    medication: heartRateData[heartRateData.length - 1],
+                    'breath rate': BreathRateSensorData[BreathRateSensorTimeStamp.length - 1],
+                    activity: heartRateData[heartRateData.length - 1],
+                  }}
+                />
 
-          <ApexGraph
-            name={'HeartRate'}
-            data={heartRateData}
-            timestamp={heartRateTimeStamp}
-            max={90}
-            zoomEnabled={false}
-          />
-
-          {/* ROW 2 */}
-
-          <ApexGraph
-            name={'BreathRateSensor'}
-            data={BreathRateSensorData}
-            timestamp={BreathRateSensorTimeStamp}
-            max={90}
-            zoomEnabled={false}
-          />
-
-          <ApexGraph
-            name={'VentilationSensor'}
-            data={VentilatonSensorData}
-            timestamp={VentilatonSensorTimeStamp}
-            max={90}
-            zoomEnabled={false}
-          />
-
-          {/* ROW 3 */}
-
-          {/* <Graph
-
-            name={'Testing'}
-
-            data={VentilatonSensorData}
-
-            timestamp={VentilatonSensorTimeStamp}
-
-            max={90}
-
-          /> */}
-
-          {/* <Graph data={heartRateData}/> */}
-
-          {/* ROW 4 */}
-
-          {isNonMediumScreens && (
-            <Box>
-              <BodyFigure
-                sensorData={{
-                  'heart rate': heartRateData[heartRateData.length - 1],
-                  temperature:
-                    VentilatonSensorData[VentilatonSensorData.length - 1],
-                  medication: heartRateData[heartRateData.length - 1],
-                  'breath rate': BreathRateSensorData[BreathRateSensorData - 1],
-                  activity: heartRateData[heartRateData.length - 1],
-                }}
-              />
-
-              {/*
-
-              <Tooltip
-                title={`Heart rate : ${heartRateData[39]}`}
-                arrow
-                placement="right-end"
-                style={{
-                  fontSize: "15",
-
-                  position: "fixed",
-
-                  top: "13rem",
-
-                  right: 240,
-
-                  zIndex: 3,
-                }}
-              >
-                <IconButton>
-                  <FavoriteRoundedIcon />
-                </IconButton>
-              </Tooltip>
-
- */}
-
-              {/* Pill shape to display connection status*/}
-
-              <Tooltip
-                title={`Connection Status: ${currentTime} and ${
-                  heartRateTimeStamp[heartRateTimeStamp.length - 1]
-                }`}
-                arrow
-                placement='left-end'
-                style={{
-                  fontSize: '15',
-                  position: 'fixed',
-                  top: '6.2rem',
-                  right: '4rem',
-                  padding: '0rem 1rem 0rem 0.5rem',
-                  border: connectionStatus
-                    ? '2px solid rgba(124, 214, 171, 0.3)'
-                    : '2px solid rgba(255, 36, 36, 0.3)',
-                  backgroundColor: connectionStatus
-                    ? 'rgba(124, 214, 171, 0.3)'
-                    : 'rgba(255, 36, 36, 0.3)',
-                  borderRadius: '50px',
-                  zIndex: 3,
-                }}
-              >
-                <IconButton>
-                  <PowerIcon
+                <Tooltip
+                  title={`Connection Status: ${currentTime} and ${
+                    heartRateTimeStamp[heartRateTimeStamp.length - 1]
+                  }`}
+                  arrow
+                  placement="left-end"
+                  style={{
+                    fontSize: '15',
+                    position: 'fixed',
+                    top: '6.2rem',
+                    right: '4rem',
+                    padding: '0rem 1rem 0rem 0.5rem',
+                    border: connectionStatus
+                      ? '2px solid rgba(124, 214, 171, 0.3)'
+                      : '2px solid rgba(255, 36, 36, 0.3)',
+                    backgroundColor: connectionStatus
+                      ? 'rgba(124, 214, 171, 0.1)'
+                      : 'rgba(255, 36, 36, 0.1)',
+                    borderRadius: '50px',
+                    zIndex: 3,
+                  }}
+                >
+                  <IconButton>
+                    <PowerIcon
+                      style={{
+                        color: connectionStatus
+                          ? 'rgba(124, 214, 171, 0.9)'
+                          : 'rgba(255, 36, 36, 0.9)',
+                      }}
+                    />
+                  </IconButton>
+                  <span
                     style={{
                       color: connectionStatus
                         ? 'rgba(124, 214, 171, 0.9)'
                         : 'rgba(255, 36, 36, 0.9)',
                     }}
-                  />
-                </IconButton>
-                <span
-                  style={{
-                    color: connectionStatus
-                      ? 'rgba(124, 214, 171, 0.9)'
-                      : 'rgba(255, 36, 36, 0.9)',
-                  }}
-                >
-                  {connectionStatus ? 'Connected' : 'Disconnected'}
-                </span>
-              </Tooltip>
 
-              {/* <Tooltip
-                title={`Connection Status :  ${currentTime} and ${
-                  heartRateTimeStamp[heartRateTimeStamp.length - 1]
-                }`}
-                arrow
-                placement="right-end"
-                style={{
-                  fontSize: "15",
-
-                  position: "fixed",
-
-                  top: "14rem",
-
-                  right: 250,
-
-                  zIndex: 3,
-
-                  color: `${connectionStatus ? "green" : "red"}`,
-                }}
-              >
-                <IconButton>
-                  <PowerIcon />
-                </IconButton>
-              </Tooltip> */}
-            </Box>
-          )}
+                  >
+                    {connectionStatus ? 'Connected' : 'Disconnected'}
+                  </span>
+                </Tooltip>
+              </Box>
+            )}
+          </Box>
         </Box>
-
-        {/* <div>
-
-        {heartRateData.map((item, index) => (
-
-          <div key={index}>Heart Rate: {item}</div>
-
-        ))}
-
-      </div> */}
       </Box>
     </>
   );
