@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getMongoUser } from '../slices/usersApiSlice';
 import { setMongoUser } from '../slices/authSlice';
 import { Navigate } from 'react-router-dom';
@@ -10,6 +10,7 @@ import DocumentVerificationScreen from './Pages/DocumentVerificationScreen';
 
 const VerifyValidator = ({ auth: { AuthState, AuthUser, MongoUser } }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [mongoUserSet, setMongoUserSet] = useState(false); // New state to track if setMongoUser has completed
   const dispatch = useDispatch();
   const API_URL = import.meta.env.VITE_REACT_API_URL;
 
@@ -17,16 +18,10 @@ const VerifyValidator = ({ auth: { AuthState, AuthUser, MongoUser } }) => {
     const fetchData = async () => {
       try {
         console.log('Verify validator');
-        if (MongoUser === null || MongoUser === undefined) {
-          console.log('above');
+        if (!MongoUser) {
           const mgu = await getMongoUser(AuthUser.stsTokenManager.accessToken);
-
-          console.log(mgu);
-          console.log('below');
-
           if (mgu.status === 204) {
             const token = AuthUser.stsTokenManager.accessToken;
-
             const newMgu = await fetch(
               `${API_URL}/api/auth/create-mongo-user`,
               {
@@ -46,12 +41,13 @@ const VerifyValidator = ({ auth: { AuthState, AuthUser, MongoUser } }) => {
               const Muser = await getMongoUser(
                 AuthUser.stsTokenManager.accessToken
               );
-              console.log(Muser);
               dispatch(setMongoUser(Muser.data.InitialUserSchema));
             } else {
               console.error(`Error: ${newMgu.status} - ${newMgu.statusText}`);
               throw new Error('Failed to create Mongo user');
             }
+          } else {
+            dispatch(setMongoUser(mgu.data.InitialUserSchema));
           }
         }
       } catch (error) {
@@ -64,16 +60,19 @@ const VerifyValidator = ({ auth: { AuthState, AuthUser, MongoUser } }) => {
     fetchData();
   }, [AuthUser, MongoUser, dispatch]);
 
-  if (isLoading) {
-    // You can render a loading spinner or any other loading indicator here
+  useEffect(() => {
+    if (MongoUser) {
+      setMongoUserSet(true);
+    }
+  }, [MongoUser]);
+
+  if (isLoading || !mongoUserSet) {
     return <Loader />;
   }
 
   if (AuthState === '/verify') {
-    console.log('Here');
-    return <DocumentVerificationScreen />;
+    return <DocumentVerificationScreen mongoUser={MongoUser} />;
   } else {
-    console.log('else');
     return <Navigate to={AuthState} />;
   }
 };
