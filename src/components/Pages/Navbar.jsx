@@ -1,43 +1,32 @@
-import React, { useState } from 'react';
 import {
-  LightModeOutlined,
-  DarkModeOutlined,
-  Menu as MenuIcon,
-  Search,
-  SettingsOutlined,
   ArrowDropDownOutlined,
+  DarkModeOutlined,
+  LightModeOutlined
 } from '@mui/icons-material';
-import { useEffect } from 'react';
-import FlexBetween from '../FlexBetween.jsx';
-import { useDispatch } from 'react-redux';
-import { useSelector } from 'react-redux';
-import { setMode } from '../../slices/modeSlice.js';
-import profileImage from '../../assets/profile.png';
-import { setLoading } from '../../slices/loadingSlice';
-import { setAuthUser } from '../../slices/authSlice';
-import { setMongoUser } from '../../slices/authSlice';
 import { onAuthStateChanged } from 'firebase/auth';
-import { setAuthState } from '../../slices/authSlice';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import profileImage from '../../assets/profile.png';
+import { setAuthState, setAuthUser, setMongoUser } from '../../slices/authSlice';
+import { setLoading } from '../../slices/loadingSlice';
+import { setMode } from '../../slices/modeSlice.js';
+import FlexBetween from '../FlexBetween.jsx';
 
 import {
   AppBar,
-  Button,
   Box,
-  Typography,
+  Button,
   IconButton,
-  InputBase,
-  Toolbar,
   Menu,
   MenuItem,
-  useTheme,
+  Toolbar,
+  Typography,
+  useTheme
 } from '@mui/material';
-import { Container, Nav, NavDropdown } from 'react-bootstrap';
-import { FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
-import { LinkContainer } from 'react-router-bootstrap';
 import { signOut } from 'firebase/auth';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { auth } from '../../firebase';
 import { logout } from '../../slices/authSlice.js';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const dispatch = useDispatch();
@@ -124,19 +113,20 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
         <FlexBetween>
           {location.pathname !== '/superadmin' ? (
             <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-              <MenuIcon />
+              {/* <MenuIcon /> */}
             </IconButton>
           ) : (
             ''
           )}
           <FlexBetween borderRadius='9px' gap='4rem' p='0.1rem 1.5rem'>
-            <Typography>
+            <Typography fontSize='14px' fontWeight='bold'>
               {location.pathname === '/Default'
-                ? location.pathname.substring(1).toUpperCase() +
-                  ' / WHMS-' +
+                ?
+                  'Dashboard / WHMS-' +
                   AuthUser.uid.substring(0, 4).toUpperCase()
                 : location.pathname.substring(1).toUpperCase()}
             </Typography>
+            
           </FlexBetween>
         </FlexBetween>
 

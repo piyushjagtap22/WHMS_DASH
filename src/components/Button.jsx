@@ -23,6 +23,7 @@ const CustomButton = ({
       width: width,
       cursor: 'pointer',
       outline: 'none',
+      disabled: 'true'
     };
 
     if (variant === 'contained') {

@@ -1,12 +1,12 @@
 // App.jsx
-import React, { useMemo, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import { useSelector, useDispatch } from 'react-redux';
-import { setLoading } from './slices/loadingSlice';
+import React, { useEffect, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Outlet } from 'react-router-dom';
 import Loader from '../src/components/Loader';
-import { initializeAuthUser, initializeMongoUser } from './slices/authSlice';
+import { initializeAuthUser } from './slices/authSlice';
+import { setLoading } from './slices/loadingSlice';
 import store from './store';
 import { themeSettings } from './theme';
 
