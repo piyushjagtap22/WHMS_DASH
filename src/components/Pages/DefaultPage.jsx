@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import { getDeviceIds, getLoc, getSensorDB } from '../../slices/adminApiSlice';
 
@@ -8,23 +8,22 @@ import { Box, Grid, MenuItem, TextField, useMediaQuery } from '@mui/material';
 
 import { useDispatch, useSelector } from 'react-redux';
 
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+
 import * as Realm from 'realm-web';
 
 import IconButton from '@mui/material/IconButton';
 
 import PowerIcon from '@mui/icons-material/Power';
-
 import Tooltip from '@mui/material/Tooltip';
 import { useReactToPrint } from 'react-to-print';
-import { useTheme } from '@emotion/react';
 import BodyFigure from '../BodyFigure';
 import CustomButton from '../Button';
 import SidebarNew from '../SideBarNew';
-import GraphByDate from './GraphByDate';
 import ApexGraph from './ApexGraph';
-import Navbar from './Navbar';
 import ApexGraphPrint from './ApexGraphPrint';
-import { auth } from '../../firebase';
+import Navbar from './Navbar';
 
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 
@@ -162,6 +161,8 @@ const DefaultPage = (data) => {
   const uid = useSelector((state) => state.auth.AuthUser?.uid);
 
   const [events, setEvents] = useState([]);
+  const [open, setOpen] = useState();
+
 
   async function getGraphData(iid) {
     console.log('this is uid');
@@ -233,6 +234,7 @@ const DefaultPage = (data) => {
           //console.log('shiv', GraphDataByDateTimestamp);
         } else {
           window.confirm('invalid dates');
+          setOpen(true);
           //console.log('Invalid dates');
         }
       })
@@ -670,7 +672,7 @@ const DefaultPage = (data) => {
   return (
     <>
       <Navbar />
-
+    
       <Box display='flex' flexDirection='row'>
         <SidebarNew
           user={userData || {}}
@@ -777,15 +779,7 @@ const DefaultPage = (data) => {
                   marginLeft: '2rem',
                 }}
               >
-                <TextField
-                  label='Start Date'
-                  type='date'
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
+
                 {/* <DateTimePicker
                   label='Start Date and Time'
                   value={startDate}
@@ -805,15 +799,30 @@ const DefaultPage = (data) => {
                     shrink: true,
                   }}
                 /> */}
-                <TextField
-                  label='End Date'
-                  type='date'
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+
+                <DateTimePicker
+                  label='Start Date'
+                  value={startDate}
+                  onChange={(e) => {
+                    console.log(e);
+                    setStartDate(e);}}
                   InputLabelProps={{
                     shrink: true,
                   }}
                 />
+                <DateTimePicker
+                  label='End Date'
+                  value={endDate}
+                  onChange={(e) => {
+                    console.log(e);
+                    setEndDate(e);}}
+                    InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+
+</LocalizationProvider>
                 <TextField
                   style={{ width: '125px' }}
                   select
@@ -838,6 +847,9 @@ const DefaultPage = (data) => {
                 >
                   Submit
                 </CustomButton>
+
+
+                
               </form>
               <Grid container>
                 <Grid item></Grid>
