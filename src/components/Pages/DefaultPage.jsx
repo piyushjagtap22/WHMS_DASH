@@ -7,9 +7,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { getDeviceIds, getLoc, getSensorDB } from "../../slices/adminApiSlice";
 
-import { Box, Grid, MenuItem, TextField, useMediaQuery } from "@mui/material";
+import { Box, MenuItem, TextField, useMediaQuery } from "@mui/material";
 
-import { useDispatch, useSelector } from "react-redux";
+
+import { useDispatch, useSelector } from 'react-redux';
 
 import * as Realm from "realm-web";
 
@@ -19,15 +20,13 @@ import IconButton from "@mui/material/IconButton";
 import PowerIcon from "@mui/icons-material/Power";
 
 import Tooltip from "@mui/material/Tooltip";
-import { useReactToPrint } from 'react-to-print';
+
 import { useTheme } from "@emotion/react";
 import BodyFigure from "../BodyFigure";
 import CustomButton from "../Button";
 import SidebarNew from "../SideBarNew";
-import GraphByDate from "./GraphByDate";
 import ApexGraph from "./ApexGraph";
 import Navbar from "./Navbar";
-import ApexGraphPrint from "./ApexGraphPrint";
 
 const app = new Realm.App({ id: "application-0-vdlpx" });
 
@@ -37,10 +36,9 @@ var socket;
 
 const DefaultPage = () => {
   const theme = useTheme();
-  const componentRef = useRef();
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-  });
+
+  const navigate = useNavigate();
+
   const [heartRateTimeStamp, setheartRateTimeStamp] = useState([]);
 
   const [latitude, setLatitude] = useState(23); // Initial latitude
@@ -54,8 +52,6 @@ const DefaultPage = () => {
   const [endDate, setEndDate] = useState();
 
   const [sensorType, setSensorType] = useState("");
-
-  const [tabValue, setTabValue] = useState(0);
 
   const [currentTime, setCurrentTime] = useState(
     new Date().toLocaleTimeString()
@@ -97,9 +93,6 @@ const DefaultPage = () => {
   var devices = [];
 
   const [user, setUser] = useState();
-
-  const [graphByDateData, setGraphByDateData] = useState([]);
-  const [graphByDateTimeStamp, setGraphByDateTimeStamp] = useState([]);
 
   const [heartRateData, setHeartRateData] = useState([]);
 
@@ -171,7 +164,11 @@ const DefaultPage = () => {
 
 
   const handleSubmit = () => {
-   
+    console.log("startdate", startDate);
+    console.log("enddate", endDate);
+    console.log("sendor", sensorType);
+
+    console.log("startdate", convertDateToUnix(startDate));
 
     getGraphData()
       .then((data) => {
@@ -180,8 +177,13 @@ const DefaultPage = () => {
           const values = data.map((item) => item.value);
 
           const timestamp = data.map((item) => item.timestamp.slice(11, 19));
-          setGraphByDateData(values);
-          setGraphByDateTimeStamp(timestamp);
+          navigate(`/GraphByDate`, {state : {
+            data1 : values,
+            data2 : timestamp,
+            startDate : startDate,
+            endDate : endDate,
+            sensorType: sensorType,
+          }});
           
 
           setGraphDataByDate(values);
@@ -562,7 +564,6 @@ const DefaultPage = () => {
   };
 
   useEffect(() => {
-    console.log("shivnashu 22", localStorage.getItem("tabhistory"));
     const login = async () => {
       try {
         const id = userData.data.currentUserId;
@@ -572,9 +573,12 @@ const DefaultPage = () => {
 
           const response = await getSensorDB(token, id);
 
+          
+
           if (response.status === 200) {
             console.log("shivanshu", response.data);
 
+                        
             setHeartRateData(
               response.data.heartSensor.map((item) => item.value)
             );
@@ -607,7 +611,12 @@ const DefaultPage = () => {
 
             setEvents(response.data.deviceDocuments);
 
+
+
             setinitialTable(response.data.deviceDocuments);
+            const bunnySensorData = useSelector(
+              (state) => response
+            );
           }
         }
 
@@ -671,9 +680,16 @@ const DefaultPage = () => {
   console.log('in layout');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   console.log("sidebar", userData);
+  const bunnySensorData = useSelector(
+    (state) => userData
+  );
   
 
   return (
+
+   
+
+
     <>
       <Navbar />
 
@@ -684,53 +700,9 @@ const DefaultPage = () => {
         drawerWidth='250px'
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
-        setTabValue={setTabValue}
         />
         <Box flexGrow={1} m="2rem 0rem">
-          
-            {tabValue === 0 ? <Box
-            margin="2rem 2rem"
-            display="grid"
-            gridTemplateColumns="repeat(12, 1fr)"
-            gridAutoRows="160px"
-            gap="12px"
-            zIndex={2}
-            sx={{
-              '& > div': {
-                gridColumn: isNonMediumScreens ? undefined : 'span 12',
-              },
-            }}
-          > <div
-              id="map"
-              className="MuiBox-root css-1nt5awt"
-              ref={mapContainerRef}
-              style={{ height: '300px',margin:0,padding:0 }}
-            />
-
-            <ApexGraph
-              name="HeartRate"
-              data={heartRateData}
-              timestamp={heartRateTimeStamp}
-              max={90}
-              zoomEnabled={false}
-            />
-
-            <ApexGraph
-              name="BreathRateSensor"
-              data={BreathRateSensorData}
-              timestamp={BreathRateSensorTimeStamp}
-              max={90}
-              zoomEnabled={false}
-            />
-
-            <ApexGraph
-              name="VentilationSensor"
-              data={VentilatonSensorData}
-              timestamp={VentilatonSensorTimeStamp}
-              max={90}
-              zoomEnabled={false}
-            /> </Box>: <> 
-            <form
+          <form
             style={{
               display: 'flex',
               gap: '2rem',
@@ -782,50 +754,56 @@ const DefaultPage = () => {
               Submit
             </CustomButton>
           </form>
-            <Grid container>
-              <Grid item>
-                
-              </Grid>
-              <Grid item xs={12} md={6} container direction="column" alignItems="flex-start">
-                <div style={{ padding: '20px', width: '100%' }}>
-                  <ApexGraphPrint
-                    name="shivanshu"
-                    data={graphByDateData}
-                    timestamp={graphByDateTimeStamp}
-                    max={90}
-                    zoomEnabled={true}
-                    ref={componentRef}
-                  />
-                  <div style={{display: 'flex',
-          gap: '10px',
-          marginTop: '20px',
-          justifyContent: 'center',}}>
-                    <button
-                      onClick={handlePrint}
-                      
-                    style={{
-                      padding: '10px 20px',
-                      fontSize: '1rem',
-                      color: '#121318',
-                      backgroundColor: '#7CD6AB',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      transition: 'background-color 0.3s ease',
-                    }}
-                    >
-                      Print this out!
-                    </button>
-                   
-                  </div>
-                </div>
-              </Grid>
-            </Grid>
-          </>}
 
-          
-           
-            {(isNonMediumScreens && tabValue === 0) &&(
+          <Box
+            margin="2rem 2rem"
+            display="grid"
+            gridTemplateColumns="repeat(12, 1fr)"
+            gridAutoRows="160px"
+            gap="12px"
+            zIndex={2}
+            sx={{
+              '& > div': {
+                gridColumn: isNonMediumScreens ? undefined : 'span 12',
+              },
+            }}
+          >
+            <div
+              id="map"
+              className="MuiBox-root css-1nt5awt"
+              ref={mapContainerRef}
+              style={{ height: '300px',margin:0,padding:0 }}
+            />
+
+            {/* ROW 1 */}
+            <ApexGraph
+              name="HeartRate"
+              data={heartRateData}
+              timestamp={heartRateTimeStamp}
+              max={90}
+              zoomEnabled={false}
+            />
+
+            {/* ROW 2 */}
+            <ApexGraph
+              name="BreathRateSensor"
+              data={BreathRateSensorData}
+              timestamp={BreathRateSensorTimeStamp}
+              max={90}
+              zoomEnabled={false}
+            />
+
+            <ApexGraph
+              name="VentilationSensor"
+              data={VentilatonSensorData}
+              timestamp={VentilatonSensorTimeStamp}
+              max={90}
+              zoomEnabled={false}
+            />
+
+            {/* ROW 3 */}
+            {/* ROW 4 */}
+            {isNonMediumScreens && (
               <Box>
                 <BodyFigure
                   sensorData={{
@@ -880,6 +858,7 @@ const DefaultPage = () => {
                 </Tooltip>
               </Box>
             )}
+          </Box>
         </Box>
       </Box>
     </>
