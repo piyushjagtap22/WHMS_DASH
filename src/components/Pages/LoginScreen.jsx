@@ -25,6 +25,7 @@ import { setAuthUser, setMongoUser, setToken } from '../../slices/authSlice';
 import { setLoading } from '../../slices/loadingSlice';
 import { getMongoUser } from '../../slices/usersApiSlice';
 import Loader from '../Loader';
+import { setAuthState } from '../../slices/authSlice';
 
 const provider = new GoogleAuthProvider();
 const appleAuthProvider = new OAuthProvider('apple.com');
@@ -66,30 +67,91 @@ function LoginScreen() {
   const submitHandler = async (e) => {
     e.preventDefault();
     setIsFormValid(false);
-    signInWithEmailAndPassword(auth, email, password)
-      .then(async (userCredential) => {
-        const user = auth.currentUser;
-        dispatch(setLoading(true));
-        toast.success('Login successful');
-
-        localStorage.setItem(
-          'accessToken',
-          userCredential._tokenResponse.idToken
-        );
-        dispatch(setToken(userCredential._tokenResponse.idToken));
-        dispatch(setAuthUser(user));
-
-        const mongoUser = await getMongoUser(user.stsTokenManager.accessToken);
-        dispatch(setMongoUser(mongoUser.data.initialUserSchema));
-
-        navigate('/dashboard');
-      })
-      .catch((err) => {
-        setLoginErrorMessage('Invalid Credentials');
-      })
-      .finally(() => {
-        dispatch(setLoading(false));
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = auth.currentUser;
+      console.log('User:', user);
+      dispatch(setLoading(true));
+      toast.success('Login successful');
+      localStorage.setItem(
+        'accessToken',
+        userCredential._tokenResponse.idToken
+      );
+      await dispatch(setToken(userCredential._tokenResponse.idToken));
+      console.log('User Details:', {
+        email: user.email,
+        emailVerified: user.emailVerified,
+        phoneNumber: user.phoneNumber,
+        photoURL: user.photoURL,
+        providerData: user.providerData,
+        stsTokenManager: {
+          accessToken: user.stsTokenManager.accessToken,
+          expirationTime: user.stsTokenManager.expirationTime,
+          refreshToken: user.stsTokenManager.refreshToken,
+        },
+        uid: user.uid,
+        displayName: user.displayName,
       });
+      dispatch(
+        setAuthUser({
+          email: user.email,
+          emailVerified: user.emailVerified,
+          phoneNumber: user.phoneNumber,
+          photoURL: user.photoURL,
+          providerData: user.providerData,
+          stsTokenManager: {
+            accessToken: user.stsTokenManager.accessToken,
+            expirationTime: user.stsTokenManager.expirationTime,
+            refreshToken: user.stsTokenManager.refreshToken,
+          },
+          uid: user.uid,
+          displayName: user.displayName,
+        })
+      );
+
+      const mongoUser = await getMongoUser(user.stsTokenManager.accessToken);
+      console.log('Mongo User:', mongoUser);
+      dispatch(setMongoUser(mongoUser.data.InitialUserSchema));
+      console.log(mongoUser.status === 200, mongoUser.data, user.emailVerified);
+      if (mongoUser.status === 204 && !mongoUser.data) {
+        console.log('Navigating to /emailregister');
+        dispatch(setAuthState('/emailregister'));
+        navigate('/emailregister');
+      } else if (
+        mongoUser.status === 200 &&
+        mongoUser.data &&
+        user.emailVerified === false
+      ) {
+        console.log('Navigating to /emailregister');
+        dispatch(setAuthState('/emailregister'));
+        navigate('/emailregister');
+      } else if (mongoUser.status === 204) {
+        console.log('Navigating to /verify');
+        dispatch(setAuthState('/verify'));
+        navigate('/verify');
+      } else if (mongoUser.data.InitialUserSchema.roles[0] === 'superadmin') {
+        console.log('Navigating to /superadmin');
+        dispatch(setAuthState('/superadmin'));
+        navigate('/superadmin');
+      } else if (mongoUser.data.InitialUserSchema.doc_verified === true) {
+        console.log('Navigating to /dashboard');
+        dispatch(setAuthState('/dashboard'));
+        navigate('/dashboard');
+      } else {
+        console.log('Navigating to /verify');
+        dispatch(setAuthState('/verify'));
+        navigate('/verify');
+      }
+    } catch (err) {
+      console.error('Login Error:', err);
+      setLoginErrorMessage('Invalid Credentials');
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
   useEffect(() => {

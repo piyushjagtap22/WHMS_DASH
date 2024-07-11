@@ -15,10 +15,12 @@ const VerifyValidator = ({ auth: { AuthState, AuthUser, MongoUser } }) => {
   const API_URL = import.meta.env.VITE_REACT_API_URL;
 
   useEffect(() => {
+    console.log({ AuthState, AuthUser, MongoUser });
+
     const fetchData = async () => {
       try {
         console.log('Verify validator');
-        if (!MongoUser) {
+        if (!MongoUser && AuthUser != null) {
           const mgu = await getMongoUser(AuthUser.stsTokenManager.accessToken);
           if (mgu.status === 204) {
             const token = AuthUser.stsTokenManager.accessToken;
@@ -36,10 +38,10 @@ const VerifyValidator = ({ auth: { AuthState, AuthUser, MongoUser } }) => {
                 }),
               }
             );
-
-            if (newMgu.ok) {
+            console.log(AuthUser != null);
+            if (newMgu.ok && AuthUser != null) {
               const Muser = await getMongoUser(
-                AuthUser.stsTokenManager.accessToken
+                AuthUser?.stsTokenManager?.accessToken
               );
               dispatch(setMongoUser(Muser.data.InitialUserSchema));
             } else {
@@ -66,9 +68,9 @@ const VerifyValidator = ({ auth: { AuthState, AuthUser, MongoUser } }) => {
     }
   }, [MongoUser]);
 
-  if (isLoading || !mongoUserSet) {
-    return <Loader />;
-  }
+  // if (isLoading || !mongoUserSet) {
+  //   return <Loader />;
+  // }
 
   if (AuthState === '/verify') {
     return <DocumentVerificationScreen mongoUser={MongoUser} />;

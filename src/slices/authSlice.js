@@ -100,6 +100,7 @@ export const initializeAuthUser = () => async (dispatch) => {
 
         try {
           if (user) {
+
             console.log("user found in authslice");
             console.log(user.toJSON());
             const json = user.toJSON();
@@ -144,6 +145,10 @@ export const initializeAuthUser = () => async (dispatch) => {
               ) {
                 dispatch(setAuthState("/dashboard"));
                 console.log("dashboard");
+              } else if (mgu.data.InitialUserSchema && json.emailVerified === false) {
+                console.log("email register hit")
+                dispatch(setAuthState("/emailregister"));
+                console.log("emailregister");
               } else {
                 dispatch(setAuthState("/verify"));
                 console.log("verify");
@@ -170,6 +175,12 @@ export const initializeAuthUser = () => async (dispatch) => {
               dispatch(setAuthState("/register"));
               console.log("register");
             }
+          }
+          else {
+            console.log("user not found in auth slice");
+            dispatch(setAuthUser(null));
+            dispatch(setAuthState("/register"));
+            console.log("register");
           }
           resolve(); // Resolve the promise once the operation is complete
         } catch (error) {

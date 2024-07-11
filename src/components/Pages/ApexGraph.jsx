@@ -17,8 +17,8 @@ const ApexGraph = React.memo((props) => {
 
   // Dummy data
   const labels = props.timestamp;
-  console.log('apex2', labels);
-  console.log(props.zoomEnabled);
+  // console.log('apex2', labels);
+  // console.log(props.zoomEnabled);
   const data = props.data;
   const name = props.name;
   const max = 30;
@@ -45,19 +45,18 @@ const ApexGraph = React.memo((props) => {
       toolbar: {
         show: true,
         tools: {
-          download: false
+          download: false,
         },
         autoSelected: 'zoom',
-
-      }
+      },
     },
     stroke: {
       show: true,
       curve: 'smooth',
       lineCap: 'butt',
       width: 2,
-      dashArray: 0, 
-  },
+      dashArray: 0,
+    },
     colors: isAboveMax ? ['#FF5733'] : ['#7CD6AB'],
     dataLabels: {
       enabled: false,
@@ -85,7 +84,7 @@ const ApexGraph = React.memo((props) => {
           return val.toFixed(0) + 'M';
         },
         style: {
-          colors: 'rgba(255,255,255,0.4)',  // set the x-axis label color to white
+          colors: 'rgba(255,255,255,0.4)', // set the x-axis label color to white
           fontSize: '12px',
           fontFamily: 'Helvetica, Arial, sans-serif',
           fontWeight: 400,
@@ -102,10 +101,14 @@ const ApexGraph = React.memo((props) => {
       labels: {
         formatter: function (val) {
           const date = new Date(val);
-          return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit',second: "2-digit"})
+          return date.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          });
         },
         style: {
-          colors: 'rgba(255,255,255,0.4)',  // set the x-axis label color to white
+          colors: 'rgba(255,255,255,0.4)', // set the x-axis label color to white
           fontSize: '12px',
           fontFamily: 'Helvetica, Arial, sans-serif',
           fontWeight: 400,
@@ -118,11 +121,10 @@ const ApexGraph = React.memo((props) => {
       title: {
         text: 'Time',
       },
-       // Ensure x-axis labels are horizontal
-      
+      // Ensure x-axis labels are horizontal
     },
     grid: {
-      borderColor: '#FFFFFF44',  // set the grid line color
+      borderColor: '#FFFFFF44', // set the grid line color
       strokeDashArray: 0, // set dashed grid lines
     },
     tooltip: {
@@ -141,8 +143,8 @@ const ApexGraph = React.memo((props) => {
         title: {
           formatter: (seriesName) => seriesName,
         },
-      },},
-
+      },
+    },
   };
 
   return (

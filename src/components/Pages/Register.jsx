@@ -101,6 +101,7 @@ const Register = () => {
       try {
         setButtonLoader(true);
         const result = await confirmOtp.confirm(otp);
+
         // toast.success('Success');
         dispatch(setLoading(true));
         const user = auth.currentUser;
@@ -126,9 +127,15 @@ const Register = () => {
         );
 
         const mongoUser = await getMongoUser(user.stsTokenManager.accessToken);
+        console.log(mongoUser);
         dispatch(setMongoUser(mongoUser.data.initialUserSchema));
+        console.log(mongoUser);
+        console.log(mongoUser.status === 204 && !mongoUser.data);
 
-        if (mongoUser.status === 204) {
+        if (mongoUser.status === 204 && !mongoUser.data) {
+          dispatch(setAuthState('/emailregister'));
+          navigate('/emailregister');
+        } else if (mongoUser.status === 204) {
           dispatch(setAuthState('/verify'));
           navigate('/verify');
         } else if (mongoUser.data.InitialUserSchema.roles[0] === 'superadmin') {
@@ -286,7 +293,7 @@ const Register = () => {
               <CustomButton
                 type='submit'
                 style={
-                  (!phoneNumber || !termsChecked) ||  (showOtpScreen && !otp)
+                  !phoneNumber || !termsChecked || (showOtpScreen && !otp)
                     ? styles.disabledButton
                     : styles.submitButton
                 }
