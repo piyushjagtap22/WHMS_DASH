@@ -24,6 +24,7 @@ import GraphByDate from './GraphByDate';
 import ApexGraph from './ApexGraph';
 import Navbar from './Navbar';
 import ApexGraphPrint from './ApexGraphPrint';
+import { auth } from '../../firebase';
 
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 
@@ -31,8 +32,7 @@ const ENDPOINT = 'http://localhost:3000';
 
 var socket;
 
-const DefaultPage = () => {
-  const theme = useTheme();
+const DefaultPage = (data) => {
   const componentRef = useRef();
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
@@ -45,9 +45,8 @@ const DefaultPage = () => {
 
   const [connectionStatus, setConnectionStatus] = useState(false);
 
-  const [startDate, setStartDate] = useState();
-
-  const [endDate, setEndDate] = useState();
+  const [startDate, setStartDate] = useState(null); // Use null instead of undefined
+  const [endDate, setEndDate] = useState(null); // Use null instead of undefined
 
   const [sensorType, setSensorType] = useState('');
 
@@ -100,7 +99,7 @@ const DefaultPage = () => {
 
   const { state: userData } = useLocation();
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
-
+  console.log('userData', userData);
   const dispatch = useDispatch();
 
   var devices = [];
@@ -160,13 +159,17 @@ const DefaultPage = () => {
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
 
+  const uid = useSelector((state) => state.auth.AuthUser?.uid);
+
   const [events, setEvents] = useState([]);
 
-  async function getGraphData() {
+  async function getGraphData(iid) {
+    console.log('this is uid');
+    console.log(iid);
     const url = 'http://localhost:3000/api/admin/getGraphData';
 
     const body = JSON.stringify({
-      id: '31vBWopGfQfudlsSHkKS0Prgkg42',
+      id: iid,
 
       sensorType: sensorType,
 
@@ -174,13 +177,14 @@ const DefaultPage = () => {
 
       endTimeStamp: convertDateToUnix(endDate),
     });
-
+    console.log('datattt');
     // //console.log(
     //   'dates',
     //   convertDateToUnix(startDate) + '  ' + convertDateToUnix(endDate)
     // );
 
     try {
+      console.log('in');
       const response = await fetch(url, {
         method: 'POST',
 
@@ -197,6 +201,7 @@ const DefaultPage = () => {
 
       const data = await response.json();
 
+      console.log(data);
       return data;
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -207,7 +212,9 @@ const DefaultPage = () => {
   const isNonMobile = useMediaQuery('(min-width: 600px)');
 
   const handleSubmit = () => {
-    getGraphData()
+    console.log('sub');
+    console.log(userData);
+    getGraphData(userData.data.profileData._id)
       .then((data) => {
         if (data && data.length > 0) {
           // Extracting values from data
@@ -314,38 +321,6 @@ const DefaultPage = () => {
       }
     };
 
-    // getGraphData()
-
-    // .then(data => {
-
-    //   if (data && data.length > 0) {
-
-    //     // Extracting values from data
-
-    //     const values = data.map(item => item.value);
-
-    //     const timestamp = data.map(item => item.timestamp);
-
-    //     // Assuming setGraphDataByDate is a function to set state in React
-
-    //     setGraphDataByDate(values);
-
-    //     setGraphDataByDateTimestamp(timestamp);
-
-    //     //console.log("shiv", GraphDataByDate);
-
-    //     //console.log("shiv", GraphDataByDateTimestamp);
-
-    //   }
-
-    //   })
-
-    // .catch(error => {
-
-    //     // Handle errors here
-
-    // });
-
     devicesdb();
 
     // //console.log('mapbox setting up');
@@ -422,120 +397,6 @@ const DefaultPage = () => {
           async function getLocation(updateSource) {
             // Make a GET request to the API and return the location of the ISS.
             try {
-              // const myHeaders = new Headers();
-
-              // myHeaders.append(
-
-              //   'apiKey',
-
-              //   '3eIHUiQwLwgF9VQoiPbfcgMMo5NcmPcK4i6h4QuxBrXWnDUcctRFhw8SU9ZwVmlX'
-
-              // );
-
-              // myHeaders.append('Content-Type', 'application/json');
-
-              // const raw = JSON.stringify({
-
-              //   dataSource: 'whmstestdb',
-
-              //   database: 'test',
-
-              //   collection: 'devices',
-
-              //   filter: {
-
-              //     currentUserId: 'gk7mhNS7MxNBDLwVQOT08xn5M4W2',
-
-              //   },
-
-              // });
-
-              // const requestOptions = {
-
-              //   method: 'POST',
-
-              //   headers: myHeaders,
-
-              //   body: raw,
-
-              //   redirect: 'follow',
-
-              //   mode: 'no-cors',
-
-              // };
-
-              // const response = await fetch(
-
-              //   'https://data.mongodb-api.com/app/data-atyht/endpoint/data/v1/action/find',
-
-              //   requestOptions
-
-              // );
-
-              // const loc = await response.json();
-
-              // //console.log(loc);
-
-              // let data = JSON.stringify({
-
-              //   dataSource: 'whmstestdb',
-
-              //   database: 'test',
-
-              //   collection: 'devices',
-
-              //   filter: {
-
-              //     currentUserId: 'gk7mhNS7MxNBDLwVQOT08xn5M4W2',
-
-              //   },
-
-              // });
-
-              // let config = {
-
-              //   method: 'post',
-
-              //   maxBodyLength: Infinity,
-
-              //   url: 'https://cors-anywhere.herokuapp.com/https://data.mongodb-api.com/app/data-atyht/endpoint/data/v1/action/find',
-
-              //   headers: {
-
-              //     apiKey:
-
-              //       '3eIHUiQwLwgF9VQoiPbfcgMMo5NcmPcK4i6h4QuxBrXWnDUcctRFhw8SU9ZwVmlX',
-
-              //     'Content-Type': 'application/json',
-
-              //   },
-
-              //   data: data,
-
-              // };
-
-              // //console.log('In here ', userData.data.currentUserId);
-
-              // const response = await getLocation(
-
-              //   token,
-
-              //   userData.data.currentUserId
-
-              // ).then((response) => {
-
-              //   //console.log(JSON.stringify(response.data));
-
-              // });
-
-              // const response = await fetch(
-
-              //   'https://api.wheretheiss.at/v1/satellites/25544',
-
-              //   { method: 'GET' }
-
-              // );
-
               const dataloc = await getLoc(token, userData.data.currentUserId);
 
               const latitude = dataloc.data[0].lat;
@@ -925,7 +786,25 @@ const DefaultPage = () => {
                     shrink: true,
                   }}
                 />
+                {/* <DateTimePicker
+                  label='Start Date and Time'
+                  value={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  disablePast // Optional: Disable selecting past dates
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                /> */}
 
+                {/* <DateTimePicker
+                  label='End Date and Time'
+                  value={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  disablePast // Optional: Disable selecting past dates
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                /> */}
                 <TextField
                   label='End Date'
                   type='date'
@@ -935,7 +814,6 @@ const DefaultPage = () => {
                     shrink: true,
                   }}
                 />
-
                 <TextField
                   style={{ width: '125px' }}
                   select
