@@ -1,4 +1,11 @@
-import { useTheme } from '@mui/material';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  useTheme,
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { useSelector } from 'react-redux';
@@ -6,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import * as Realm from 'realm-web';
 import { getDeviceIds } from '../../src/slices/adminApiSlice';
 const app = new Realm.App({ id: 'application-0-vdlpx' });
+import CustomButton from './Button.jsx';
 
 const SensorPage = () => {
   const theme = useTheme();
@@ -13,76 +21,82 @@ const SensorPage = () => {
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
+  const [buttonLoader, setButtonLoader] = useState(false);
+  const [open, setOpen] = useState();
   const [user, setUser] = useState();
   const [rowdata, setData] = useState([]);
   var devices = [];
   // setDeviceList((prevDeviceList) => [...prevDeviceList, newDevice]);
   const [events, setEvents] = useState([]);
+  const handleClose = () => setOpen(false);
+
   const handleRowClick = (data) => {
+    setOpen(true);
+    setData(data);
     //console.log(data);
-    toast('Hello World', {
-      duration: 4000,
-      position: 'top-center',
+    // toast('Hello World', {
+    //   duration: 4000,
+    //   position: 'top-center',
 
-      // Styling
-      style: {
-        left: '0px',
-        right: '0px',
-        display: 'flex',
-        position: 'absolute',
-        transition: 'all 230ms cubic-bezier(0.21, 1.02, 0.73, 1) 0s',
-        transform: 'translateY(34.179px)',
-        top: '0px',
-        justifyContent: 'center',
-        zIndex: '9999',
-      },
-      className: '',
+    //   // Styling
+    //   style: {
+    //     left: '0px',
+    //     right: '0px',
+    //     display: 'flex',
+    //     position: 'absolute',
+    //     transition: 'all 230ms cubic-bezier(0.21, 1.02, 0.73, 1) 0s',
+    //     transform: 'translateY(34.179px)',
+    //     top: '0px',
+    //     justifyContent: 'center',
+    //     zIndex: '9999',
+    //   },
+    //   className: '',
 
-      // Custom Icon
-      icon: '👏',
+    //   // Custom Icon
+    //   icon: '👏',
 
-      // Change colors of success/error/loading icon
-      iconTheme: {
-        primary: '#000',
-        secondary: '#fff',
-      },
+    //   // Change colors of success/error/loading icon
+    //   iconTheme: {
+    //     primary: '#000',
+    //     secondary: '#fff',
+    //   },
 
-      // Aria
-      ariaProps: {
-        role: 'status',
-        'aria-live': 'polite',
-      },
-    });
-    // toast.success('Hey There', { duration: 4000 });
-    toast.custom(
-      <div>
-        Do you want to Navigate to User details Page
-        <button
-          onClick={() => {
-            navigate(`/Default`, {
-              state: {
-                data: data,
-              },
-            }); // Pass the row data as a prop
-          }}
-        >
-          OK
-        </button>
-        <button>Cancel</button>
-      </div>
-    );
-    const result = window.confirm(
-      'Do you want to Navigate to User details Page'
-    );
+    //   // Aria
+    //   ariaProps: {
+    //     role: 'status',
+    //     'aria-live': 'polite',
+    //   },
+    // });
+    // // toast.success('Hey There', { duration: 4000 });
+    // toast.custom(
+    //   <div>
+    //     Do you want to Navigate to User details Page
+    //     <button
+    //       onClick={() => {
+    //         navigate(`/Default`, {
+    //           state: {
+    //             data: data,
+    //           },
+    //         }); // Pass the row data as a prop
+    //       }}
+    //     >
+    //       OK
+    //     </button>
+    //     <button>Cancel</button>
+    //   </div>
+    // );
+    // const result = window.confirm(
+    //   'Do you want to Navigate to User details Page'
+    // );
 
-    if (result) {
-      navigate(`/Default`, {
-        state: {
-          data: data,
-        },
-      }); // Pass the row data as a prop
-    } else {
-    }
+    // if (result) {
+    //   navigate(`/Default`, {
+    //     state: {
+    //       data: data,
+    //     },
+    //   }); // Pass the row data as a prop
+    // } else {
+    // }
   };
   // Function to handle real-time updates
   const handleRealTimeUpdate = (updatedObject) => {
@@ -251,6 +265,66 @@ const SensorPage = () => {
 
   return (
     <div className='App'>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby='dialog-title'
+        aria-describedby='dialog-description'
+        PaperProps={{ style: { borderRadius: 12, background: '#191c23' } }}
+      >
+        <DialogTitle
+          id='dialog-title'
+          sx={{ fontWeight: 'bold', textAlign: 'center' }}
+        >
+          List of Documents
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <DialogContentText
+            id='dialog-description'
+            sx={{ textAlign: 'center' }}
+          >
+            Do you want to navigate to user details page
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1,
+            paddingBottom: '20px',
+          }}
+        >
+          <CustomButton
+            onClick={() => {
+              navigate(`/Default`, {
+                state: {
+                  data: rowdata,
+                },
+              }); // Pass the row data as a prop
+            }}
+            variant='contained'
+            disabled={buttonLoader}
+          >
+            {buttonLoader ? (
+              <Box sx={{ display: 'flex' }}>
+                <CircularProgress size={21} />
+              </Box>
+            ) : (
+              'Yes'
+            )}
+          </CustomButton>
+          <CustomButton onClick={handleClose} variant='outlined'>
+            Cancel
+          </CustomButton>
+        </DialogActions>
+      </Dialog>
       <Toaster toastOptions={{ duration: 4000 }} />
       {!!user && (
         <div className='App-header'>

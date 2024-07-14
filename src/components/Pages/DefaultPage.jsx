@@ -9,11 +9,13 @@ import { Box, Grid, MenuItem, TextField, useMediaQuery } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 
 import * as Realm from 'realm-web';
-
 import IconButton from '@mui/material/IconButton';
 
+import { Toaster, toast } from 'react-hot-toast';
 import PowerIcon from '@mui/icons-material/Power';
-
+import { setAuthState } from '../../slices/authSlice';
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import Tooltip from '@mui/material/Tooltip';
 import { useReactToPrint } from 'react-to-print';
 import { useTheme } from '@emotion/react';
@@ -33,6 +35,8 @@ const ENDPOINT = 'http://localhost:3000';
 var socket;
 
 const DefaultPage = (data) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const componentRef = useRef();
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
@@ -49,7 +53,7 @@ const DefaultPage = (data) => {
   const [endDate, setEndDate] = useState(null); // Use null instead of undefined
 
   const [sensorType, setSensorType] = useState('');
-
+  const [open, setOpen] = useState();
   const [tabValue, setTabValue] = useState(0);
 
   const [currentTime, setCurrentTime] = useState(
@@ -99,8 +103,10 @@ const DefaultPage = (data) => {
 
   const { state: userData } = useLocation();
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
-  console.log('userData', userData);
-  const dispatch = useDispatch();
+  if (userData == null) {
+    dispatch(setAuthState('/dashboard'));
+    navigate('/dashboard');
+  }
 
   var devices = [];
 
@@ -162,36 +168,21 @@ const DefaultPage = (data) => {
   const uid = useSelector((state) => state.auth.AuthUser?.uid);
 
   const [events, setEvents] = useState([]);
-
-  async function getGraphData(iid) {
-    console.log('this is uid');
-    console.log(iid);
+  async function getGraphData(iid, startTimeStamp, endTimeStamp) {
     const url = 'http://localhost:3000/api/admin/getGraphData';
-
     const body = JSON.stringify({
       id: iid,
-
       sensorType: sensorType,
-
-      startTimeStamp: convertDateToUnix(startDate),
-
-      endTimeStamp: convertDateToUnix(endDate),
+      startTimeStamp: startTimeStamp,
+      endTimeStamp: endTimeStamp,
     });
-    console.log('datattt');
-    // //console.log(
-    //   'dates',
-    //   convertDateToUnix(startDate) + '  ' + convertDateToUnix(endDate)
-    // );
 
     try {
-      console.log('in');
       const response = await fetch(url, {
         method: 'POST',
-
         headers: {
           'Content-Type': 'application/json',
         },
-
         body: body,
       });
 
@@ -200,12 +191,12 @@ const DefaultPage = (data) => {
       }
 
       const data = await response.json();
-
       console.log(data);
       return data;
     } catch (error) {
       console.error('Error fetching data:', error);
 
+      toast.error('Error Fetching data, please check dates');
       throw error;
     }
   }
@@ -214,30 +205,28 @@ const DefaultPage = (data) => {
   const handleSubmit = () => {
     console.log('sub');
     console.log(userData);
-    getGraphData(userData.data.profileData._id)
+    const startUnix = convertDateToUnix(startDate);
+    const endUnix = convertDateToUnix(endDate);
+
+    console.log('Start Unix:', startUnix);
+    console.log('End Unix:', endUnix);
+
+    getGraphData(userData.data.profileData._id, startUnix, endUnix)
       .then((data) => {
         if (data && data.length > 0) {
           // Extracting values from data
           const values = data.map((item) => item.value);
-
           const timestamp = data.map((item) => item.timestamp.slice(11, 19));
           setGraphByDateData(values);
           setGraphByDateTimeStamp(timestamp);
-
           setGraphDataByDate(values);
-
           setGraphDataByDateTimestamp(timestamp);
-
-          //console.log('shiv', GraphDataByDate);
-
-          //console.log('shiv', GraphDataByDateTimestamp);
         } else {
-          window.confirm('invalid dates');
-          //console.log('Invalid dates');
+          toast.error('No data points found');
         }
       })
-
       .catch((error) => {
+        console.log(error);
         // Handle errors here
       });
   };
@@ -445,13 +434,22 @@ const DefaultPage = (data) => {
     };
   }, []); // Empty dependency array: Execute only once on component mount
 
-  const convertDateToUnix = (date) => {
-    if (date) {
-      const dateObject = new Date(date);
+  const convertDateToUnix = (dateString) => {
+    if (dateString) {
+      // Create a new Date object from the dateString
+      const dateObject = new Date(dateString);
+
+      // Calculate Unix timestamp in milliseconds
       const unixTimestamp = dateObject.getTime();
+
       return unixTimestamp;
     }
+    return null; // Handle case where no date string is provided
   };
+
+  // Example usage
+  const dateString = 'Thu Jul 11 2024 01:15:00 GMT+0530 (India Standard Time)';
+  const unixTime = convertDateToUnix(dateString);
 
   useEffect(() => {
     //console.log('shivnashu 22', localStorage.getItem('tabhistory'));
@@ -671,6 +669,7 @@ const DefaultPage = (data) => {
     <>
       <Navbar />
 
+      <Toaster toastOptions={{ duration: 4000 }} />
       <Box display='flex' flexDirection='row'>
         <SidebarNew
           user={userData || {}}
@@ -777,7 +776,7 @@ const DefaultPage = (data) => {
                   marginLeft: '2rem',
                 }}
               >
-                <TextField
+                {/* <TextField
                   label='Start Date'
                   type='date'
                   value={startDate}
@@ -785,7 +784,7 @@ const DefaultPage = (data) => {
                   InputLabelProps={{
                     shrink: true,
                   }}
-                />
+                /> */}
                 {/* <DateTimePicker
                   label='Start Date and Time'
                   value={startDate}
@@ -805,7 +804,7 @@ const DefaultPage = (data) => {
                     shrink: true,
                   }}
                 /> */}
-                <TextField
+                {/* <TextField
                   label='End Date'
                   type='date'
                   value={endDate}
@@ -813,7 +812,31 @@ const DefaultPage = (data) => {
                   InputLabelProps={{
                     shrink: true,
                   }}
-                />
+                /> */}
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DateTimePicker
+                    label='Start Date'
+                    value={startDate}
+                    onChange={(e) => {
+                      console.log(e);
+                      setStartDate(e);
+                    }}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                  <DateTimePicker
+                    label='End Date'
+                    value={endDate}
+                    onChange={(e) => {
+                      console.log(e);
+                      setEndDate(e);
+                    }}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                </LocalizationProvider>
                 <TextField
                   style={{ width: '125px' }}
                   select

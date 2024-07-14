@@ -12,8 +12,9 @@ import {
 import { makeStyles } from '@mui/styles';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useLocation } from 'react-router-dom';
-
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setAuthState } from '../slices/authSlice';
 const drawerWidth = 280;
 
 const useStyles = makeStyles((theme) => ({
@@ -81,6 +82,8 @@ const SidebarNew = ({
   HandleTabChange,
   setTabValue,
 }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const classes = useStyles();
 
   const AuthUser = useSelector((state) => state.auth.AuthUser);
@@ -139,6 +142,8 @@ const SidebarNew = ({
       });
     } else {
       console.log('No data');
+      dispatch(setAuthState('/dashboard'));
+      navigate('/dashboard');
     }
   }, [bunnySensorData]);
 
