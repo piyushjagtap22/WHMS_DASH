@@ -60,6 +60,11 @@ const SuperAdminScreen = () => {
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
+
+  const [customDialogOpen, setCustomDialogOpen] = useState(false);
+const [customDialogAction, setCustomDialogAction] = useState(null);
+const [customDialogUserId, setCustomDialogUserId] = useState(null);
+
   // const token = '';
   const [document, setdocument] = useState(null);
   const { userInfo } = useSelector((state) => state.superAdmin);
@@ -120,6 +125,27 @@ const SuperAdminScreen = () => {
     };
     fetchData();
   }, [dispatch, token, button, document]);
+
+
+  const handleCustomDialogOpen = (action, userId) => {
+    setCustomDialogAction(action);
+    setCustomDialogUserId(userId);
+    setCustomDialogOpen(true);
+  };
+  
+  const handleCustomDialogClose = () => {
+    setCustomDialogOpen(false);
+  };
+  
+  const handleCustomDialogConfirm = () => {
+    if (customDialogAction === 'enable') {
+      enableAdminByID(customDialogUserId);
+    } else if (customDialogAction === 'disable') {
+      disableAdminByID(customDialogUserId);
+    }
+    setCustomDialogOpen(false);
+  };
+  
 
   const handleOpen = async (userId) => {
     setOpen(true);
@@ -188,30 +214,27 @@ const SuperAdminScreen = () => {
   };
 
   const enableAdminByID = async (userId) => {
-    // Perform your query or action using the retrieved data
-    const result = window.confirm(
-      'Do you want to Navigate to User details Page'
-    );
-
-    if (result) {
-      console.log(`Clicked user ID: ${userId}`);
-      console.log('enable Admin');
-      try {
-        const response = await enableAdmin({ adminId: `${userId}` }, token);
-        console.log(response);
-        if (response.status === 200) {
-          console.log(response); // Assuming the user data is in the response data
-          setButton(!button);
-        } else {
-          // Handle any errors or show a message
-        }
-      } catch (error) {
-        console.log(error);
+    try {
+      const response = await enableAdmin({ adminId: `${userId}` }, token);
+      if (response.status === 200) {
+        setButton(!button);
       }
-    } else {
-      console.log('User Denied to Change Status');
+    } catch (error) {
+      console.log(error);
     }
   };
+  
+  const disableAdminByID = async (userId) => {
+    try {
+      const response = await disableAdmin({ adminId: `${userId}` }, token);
+      if (response.status === 200) {
+        setButton(!button);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
 
   const addDevice = async (data) => {
     console.log(textFieldValue);
@@ -242,32 +265,7 @@ const SuperAdminScreen = () => {
     setTextFieldValue(event.target.value);
   };
 
-  const disableAdminByID = async (userId) => {
-    // Perform your query or action using the retrieved data
-
-    const result = window.confirm(
-      'Do you want to Navigate to User details Page'
-    );
-
-    if (result) {
-      console.log(`Clicked user ID: ${userId}`);
-      console.log('enable Admin');
-      try {
-        const response = await disableAdmin({ adminId: `${userId}` }, token);
-        console.log(response);
-        if (response.status === 200) {
-          console.log(response); // Assuming the user data is in the response data
-          setButton(!button);
-        } else {
-          // Handle any errors or show a message
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      console.log('User Denied to Change Status');
-    }
-  };
+  
 
   const handleShowUserIds = (adminId) => {
     setShowUserIds((prevShowUserIds) => ({
@@ -332,33 +330,33 @@ const SuperAdminScreen = () => {
             )}
           </TableCell>
           <TableCell
-            sx={{
-              width: '10%',
-              color: row.roles[0] == 'admin' ? 'green' : 'red',
-            }}
-          >
-            {row?.adminDetails[0]?.accountEnabled ? (
-              <>
-                <a
-                  href='#'
-                  style={{ color: '#7CD6AB' }}
-                  onClick={() => disableAdminByID(row._id)}
-                >
-                  Enabled
-                </a>
-              </>
-            ) : (
-              <>
-                <a
-                  href='#'
-                  style={{ color: '#FF553C' }}
-                  onClick={() => enableAdminByID(row._id)}
-                >
-                  Disabled
-                </a>
-              </>
-            )}
-          </TableCell>
+  sx={{
+    width: '10%',
+    color: row.roles[0] == 'admin' ? 'green' : 'red',
+  }}
+>
+  {row?.adminDetails[0]?.accountEnabled ? (
+    <>
+      <a
+        href='#'
+        style={{ color: '#7CD6AB' }}
+        onClick={() => handleCustomDialogOpen('disable', row._id)}
+      >
+        Enabled
+      </a>
+    </>
+  ) : (
+    <>
+      <a
+        href='#'
+        style={{ color: '#FF553C' }}
+        onClick={() => handleCustomDialogOpen('enable', row._id)}
+      >
+        Disabled
+      </a>
+    </>
+  )}
+</TableCell>
           <TableCell>
             View Devices
             <IconButton
@@ -478,6 +476,46 @@ const SuperAdminScreen = () => {
       <Box flexGrow={1}>
         <Navbar user={data || {}} />
       </Box>
+      <Dialog
+  open={customDialogOpen}
+  onClose={handleCustomDialogClose}
+  aria-labelledby='custom-dialog-title'
+  aria-describedby='custom-dialog-description'
+  PaperProps={{ style: { borderRadius: 12, background: '#191c23' } }}
+
+>
+  <DialogTitle id='custom-dialog-title'>
+    Confirm Action
+  </DialogTitle>
+  <DialogContent>
+    <DialogContentText id='custom-dialog-description'>
+      Are you sure you want to{' '}
+      {customDialogAction === 'enable'
+        ? 'enable this user as an admin'
+        : 'disable this admin'}
+      ?
+    </DialogContentText>
+  </DialogContent>
+  <DialogActions  sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 1,
+                paddingBottom: '20px',
+              }}>
+    <CustomButton       variant='contained'
+ onClick={handleCustomDialogClose} >
+      Cancel
+    </CustomButton>
+    <CustomButton
+      onClick={handleCustomDialogConfirm}
+      variant='outlined'
+      autoFocus
+    >
+      Confirm
+    </CustomButton>
+  </DialogActions>
+</Dialog>
       <TableContainer
         sx={{ padding: '32px 32px 32px 32px', backgroundColor: '#121318' }}
         // component={Paper}
