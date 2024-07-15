@@ -18,21 +18,14 @@ import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import Tooltip from '@mui/material/Tooltip';
 import { useReactToPrint } from 'react-to-print';
-import { useTheme } from '@emotion/react';
 import BodyFigure from '../BodyFigure';
 import CustomButton from '../Button';
 import SidebarNew from '../SideBarNew';
-import GraphByDate from './GraphByDate';
 import ApexGraph from './ApexGraph';
 import Navbar from './Navbar';
 import ApexGraphPrint from './ApexGraphPrint';
-import { auth } from '../../firebase';
 
 const app = new Realm.App({ id: 'application-0-vdlpx' });
-
-const ENDPOINT = 'http://localhost:3000';
-
-var socket;
 
 const DefaultPage = (data) => {
   const navigate = useNavigate();
@@ -41,19 +34,18 @@ const DefaultPage = (data) => {
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
   });
+  const [heartRateData, setHeartRateData] = useState([]);
   const [heartRateTimeStamp, setheartRateTimeStamp] = useState([]);
 
   const [latitude, setLatitude] = useState(23); // Initial latitude
 
   const [longitude, setLongitude] = useState(77); // Initial longitude
-
   const [connectionStatus, setConnectionStatus] = useState(false);
 
   const [startDate, setStartDate] = useState(null); // Use null instead of undefined
   const [endDate, setEndDate] = useState(null); // Use null instead of undefined
 
   const [sensorType, setSensorType] = useState('');
-  const [open, setOpen] = useState();
   const [tabValue, setTabValue] = useState(0);
 
   const [currentTime, setCurrentTime] = useState(
@@ -100,7 +92,6 @@ const DefaultPage = (data) => {
   const mapContainerRef = useRef(null);
 
   const [initialTable, setinitialTable] = useState({});
-
   const { state: userData } = useLocation();
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
   if (userData == null) {
@@ -108,14 +99,8 @@ const DefaultPage = (data) => {
     navigate('/dashboard');
   }
 
-  var devices = [];
-
-  const [user, setUser] = useState();
-
   const [graphByDateData, setGraphByDateData] = useState([]);
   const [graphByDateTimeStamp, setGraphByDateTimeStamp] = useState([]);
-
-  const [heartRateData, setHeartRateData] = useState([]);
 
   const [BreathRateSensorData, setBreathRateSensorData] = useState([]);
 
@@ -153,20 +138,11 @@ const DefaultPage = (data) => {
     []
   );
 
-  const [VentilationSensorData, setVentilationSensorData] = useState([]);
-  const [VentilationSensorTimeStamp, setVentilationSensorTimeStamp] = useState(
-    []
-  );
-
-  const [GraphDataByDate, setGraphDataByDate] = useState([]);
-  const [GraphDataByDateTimestamp, setGraphDataByDateTimestamp] = useState([]);
-
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
 
   const uid = useSelector((state) => state.auth.AuthUser?.uid);
-
   const [events, setEvents] = useState([]);
   async function getGraphData(iid, startTimeStamp, endTimeStamp) {
     const url = 'http://localhost:3000/api/admin/getGraphData';
@@ -227,36 +203,26 @@ const DefaultPage = (data) => {
       })
       .catch((error) => {
         console.log(error);
+        toast.error(error);
         // Handle errors here
       });
   };
 
   useEffect(() => {
     const devicesdb = async () => {
+      console.log('useeffect trigerred');
       try {
         const id = userData.data.currentUserId;
 
         if (setEvents.length <= 1) {
-          // //console.log(id);
-
           const response = await getDeviceIds(token, id);
 
-          //console.log('req made ');
-
           if (response.status === 200) {
-            // //console.log('in 200');
-
-            // //console.log(response.data.deviceDocuments);
-
             for (var r in response.data.deviceDocuments) {
               if (
                 response.data.deviceDocuments[r].currentUserId ==
                 userData.data.currentUserId
               )
-                // //console.log(response.data.deviceDocuments[r].location[0].lat);
-
-                // //console.log(response.data.deviceDocuments[r].location[0].lon);
-
                 setLatitude(response.data.deviceDocuments[r].location[0].lat);
 
               setLongitude(response.data.deviceDocuments[r].location[0].lon);
@@ -264,36 +230,16 @@ const DefaultPage = (data) => {
           }
         }
 
-        const user2 = await app.logIn(Realm.Credentials.anonymous());
-
-        setUser(user2);
-
         const mongodb2 = app.currentUser.mongoClient('mongodb-atlas');
 
         const collection2 = mongodb2.db('test').collection('devices');
 
-        // //console.log('device db watch stream');
-
         const changeStream2 = collection2.watch();
 
         for await (const change of changeStream2) {
-          // //console.log('device db watch stream changes');
-
           if (
             userData.data.currentUserId == change?.fullDocument?.currentUserId
           ) {
-            // //console.log('Here in device changes');
-
-            // //console.log(change.fullDocument.location[0].lat);
-
-            // //console.log(
-
-            //   change.fullDocument.location[0].lat,
-
-            //   change.fullDocument.location[0].lon
-
-            // );
-
             const lat = change.fullDocument.location[0].lat;
 
             const lon = change.fullDocument.location[0].lon;
@@ -302,7 +248,6 @@ const DefaultPage = (data) => {
 
             setLongitude(lon);
           } else {
-            //console.log('Data is Not Relevant');
           }
         }
       } catch (error) {
@@ -312,10 +257,6 @@ const DefaultPage = (data) => {
 
     devicesdb();
 
-    // //console.log('mapbox setting up');
-
-    // Load Mapbox script dynamically
-
     const mapboxScript = document.createElement('script');
 
     mapboxScript.src =
@@ -324,8 +265,6 @@ const DefaultPage = (data) => {
     mapboxScript.onload = initializeMap;
 
     document.body.appendChild(mapboxScript);
-
-    // Load Mapbox stylesheet
 
     const mapboxLink = document.createElement('link');
 
@@ -344,16 +283,12 @@ const DefaultPage = (data) => {
         const map = new mapboxgl.Map({
           container: 'map',
 
-          // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-
           style: 'mapbox://styles/mapbox/streets-v12',
 
           zoom: 14.0,
         });
 
         map.on('load', async () => {
-          // Get the initial location of the International Space Station (ISS).
-
           const geojson = await getLocation();
 
           // Add the ISS location as a source.
@@ -363,8 +298,6 @@ const DefaultPage = (data) => {
 
             data: geojson,
           });
-
-          // Add the rocket symbol layer to the map.
 
           map.addLayer({
             id: 'iss',
@@ -450,7 +383,80 @@ const DefaultPage = (data) => {
   // Example usage
   const dateString = 'Thu Jul 11 2024 01:15:00 GMT+0530 (India Standard Time)';
   const unixTime = convertDateToUnix(dateString);
+  const mapSensorData = (data, mappings) => {
+    mappings.forEach(({ sensor, setData, setTimeStamp }) => {
+      if (data[sensor]) {
+        setData(data[sensor].map((item) => item.value));
+        setTimeStamp(data[sensor].map((item) => item.timestamp));
+      }
+    });
+  };
 
+  const sensorDataMappings = [
+    {
+      sensor: 'heartSensor',
+      setData: setHeartRateData,
+      setTimeStamp: setheartRateTimeStamp,
+      name: 'Heart Rate',
+      data: 'heartRateData',
+    },
+    {
+      sensor: 'BreathRateSensor',
+      setData: setBreathRateSensorData,
+      setTimeStamp: setBreathRateSensorTimeStamp,
+      name: 'Breath Rate',
+      data: 'BreathRateSensorData',
+    },
+    {
+      sensor: 'VentilatonSensor',
+      setData: setVentilatonSensorData,
+      setTimeStamp: setVentilatonSensorTimeStamp,
+      name: 'Ventilaton',
+      data: 'VentilatonSensorData',
+    },
+    {
+      sensor: 'ActivitySensor',
+      setData: setActivitySensorData,
+      setTimeStamp: setActivitySensorTimeStamp,
+      name: 'Activity',
+      data: 'ActivitySensorData',
+    },
+    {
+      sensor: 'BloodPressureSensor',
+      setData: setBPSensorData,
+      setTimeStamp: setBPSensorTimeStamp,
+      name: 'Blood Pressure',
+      data: 'BPSensorData',
+    },
+    {
+      sensor: 'CadenceSensor',
+      setData: setCadenceSensorData,
+      setTimeStamp: setCadenceSensorTimeStamp,
+      name: 'Cadence',
+      data: 'CadenceSensorData',
+    },
+    {
+      sensor: 'OxygenSaturationSensor',
+      setData: setOxygenSaturationSensorData,
+      setTimeStamp: setOxygenSaturationSensorTimeStamp,
+      name: 'Oxygen Saturation',
+      data: 'OxygenSaturationSensorData',
+    },
+    {
+      sensor: 'TemperatureSensor',
+      setData: setTemperatureSensorData,
+      setTimeStamp: setTemperatureSensorTimeStamp,
+      name: 'Temperature',
+      data: 'TemperatureSensorData',
+    },
+    {
+      sensor: 'TidalVolumeSensor',
+      setData: setTidalVolumeSensorData,
+      setTimeStamp: setTidalVolumeSensorTimeStamp,
+      name: 'Tidal Volume',
+      data: 'TidalVolumeSensorData',
+    },
+  ];
   useEffect(() => {
     //console.log('shivnashu 22', localStorage.getItem('tabhistory'));
     const login = async () => {
@@ -464,193 +470,23 @@ const DefaultPage = (data) => {
           console.log(response);
 
           if (response.status === 200) {
-            //console.log('shivanshu', response.data);
-
-            setHeartRateData(
-              response.data.heartSensor.map((item) => item.value)
-            );
-
-            setheartRateTimeStamp(
-              response.data.heartSensor.map((item) => item.timestamp)
-            );
-
-            setBreathRateSensorData(
-              response.data.BreathRateSensor.map((item) => item.value)
-            );
-
-            setBreathRateSensorTimeStamp(
-              response.data.BreathRateSensor.map((item) => item.timestamp)
-            );
-
-            setVentilatonSensorData(
-              response.data.VentilatonSensor.map((item) => item.value)
-            );
-
-            setVentilatonSensorTimeStamp(
-              response.data.VentilatonSensor.map((item) => item.timestamp)
-            );
-
-            setActivitySensorData(
-              response.data.ActivitySensor.map((item) => item.value)
-            );
-
-            setActivitySensorTimeStamp(
-              response.data.ActivitySensor.map((item) => item.timestamp)
-            );
-
-            setBPSensorData(
-              response.data.BloodPressureSensor.map((item) => item.value)
-            );
-
-            setBPSensorTimeStamp(
-              response.data.BloodPressureSensor.map((item) => item.timestamp)
-            );
-
-            setCadenceSensorData(
-              response.data.CadenceSensor.map((item) => item.value)
-            );
-
-            setCadenceSensorTimeStamp(
-              response.data.CadenceSensor.map((item) => item.timestamp)
-            );
-
-            setOxygenSaturationSensorData(
-              response.data.OxygenSaturationSensor.map((item) => item.value)
-            );
-
-            setOxygenSaturationSensorTimeStamp(
-              response.data.OxygenSaturationSensor.map((item) => item.timestamp)
-            );
-
-            setTemperatureSensorData(
-              response.data.TemperatureSensor.map((item) => item.value)
-            );
-
-            setTemperatureSensorTimeStamp(
-              response.data.TemperatureSensor.map((item) => item.timestamp)
-            );
-
-            setTidalVolumeSensorData(
-              response.data.TidalVolumeSensor.map((item) => item.value)
-            );
-
-            setTidalVolumeSensorTimeStamp(
-              response.data.TidalVolumeSensor.map((item) => item.timestamp)
-            );
-
-            setVentilationSensorData(
-              response.data.VentilatonSensor.map((item) => item.value)
-            );
-
-            setVentilationSensorTimeStamp(
-              response.data.VentilatonSensor.map((item) => item.timestamp)
-            );
-
+            mapSensorData(response.data, sensorDataMappings);
             setEvents(response.data.deviceDocuments);
-
-            setinitialTable(response.data.deviceDocuments);
           }
         }
 
         const user = await app.logIn(Realm.Credentials.anonymous());
 
-        setUser(user);
-
         const mongodb = app.currentUser.mongoClient('mongodb-atlas');
 
         const collection = mongodb.db('test').collection('sensordbs');
 
-        // //console.log('sensor db watch stream');
-
         const changeStream = collection.watch();
 
         for await (const change of changeStream) {
-          // //console.log('sensor db watch stream changes');
-
           if (userData.data.currentUserId == change?.fullDocument?._id) {
-            setHeartRateData(
-              change.fullDocument.heartSensor.map((item) => item.value)
-            );
-
-            setheartRateTimeStamp(
-              change.fullDocument.heartSensor.map((item) => item.timestamp)
-            );
-
-            setBreathRateSensorData(
-              change.fullDocument.BreathRateSensor.map((item) => item.value)
-            );
-
-            setBreathRateSensorTimeStamp(
-              change.fullDocument.BreathRateSensor.map((item) => item.timestamp)
-            );
-
-            setVentilatonSensorData(
-              change.fullDocument.VentilatonSensor.map((item) => item.value)
-            );
-
-            setVentilatonSensorTimeStamp(
-              change.fullDocument.VentilatonSensor.map((item) => item.timestamp)
-            );
-
-            setActivitySensorData(
-              change.fullDocument.ActivitySensor.map((item) => item.value)
-            );
-
-            setActivitySensorTimeStamp(
-              change.fullDocument.ActivitySensor.map((item) => item.timestamp)
-            );
-
-            setBPSensorData(
-              change.fullDocument.BloodPressureSensor.map((item) => item.value)
-            );
-
-            setBPSensorTimeStamp(
-              change.fullDocument.BloodPressureSensor.map(
-                (item) => item.timestamp
-              )
-            );
-
-            setCadenceSensorData(
-              change.fullDocument.CadenceSensor.map((item) => item.value)
-            );
-
-            setCadenceSensorTimeStamp(
-              change.fullDocument.CadenceSensor.map((item) => item.timestamp)
-            );
-
-            setOxygenSaturationSensorData(
-              change.fullDocument.OxygenSaturationSensor.map(
-                (item) => item.value
-              )
-            );
-
-            setOxygenSaturationSensorTimeStamp(
-              change.fullDocument.OxygenSaturationSensor.map(
-                (item) => item.timestamp
-              )
-            );
-
-            setTemperatureSensorData(
-              change.fullDocument.TemperatureSensor.map((item) => item.value)
-            );
-
-            setTemperatureSensorTimeStamp(
-              change.fullDocument.TemperatureSensor.map(
-                (item) => item.timestamp
-              )
-            );
-
-            setTidalVolumeSensorData(
-              change.fullDocument.TidalVolumeSensor.map((item) => item.value)
-            );
-
-            setTidalVolumeSensorTimeStamp(
-              change.fullDocument.TidalVolumeSensor.map(
-                (item) => item.timestamp
-              )
-            );
+            mapSensorData(change.fullDocument, sensorDataMappings);
           } else {
-            //console.log('Data is Not Relevant');
           }
         }
       } catch (error) {
@@ -661,9 +497,7 @@ const DefaultPage = (data) => {
     login();
   }, []);
 
-  //console.log('in layout');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  //console.log('sidebar', userData.data.initialUserData.name);
 
   return (
     <>
@@ -701,69 +535,19 @@ const DefaultPage = (data) => {
                 ref={mapContainerRef}
                 style={{ height: '300px', margin: 0, padding: 0 }}
               />
-              <ApexGraph
-                name='Heart Rate'
-                data={heartRateData}
-                timestamp={heartRateTimeStamp}
-                max={90}
-                zoomEnabled={false}
-              />
-              <ApexGraph
-                name='Blood Pressure'
-                data={BPSensorData}
-                timestamp={BPSensorTimeStamp}
-                max={90}
-                zoomEnabled={false}
-              />
-              <ApexGraph
-                name='BreathRateSensor'
-                data={BreathRateSensorData}
-                timestamp={BreathRateSensorTimeStamp}
-                max={90}
-                zoomEnabled={false}
-              />
-              <ApexGraph
-                name='Oxygen Saturation'
-                data={OxygenSaturationSensorData}
-                timestamp={OxygenSaturationSensorTimeStamp}
-                max={90}
-                zoomEnabled={false}
-              />
-              <ApexGraph
-                name='Temperature'
-                data={TemperatureSensorData}
-                timestamp={TemperatureSensorTimeStamp}
-                max={90}
-                zoomEnabled={false}
-              />
-              <ApexGraph
-                name='Activity'
-                data={ActivitySensorData}
-                timestamp={ActivitySensorTimeStamp}
-                max={90}
-                zoomEnabled={false}
-              />
-              <ApexGraph
-                name='Cadence'
-                data={CadenceSensorData}
-                timestamp={CadenceSensorTimeStamp}
-                max={90}
-                zoomEnabled={false}
-              />
-              <ApexGraph
-                name='Tidal Volume'
-                data={TidalVolumeSensorData}
-                timestamp={TidalVolumeSensorTimeStamp}
-                max={90}
-                zoomEnabled={false}
-              />
-              <ApexGraph
-                name='VentilationSensor'
-                data={VentilatonSensorData}
-                timestamp={VentilatonSensorTimeStamp}
-                max={90}
-                zoomEnabled={false}
-              />{' '}
+              {/* setData(data[sensor].map((item) => item.value)) */}
+              {sensorDataMappings.map(
+                ({ sensor, setData, setTimeStamp, name, data }) => (
+                  <ApexGraph
+                    key={sensor}
+                    name={name}
+                    data={eval(data)} // Directly access the state variable
+                    timestamp={eval(data.replace('Data', 'TimeStamp'))} // If necessary, ensure this is correctly accessing your timestamp
+                    max={90}
+                    zoomEnabled={false}
+                  />
+                )
+              )}{' '}
             </Box>
           ) : (
             <>
@@ -776,43 +560,6 @@ const DefaultPage = (data) => {
                   marginLeft: '2rem',
                 }}
               >
-                {/* <TextField
-                  label='Start Date'
-                  type='date'
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                /> */}
-                {/* <DateTimePicker
-                  label='Start Date and Time'
-                  value={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  disablePast // Optional: Disable selecting past dates
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                /> */}
-
-                {/* <DateTimePicker
-                  label='End Date and Time'
-                  value={endDate}
-                  onChange={(date) => setEndDate(date)}
-                  disablePast // Optional: Disable selecting past dates
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                /> */}
-                {/* <TextField
-                  label='End Date'
-                  type='date'
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                /> */}
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                   <DateTimePicker
                     label='Start Date'
@@ -952,24 +699,26 @@ const DefaultPage = (data) => {
                   zIndex: 3,
                 }}
               >
-                <IconButton>
-                  <PowerIcon
+                <div>
+                  <IconButton>
+                    <PowerIcon
+                      style={{
+                        color: connectionStatus
+                          ? 'rgba(124, 214, 171, 0.9)'
+                          : 'rgba(255, 36, 36, 0.9)',
+                      }}
+                    />
+                  </IconButton>
+                  <span
                     style={{
                       color: connectionStatus
                         ? 'rgba(124, 214, 171, 0.9)'
                         : 'rgba(255, 36, 36, 0.9)',
                     }}
-                  />
-                </IconButton>
-                <span
-                  style={{
-                    color: connectionStatus
-                      ? 'rgba(124, 214, 171, 0.9)'
-                      : 'rgba(255, 36, 36, 0.9)',
-                  }}
-                >
-                  {connectionStatus ? 'Connected' : 'Disconnected'}
-                </span>
+                  >
+                    {connectionStatus ? 'Connected' : 'Disconnected'}
+                  </span>
+                </div>
               </Tooltip>
             </Box>
           )}

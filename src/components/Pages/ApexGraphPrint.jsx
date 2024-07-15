@@ -1,60 +1,57 @@
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import { Box, useMediaQuery, useTheme } from "@mui/material";
-import React from 'react';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
+import React, { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
-import PrayogikLogo from "../../assets/PrayogikLogo.png";
+import PrayogikLogo from '../../assets/PrayogikLogo.png';
 
 const ApexGraphPrint = React.forwardRef((props, ref) => {
   const theme = useTheme();
-  const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
+  const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
 
-  function calculateAverage(lastValues) {
-    var sum = lastValues.reduce((acc, value) => acc + value, 0);
-    return sum / lastValues.length;
-  }
+  const calculateAverage = (lastValues) => {
+    return (
+      lastValues.reduce((acc, value) => acc + value, 0) / lastValues.length
+    );
+  };
 
-  const labels = props.timestamp;
-  const data = props.data;
-  const name = props.name;
+  const {
+    timestamp: labels,
+    data,
+    name,
+    email,
+    phone,
+    sensorType,
+    zoomEnabled,
+  } = props;
   const max = 30;
-  const email = props.email;
-  const phone = props.phone;
-  const sensorType = props.sensorType;
-
-  const average = calculateAverage(data.slice(-10));
+  const average = useMemo(() => calculateAverage(data.slice(-10)), [data]);
   const isAboveMax = average > max;
 
-  const series = [{
-    name: name,
-    data: data
-  }];
+  const series = [{ name, data }];
   const options = {
     chart: {
       type: 'area',
       stacked: false,
       zoom: {
         type: 'x',
-        enabled: props.zoomEnabled,
-        autoScaleYaxis: true
+        enabled: zoomEnabled,
+        autoScaleYaxis: true,
       },
       toolbar: {
-        autoSelected: 'zoom'
-      }
+        autoSelected: 'zoom',
+      },
     },
     stroke: {
       show: true,
       curve: 'smooth',
       lineCap: 'butt',
       width: 2,
-      dashArray: 0, 
     },
-    colors: isAboveMax ? ['#FF5733'] : ['#7CD6AB'],
-    dataLabels: {
-      enabled: false
-    },
-    markers: {
-      size: 0,
-    },
+    colors: [
+      isAboveMax ? theme.palette.error.main : theme.palette.success.main,
+    ],
+    dataLabels: { enabled: false },
+    markers: { size: 0 },
     fill: {
       type: 'gradient',
       gradient: {
@@ -66,12 +63,8 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
       },
     },
     yaxis: {
-      labels: {
-        formatter: val => `${val.toFixed(0)}M`,
-      },
-      title: {
-        text: 'Value',
-      },
+      labels: { formatter: (val) => `${val.toFixed(0)}M` },
+      title: { text: 'Value' },
       tickAmount: 4,
     },
     xaxis: {
@@ -91,11 +84,9 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
     },
     tooltip: {
       shared: false,
-      y: {
-        formatter: val => `${val.toFixed(0)}M`,
-      }
-    }
-  }
+      y: { formatter: (val) => `${val.toFixed(0)}M` },
+    },
+  };
 
   const containerStyle = {
     backgroundColor: '#fff',
@@ -103,25 +94,24 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
     padding: '24px',
     borderRadius: '8px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    width: '21cm', // A4 width
-    height: '29.7cm', // A4 height
+    width: '21cm',
+    height: '29.7cm',
     margin: '6px 12px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'start',
-    // overflow: 'hidden', // Ensure content doesn't overflow
-    boxSizing: 'border-box' // Include padding in the element's total width and height
+    boxSizing: 'border-box',
   };
 
   const headerStyle = {
     marginBottom: '20px',
     textAlign: 'center',
-    marginTop: '20px'
+    marginTop: '20px',
   };
 
   const footerStyle = {
     marginTop: '20px',
-    textAlign: 'center'
+    textAlign: 'center',
   };
 
   const boxStyle = {
@@ -131,24 +121,22 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
     flexGrow: 1,
     display: 'flex',
     flexDirection: 'column',
-    // overflow: 'hidden',
-    // width: '100%' // Ensure it takes full width of the container
   };
 
   const infoStyle = {
     marginBottom: '1rem',
     alignItems: 'center',
     justifyContent: 'space-between',
-    display: 'flex'
+    display: 'flex',
   };
 
   const titleStyle = {
     fontWeight: 'bold',
-    color: '#333'
+    color: '#333',
   };
 
   const separatorStyle = {
-    color: '#121212'
+    color: '#121212',
   };
 
   const currentWeekStyle = {
@@ -156,7 +144,7 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
     alignItems: 'center',
     color: '#666',
     flexGrow: 1,
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
   };
 
   return (
@@ -170,18 +158,19 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
             .print-header, .print-footer {
               text-align: center;
             }
-          
           }
         `}
       </style>
       <header className='print-header' style={headerStyle}>
-        <img src={PrayogikLogo} height="80rem" alt="Prayogik Logo" />
+        <img src={PrayogikLogo} height='80rem' alt='Prayogik Logo' />
         <h1>Prodyogik Solutions</h1>
         <p>Address Line 1, Address Line 2, City, Country</p>
-        <p>Phone: {phone} | Email: {email}</p>
+        <p>
+          Phone: {phone} | Email: {email}
+        </p>
         Name - {name}
       </header>
-      <main className="" >
+      <main>
         <Box style={boxStyle}>
           <div style={infoStyle}>
             <span style={titleStyle}>{sensorType}</span>
@@ -189,21 +178,17 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
             <span style={currentWeekStyle}>
               <FiberManualRecordIcon
                 style={{
-                  color: isAboveMax ? '#FF5733' : '#7CD6AB',
-                  marginRight: "0.2rem",
-                  fontSize: "0.8rem",
+                  color: isAboveMax
+                    ? theme.palette.error.main
+                    : theme.palette.success.main,
+                  marginRight: '0.2rem',
+                  fontSize: '0.8rem',
                 }}
               />
               Current Week
             </span>
           </div>
-            <ReactApexChart
-              options={options}
-              series={series}
-              type="area"
-              // height="100%"
-              // width="100%"
-            />
+          <ReactApexChart options={options} series={series} type='area' />
         </Box>
       </main>
       <footer className='print-footer' style={footerStyle}>
