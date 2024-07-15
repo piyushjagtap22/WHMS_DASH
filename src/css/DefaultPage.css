@@ -1,0 +1,64 @@
+/* default.css */
+
+#map {
+    height: 300px;
+    margin: 0;
+    padding: 0;
+  }
+  
+  form {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    margin-bottom: 1rem;
+    margin-left: 2rem;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: #121318;
+    background-color: #7cd6ab;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #6bc39a;
+  }
+  
+  .tooltip {
+    font-size: 15;
+    position: fixed;
+    top: 6.2rem;
+    right: 4rem;
+    padding: 0rem 1rem 0rem 0.5rem;
+    border: 2px solid rgba(124, 214, 171, 0.3);
+    background-color: rgba(124, 214, 171, 0.1);
+    border-radius: 50px;
+    z-index: 3;
+  }
+  
+  .tooltip.disconnected {
+    border: 2px solid rgba(255, 36, 36, 0.3);
+    background-color: rgba(255, 36, 36, 0.1);
+  }
+  
+  .tooltip .icon {
+    color: rgba(124, 214, 171, 0.9);
+  }
+  
+  .tooltip .icon.disconnected {
+    color: rgba(255, 36, 36, 0.9);
+  }
+  
+  .tooltip span {
+    color: rgba(124, 214, 171, 0.9);
+  }
+  
+  .tooltip span.disconnected {
+    color: rgba(255, 36, 36, 0.9);
+  }
+  

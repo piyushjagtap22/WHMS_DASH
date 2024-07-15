@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-
+import '../../css/DefaultPage.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { getDeviceIds, getLoc, getSensorDB } from '../../slices/adminApiSlice';
@@ -56,6 +56,10 @@ const DefaultPage = (data) => {
   useEffect(() => {
     heartRateTimeStampRef.current = heartRateTimeStamp;
   }, [heartRateTimeStamp]);
+
+  const tooltipClass = connectionStatus ? 'tooltip' : 'tooltip disconnected';
+  const iconClass = connectionStatus ? 'icon' : 'icon disconnected';
+  const spanClass = connectionStatus ? '' : 'disconnected';
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -528,38 +532,27 @@ const DefaultPage = (data) => {
                 },
               }}
             >
-              {' '}
               <div
                 id='map'
                 className='MuiBox-root css-1nt5awt'
                 ref={mapContainerRef}
-                style={{ height: '300px', margin: 0, padding: 0 }}
               />
-              {/* setData(data[sensor].map((item) => item.value)) */}
               {sensorDataMappings.map(
                 ({ sensor, setData, setTimeStamp, name, data }) => (
                   <ApexGraph
                     key={sensor}
                     name={name}
-                    data={eval(data)} // Directly access the state variable
-                    timestamp={eval(data.replace('Data', 'TimeStamp'))} // If necessary, ensure this is correctly accessing your timestamp
+                    data={eval(data)}
+                    timestamp={eval(data.replace('Data', 'TimeStamp'))}
                     max={90}
                     zoomEnabled={false}
                   />
                 )
-              )}{' '}
+              )}
             </Box>
           ) : (
             <>
-              <form
-                style={{
-                  display: 'flex',
-                  gap: '2rem',
-                  alignItems: 'center',
-                  marginBottom: '1rem',
-                  marginLeft: '2rem',
-                }}
-              >
+              <form>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                   <DateTimePicker
                     label='Start Date'
@@ -601,11 +594,7 @@ const DefaultPage = (data) => {
                   <MenuItem value='CadenceSensor'>CadenceSensor</MenuItem>
                 </TextField>
 
-                <CustomButton
-                  onClick={handleSubmit}
-                  variant='contained'
-                  // color={theme.palette.secondary[700]}
-                >
+                <CustomButton onClick={handleSubmit} variant='contained'>
                   Submit
                 </CustomButton>
               </form>
@@ -641,21 +630,7 @@ const DefaultPage = (data) => {
                         justifyContent: 'center',
                       }}
                     >
-                      <button
-                        onClick={handlePrint}
-                        style={{
-                          padding: '10px 20px',
-                          fontSize: '1rem',
-                          color: '#121318',
-                          backgroundColor: '#7CD6AB',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          transition: 'background-color 0.3s ease',
-                        }}
-                      >
-                        Print this out!
-                      </button>
+                      <button onClick={handlePrint}>Print this out!</button>
                     </div>
                   </div>
                 </Grid>
@@ -683,39 +658,13 @@ const DefaultPage = (data) => {
                 }`}
                 arrow
                 placement='left-end'
-                style={{
-                  fontSize: '15',
-                  position: 'fixed',
-                  top: '6.2rem',
-                  right: '4rem',
-                  padding: '0rem 1rem 0rem 0.5rem',
-                  border: connectionStatus
-                    ? '2px solid rgba(124, 214, 171, 0.3)'
-                    : '2px solid rgba(255, 36, 36, 0.3)',
-                  backgroundColor: connectionStatus
-                    ? 'rgba(124, 214, 171, 0.1)'
-                    : 'rgba(255, 36, 36, 0.1)',
-                  borderRadius: '50px',
-                  zIndex: 3,
-                }}
+                className={tooltipClass}
               >
                 <div>
                   <IconButton>
-                    <PowerIcon
-                      style={{
-                        color: connectionStatus
-                          ? 'rgba(124, 214, 171, 0.9)'
-                          : 'rgba(255, 36, 36, 0.9)',
-                      }}
-                    />
+                    <PowerIcon className={iconClass} />
                   </IconButton>
-                  <span
-                    style={{
-                      color: connectionStatus
-                        ? 'rgba(124, 214, 171, 0.9)'
-                        : 'rgba(255, 36, 36, 0.9)',
-                    }}
-                  >
+                  <span className={spanClass}>
                     {connectionStatus ? 'Connected' : 'Disconnected'}
                   </span>
                 </div>
