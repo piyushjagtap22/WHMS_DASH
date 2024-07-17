@@ -552,7 +552,7 @@ const DefaultPage = (data) => {
             </Box>
           ) : (
             <>
-              <form>
+              <form className='dpForm'>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                   <DateTimePicker
                     label='Start Date'
@@ -630,7 +630,9 @@ const DefaultPage = (data) => {
                         justifyContent: 'center',
                       }}
                     >
-                      <button onClick={handlePrint}>Print this out!</button>
+                      <CustomButton onClick={handlePrint}>
+                        Print this out!
+                      </CustomButton>
                     </div>
                   </div>
                 </Grid>

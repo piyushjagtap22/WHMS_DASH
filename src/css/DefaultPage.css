@@ -6,7 +6,7 @@
     padding: 0;
   }
   
-  form {
+  .dpForm {
     display: flex;
     gap: 2rem;
     align-items: center;
@@ -14,20 +14,8 @@
     margin-left: 2rem;
   }
   
-  button {
-    padding: 10px 20px;
-    font-size: 1rem;
-    color: #121318;
-    background-color: #7cd6ab;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
   
-  button:hover {
-    background-color: #6bc39a;
-  }
+  
   
   .tooltip {
     font-size: 15;
