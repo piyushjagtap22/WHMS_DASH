@@ -62,20 +62,20 @@ const SuperAdminScreen = () => {
   );
 
   const [customDialogOpen, setCustomDialogOpen] = useState(false);
-const [customDialogAction, setCustomDialogAction] = useState(null);
-const [customDialogUserId, setCustomDialogUserId] = useState(null);
+  const [customDialogAction, setCustomDialogAction] = useState(null);
+  const [customDialogUserId, setCustomDialogUserId] = useState(null);
 
   // const token = '';
   const [document, setdocument] = useState(null);
   const { userInfo } = useSelector((state) => state.superAdmin);
   const [adminUsers, setAdminUsers] = useState([]); // State to store admin users
-  const [button, setButton] = useState('false');
+  // const [button, setButton] = useState('false');
   const [open, setOpen] = useState(false);
   const [selectedAdmin, setselectedAdmin] = useState('');
   const [showUserIds, setShowUserIds] = useState({});
   const theme = useTheme();
   const [data, setData] = useState([]);
-  const [textFieldValue, setTextFieldValue] = useState('');
+
   const handleLogout = async () => {
     try {
       dispatch(setLoading(true));
@@ -124,19 +124,18 @@ const [customDialogUserId, setCustomDialogUserId] = useState(null);
       }
     };
     fetchData();
-  }, [dispatch, token, button, document]);
-
+  }, [dispatch, token, document]);
 
   const handleCustomDialogOpen = (action, userId) => {
     setCustomDialogAction(action);
     setCustomDialogUserId(userId);
     setCustomDialogOpen(true);
   };
-  
+
   const handleCustomDialogClose = () => {
     setCustomDialogOpen(false);
   };
-  
+
   const handleCustomDialogConfirm = () => {
     if (customDialogAction === 'enable') {
       enableAdminByID(customDialogUserId);
@@ -145,7 +144,6 @@ const [customDialogUserId, setCustomDialogUserId] = useState(null);
     }
     setCustomDialogOpen(false);
   };
-  
 
   const handleOpen = async (userId) => {
     setOpen(true);
@@ -217,45 +215,39 @@ const [customDialogUserId, setCustomDialogUserId] = useState(null);
     try {
       const response = await enableAdmin({ adminId: `${userId}` }, token);
       if (response.status === 200) {
-        setButton(!button);
+        // setButton(!button);
       }
     } catch (error) {
       console.log(error);
     }
   };
-  
+
   const disableAdminByID = async (userId) => {
     try {
       const response = await disableAdmin({ adminId: `${userId}` }, token);
       if (response.status === 200) {
-        setButton(!button);
+        // setButton(!button);
       }
     } catch (error) {
       console.log(error);
     }
   };
-  
 
-  const addDevice = async (data) => {
-    console.log(textFieldValue);
-    // console.log("check",data);
+  const addDevice = async (data, textData, clearTextField) => {
     try {
-      alert('Are you sure you want to add device' + textFieldValue);
-
       const response = await addDeviceID(
-        { adminId: `${data}`, deviceIds: [`${textFieldValue}`] },
+        { adminId: `${data}`, deviceIds: [`${textData}`] },
         token
       );
-      // const response = await addDeviceID({"adminId": "gL3g7f1sOSUGGyQmrB3mvOn68xm1","deviceIds": ["deviceId9"]}, token);
       if (response.status === 200) {
-        console.log(response); // Assuming the user data is in the response data
-        setTextFieldValue('');
-        setButton(!button);
+        clearTextField(); // Clear the text field on success
+        toast.success('Device added successfully');
       } else {
-        // Handle any errors or show a message
+        toast.error('Something went wrong, Please try again later');
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      toast.error(error.message);
     }
   };
 
@@ -264,8 +256,6 @@ const [customDialogUserId, setCustomDialogUserId] = useState(null);
     // Update the state with the current value of the text field
     setTextFieldValue(event.target.value);
   };
-
-  
 
   const handleShowUserIds = (adminId) => {
     setShowUserIds((prevShowUserIds) => ({
@@ -280,7 +270,7 @@ const [customDialogUserId, setCustomDialogUserId] = useState(null);
     try {
       if (response.status === 200) {
         console.log(response); // Assuming the user data is in the response data
-        setButton(!button);
+        // setButton(!button);
       } else {
         // Handle any errors or show a message
       }
@@ -290,6 +280,8 @@ const [customDialogUserId, setCustomDialogUserId] = useState(null);
   };
 
   function Row({ row }) {
+    const [textFieldValue, setTextFieldValue] = useState('');
+    const [updatedRow, setUpdatedRow] = useState(row);
     const [open, setOpen] = useState(false);
     console.log(row);
     return (
@@ -330,33 +322,33 @@ const [customDialogUserId, setCustomDialogUserId] = useState(null);
             )}
           </TableCell>
           <TableCell
-  sx={{
-    width: '10%',
-    color: row.roles[0] == 'admin' ? 'green' : 'red',
-  }}
->
-  {row?.adminDetails[0]?.accountEnabled ? (
-    <>
-      <a
-        href='#'
-        style={{ color: '#7CD6AB' }}
-        onClick={() => handleCustomDialogOpen('disable', row._id)}
-      >
-        Enabled
-      </a>
-    </>
-  ) : (
-    <>
-      <a
-        href='#'
-        style={{ color: '#FF553C' }}
-        onClick={() => handleCustomDialogOpen('enable', row._id)}
-      >
-        Disabled
-      </a>
-    </>
-  )}
-</TableCell>
+            sx={{
+              width: '10%',
+              color: row.roles[0] == 'admin' ? 'green' : 'red',
+            }}
+          >
+            {row?.adminDetails[0]?.accountEnabled ? (
+              <>
+                <a
+                  href='#'
+                  style={{ color: '#7CD6AB' }}
+                  onClick={() => handleCustomDialogOpen('disable', row._id)}
+                >
+                  Enabled
+                </a>
+              </>
+            ) : (
+              <>
+                <a
+                  href='#'
+                  style={{ color: '#FF553C' }}
+                  onClick={() => handleCustomDialogOpen('enable', row._id)}
+                >
+                  Disabled
+                </a>
+              </>
+            )}
+          </TableCell>
           <TableCell>
             View Devices
             <IconButton
@@ -396,7 +388,7 @@ const [customDialogUserId, setCustomDialogUserId] = useState(null);
                     </TableRow>
                   </TableHead>
                   <TableBody sx={{ padding: '16px' }}>
-                    {row?.adminDetails[0]?.deviceIds.map((deviceID) => (
+                    {updatedRow?.adminDetails[0]?.deviceIds.map((deviceID) => (
                       <TableRow
                         sx={{ padding: '16px 32px 16px 32px' }}
                         key={deviceID}
@@ -419,8 +411,8 @@ const [customDialogUserId, setCustomDialogUserId] = useState(null);
                         label='Add Device id'
                         variant='outlined'
                         size='small'
-                        onClick={(e) => e.stopPropagation()} // Stop event propagation here
-                        onChange={handleInputChange}
+                        // onClick={(e) => e.stopPropagation()} // Stop event propagation here
+                        onChange={(e) => setTextFieldValue(e.target.value)}
                         value={textFieldValue}
                         InputProps={{
                           onClick: (e) => e.stopPropagation(), // Also stop propagation on InputProps
@@ -455,7 +447,23 @@ const [customDialogUserId, setCustomDialogUserId] = useState(null);
                           color: '#121318',
                           textTransform: 'none',
                         }}
-                        onClick={() => addDevice(row._id)}
+                        onClick={() =>
+                          addDevice(row._id, textFieldValue, () => {
+                            setTextFieldValue('');
+                            setUpdatedRow({
+                              ...updatedRow,
+                              adminDetails: [
+                                {
+                                  ...updatedRow.adminDetails[0],
+                                  deviceIds: [
+                                    ...updatedRow.adminDetails[0].deviceIds,
+                                    textFieldValue,
+                                  ],
+                                },
+                              ],
+                            });
+                          })
+                        }
                       >
                         Add Device
                       </Button>
@@ -477,45 +485,43 @@ const [customDialogUserId, setCustomDialogUserId] = useState(null);
         <Navbar user={data || {}} />
       </Box>
       <Dialog
-  open={customDialogOpen}
-  onClose={handleCustomDialogClose}
-  aria-labelledby='custom-dialog-title'
-  aria-describedby='custom-dialog-description'
-  PaperProps={{ style: { borderRadius: 12, background: '#191c23' } }}
-
->
-  <DialogTitle id='custom-dialog-title'>
-    Confirm Action
-  </DialogTitle>
-  <DialogContent>
-    <DialogContentText id='custom-dialog-description'>
-      Are you sure you want to{' '}
-      {customDialogAction === 'enable'
-        ? 'enable this user as an admin'
-        : 'disable this admin'}
-      ?
-    </DialogContentText>
-  </DialogContent>
-  <DialogActions  sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 1,
-                paddingBottom: '20px',
-              }}>
-    <CustomButton       variant='contained'
- onClick={handleCustomDialogClose} >
-      Cancel
-    </CustomButton>
-    <CustomButton
-      onClick={handleCustomDialogConfirm}
-      variant='outlined'
-      autoFocus
-    >
-      Confirm
-    </CustomButton>
-  </DialogActions>
-</Dialog>
+        open={customDialogOpen}
+        onClose={handleCustomDialogClose}
+        aria-labelledby='custom-dialog-title'
+        aria-describedby='custom-dialog-description'
+        PaperProps={{ style: { borderRadius: 12, background: '#191c23' } }}
+      >
+        <DialogTitle id='custom-dialog-title'>Confirm Action</DialogTitle>
+        <DialogContent>
+          <DialogContentText id='custom-dialog-description'>
+            Are you sure you want to{' '}
+            {customDialogAction === 'enable'
+              ? 'enable this user as an admin'
+              : 'disable this admin'}
+            ?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1,
+            paddingBottom: '20px',
+          }}
+        >
+          <CustomButton variant='contained' onClick={handleCustomDialogClose}>
+            Cancel
+          </CustomButton>
+          <CustomButton
+            onClick={handleCustomDialogConfirm}
+            variant='outlined'
+            autoFocus
+          >
+            Confirm
+          </CustomButton>
+        </DialogActions>
+      </Dialog>
       <TableContainer
         sx={{ padding: '32px 32px 32px 32px', backgroundColor: '#121318' }}
         // component={Paper}

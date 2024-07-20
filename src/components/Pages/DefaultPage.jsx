@@ -63,9 +63,6 @@ const DefaultPage = (data) => {
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      // console.log('useEffect ran');
-      // console.log(heartRateTimeStampRef.current.length);
-
       if (heartRateTimeStampRef.current.length > 0) {
         const latestTimestamp =
           heartRateTimeStampRef.current[
@@ -73,25 +70,38 @@ const DefaultPage = (data) => {
           ];
         const latestTime = new Date(latestTimestamp);
         const currentTime = new Date();
-
         const timeDifference = (currentTime - latestTime) / 1000; // Difference in seconds
 
         if (timeDifference <= 13) {
-          setConnectionStatus(true);
+          setConnectionStatus((prevStatus) => {
+            console.log('up');
+            console.log('Updated connectionStatus:', true);
+            return true;
+          });
         } else {
-          setConnectionStatus(false);
+          setConnectionStatus((prevStatus) => {
+            console.log('Updated connectionStatus:', false);
+            return false;
+          });
         }
 
-        // console.log(connectionStatus);
-        // console.log(timeDifference);
-        // console.log(currentTime, latestTime);
+        console.log(latestTimestamp);
+        console.log(currentTime);
+        console.log(timeDifference);
       } else {
-        setConnectionStatus(false); // No timestamp available, set connectionStatus to false
+        setConnectionStatus((prevStatus) => {
+          console.log('Updated connectionStatus:', false);
+          return false;
+        });
       }
     }, 1000);
 
     return () => clearInterval(intervalId);
   }, []); // Empty dependency array to run only once on mount
+
+  useEffect(() => {
+    console.log('Connection status changed:', connectionStatus);
+  }, [connectionStatus]);
 
   const mapContainerRef = useRef(null);
 
