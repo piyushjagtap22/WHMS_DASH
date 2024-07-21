@@ -11,7 +11,7 @@ import {
   Route,
   RouterProvider,
 } from 'react-router-dom';
-
+import { Navigate } from 'react-router-dom';
 // import PrivateRoute2 from './components/PrivateRoute2.jsx';
 import DashboardValidator from './components/DashboardValidator.jsx';
 import LoginValidator from './components/LoginValidator.jsx';
@@ -46,6 +46,8 @@ const theme = createTheme(themeSettings('dark'));
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
+      <Route index element={<Navigate to='/register' />} />{' '}
+      {/* Redirects root path to /register */}
       <Route
         path='/register'
         element={<RegisterValidator component={Register} />}
@@ -54,13 +56,10 @@ const router = createBrowserRouter(
         path='/verify'
         element={<VerifyValidator component={DocumentVerificationScreen} />}
       />
-        <Route path='/GraphByDate' element={<GraphByDate/>} />
-
-      <Route path='/Default' element={<DefaultPage/>} />
-
+      <Route path='/GraphByDate' element={<GraphByDate />} />
+      <Route path='/Default' element={<DefaultPage />} />
       <Route path='' element={<Layout />}>
-
-      <Route
+        <Route
           path='/dashboard'
           element={<DashboardValidator component={Dashboard} />}
         />
@@ -78,28 +77,7 @@ const router = createBrowserRouter(
         element={<LoginValidator component={LoginScreen} />}
       />
       <Route path='*' element={<NotFoundPage />} />
-
-      {/* <Route path='' element={<AuthValidations />}> */}
-      {/* <Route path='/login' element={<LoginScreen />} /> */}
-      {/* <Route path='/register' element={<Register />} />
-      <Route path='/emailregister' element={<EmailRegister />} />
-      <Route path='/verify' element={<DocumentVerificationScreen />} /> */}
-      {/* <Route path='' element={<PrivateRoute />}> */}
-      {/* <Route path='' element={<UniqueLayout />}/> */}
-
-      {/* <Route path='/profile' element={<ProfileScreen />} /> */}
-      {/* <Route path='/home' element={<HomeScreen />} /> */}
-      {/* <Route path='/admin' element={<AdminScreen />} /> */}
-      {/* <Route path='/superadmin' element={<SuperAdminScreen />} /> */}
-      {/* <Route path='/user' element={<UserScreen />} /> */}
-      {/* <Route path='/dashboard' element={<Dashboard />} /> */}
-      {/* <Route path='/imagetesting' element={<ImageTesting />} /> */}
-
-      {/* <Route path='/newuser' element={<InitialUserScreen />} /> */}
       <Route path='/test' element={<TempPage />} />
-      {/* </Route> */}
-      {/* </Route> */}
-      {/* </Route> */}
     </Route>
   )
 );
