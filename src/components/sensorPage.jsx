@@ -134,7 +134,7 @@ const SensorPage = () => {
     setSearchTerm(eve.target.value);
 
     // //console.log('THIS IS SEARCH', searchTerm);ß
-
+    console.log('in sensor page');
     if (searchTerm.length >= 2) {
       // //console.log('search runinnh');
 
@@ -145,11 +145,13 @@ const SensorPage = () => {
       });
       // const filteredData = row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) || row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
       // setUsers(filteredData);
+      console.log(filteredData);
       setEvents(filteredData);
       // //console.log('filtered data', filteredData);
     } else {
       // Reset to original data when empty search term
       // //console.log('arijit da', initialTable);
+      console.log(initialTable);
       setEvents(initialTable);
     }
   };
@@ -175,6 +177,7 @@ const SensorPage = () => {
   };
 
   useEffect(() => {
+    console.log('In sensor page');
     const login = async () => {
       try {
         //console.log(setEvents.length);
@@ -185,6 +188,7 @@ const SensorPage = () => {
           if (response.status === 200) {
             //console.log('Chalao');
             //console.log('Device id data response', response.data);
+            console.log(response.data.deviceDocuments);
             setEvents(response.data.deviceDocuments);
             setinitialTable(response.data.deviceDocuments);
             const bunnySet = new Set(response.data.devices.flat());
@@ -239,10 +243,10 @@ const SensorPage = () => {
                 //console.log('first', updatedEvents[index]);
                 updatedEvents[index].heartSensor =
                   change?.fullDocument.heartSensor;
-                updatedEvents[index].BreathRateSensor =
-                  change?.fullDocument.BreathRateSensor;
-                updatedEvents[index].VentilatonSensor =
-                  change?.fullDocument.VentilatonSensor;
+                updatedEvents[index].OxygenSaturationSensor =
+                  change?.fullDocument.OxygenSaturationSensor;
+                updatedEvents[index].BloodPressureSensor =
+                  change?.fullDocument.BloodPressureSensor;
                 // updatedEvents[index] = change.fullDocument;
                 //console.log('format kharab ni hone diya', updatedEvents[index]);
 
@@ -377,7 +381,7 @@ const SensorPage = () => {
                       color: 'grey',
                     }}
                   >
-                    Device
+                    Device Id
                   </td>
                   <td
                     style={{
@@ -398,14 +402,14 @@ const SensorPage = () => {
                       color: 'grey',
                     }}
                   >
-                    ECG Sensor
+                    SP02
                   </td>
                   <td
                     style={{
                       color: 'grey',
                     }}
                   >
-                    BP Sensor
+                    BP
                   </td>
                 </tr>
               </thead>
@@ -438,11 +442,11 @@ const SensorPage = () => {
                     <td style={{ ...getCellStyle(e?.heartSensor) }}>
                       {e?.heartSensor || '---'} bpm
                     </td>
-                    <td style={{ ...getCellStyle(e?.BreathRateSensor) }}>
-                      {e?.BreathRateSensor || '---'} bpm
+                    <td style={{ ...getCellStyle(e?.OxygenSaturationSensor) }}>
+                      {e?.OxygenSaturationSensor || '---'} %
                     </td>
-                    <td style={{ ...getCellStyle(e?.VentilatonSensor) }}>
-                      {e?.VentilatonSensor || '---'} mmhg
+                    <td style={{ ...getCellStyle(e?.BloodPressureSensor) }}>
+                      {e?.BloodPressureSensor || '---'} mmhg
                     </td>
                   </tr>
                 ))}

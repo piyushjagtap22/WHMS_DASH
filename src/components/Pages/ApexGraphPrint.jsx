@@ -13,7 +13,27 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
       lastValues.reduce((acc, value) => acc + value, 0) / lastValues.length
     );
   };
+  function convertUTCToIST(dateString) {
+    // Parse the UTC date-time string
+    const utcDate = new Date(dateString);
 
+    // IST offset in milliseconds (IST is UTC + 5 hours 30 minutes)
+    const istOffset = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
+
+    // Calculate IST time by adding the IST offset to the UTC date
+    const istDate = new Date(utcDate.getTime() + istOffset);
+
+    // Extract day, month, year, hours, minutes, and seconds
+    const day = String(istDate.getDate()).padStart(2, '0');
+    const month = String(istDate.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = istDate.getFullYear();
+    const hours = String(istDate.getHours()).padStart(2, '0');
+    const minutes = String(istDate.getMinutes()).padStart(2, '0');
+    const seconds = String(istDate.getSeconds()).padStart(2, '0');
+
+    // Format the date and time as "DD-MM-YYYY HH:MM:SS"
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+  }
   const {
     timestamp: labels,
     data,
@@ -22,11 +42,13 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
     phone,
     sensorType,
     zoomEnabled,
+    startDate,
+    endDate,
   } = props;
   const max = 30;
   const average = useMemo(() => calculateAverage(data.slice(-10)), [data]);
   const isAboveMax = average > max;
-
+  console.log(JSON.stringify(startDate));
   const series = [{ name, data }];
   const options = {
     chart: {
@@ -110,7 +132,7 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
   };
 
   const footerStyle = {
-    marginTop: '20px',
+    marginTop: '12rem',
     textAlign: 'center',
   };
 
@@ -162,18 +184,18 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
         `}
       </style>
       <header className='print-header' style={headerStyle}>
-        <img src={PrayogikLogo} height='80rem' alt='Prayogik Logo' />
-        <h1>Prodyogik Solutions</h1>
-        <p>Address Line 1, Address Line 2, City, Country</p>
+        W-HMS Health Report
+        <p>Patient Details:</p>
+        <p> Name - {name}</p>
         <p>
           Phone: {phone} | Email: {email}
         </p>
-        Name - {name}
       </header>
       <main>
         <Box style={boxStyle}>
           <div style={infoStyle}>
             <span style={titleStyle}>{sensorType}</span>
+
             <span style={separatorStyle}>|</span>
             <span style={currentWeekStyle}>
               <FiberManualRecordIcon
@@ -185,13 +207,19 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
                   fontSize: '0.8rem',
                 }}
               />
-              Current Week
+              {startDate !== null &&
+                `Start Date: ${convertUTCToIST(startDate)}`}
+              {endDate !== null && ` | End Date: ${convertUTCToIST(endDate)} `}
             </span>
           </div>
           <ReactApexChart options={options} series={series} type='area' />
         </Box>
       </main>
       <footer className='print-footer' style={footerStyle}>
+        <img src={PrayogikLogo} height='80rem' alt='Prayogik Logo' />
+        <h1>Prodyogik Solutions</h1>
+        <p>Address Line 1, Address Line 2, City, Country</p>
+
         <p>Company Name - All Rights Reserved</p>
       </footer>
     </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import '../../css/DefaultPage.css';
 import { useLocation, useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
 import { getDeviceIds, getLoc, getSensorDB } from '../../slices/adminApiSlice';
 
 import { Box, Grid, MenuItem, TextField, useMediaQuery } from '@mui/material';
@@ -56,10 +56,24 @@ const DefaultPage = (data) => {
   useEffect(() => {
     heartRateTimeStampRef.current = heartRateTimeStamp;
   }, [heartRateTimeStamp]);
-
+  const [address, setAddress] = useState('');
   const tooltipClass = connectionStatus ? 'tooltip' : 'tooltip disconnected';
   const iconClass = connectionStatus ? 'icon' : 'icon disconnected';
   const spanClass = connectionStatus ? '' : 'disconnected';
+  const mapRef = useRef(null); // Create a ref for the map object
+
+  const updateAddress = async (lat, lon) => {
+    console.log(lat, lon);
+    console.log('rev geocoding');
+    const req = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lon}%2C%20${lat}.json?access_token=pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw`;
+    try {
+      const loc = await axios.get(req);
+      console.log(loc.data?.features[0]?.place_name);
+      setAddress(loc.data?.features[0]?.place_name);
+    } catch (error) {
+      console.error('Error fetching location:', error);
+    }
+  };
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -74,23 +88,23 @@ const DefaultPage = (data) => {
 
         if (timeDifference <= 13) {
           setConnectionStatus((prevStatus) => {
-            console.log('up');
-            console.log('Updated connectionStatus:', true);
+            //console.log('up');
+            //console.log('Updated connectionStatus:', true);
             return true;
           });
         } else {
           setConnectionStatus((prevStatus) => {
-            console.log('Updated connectionStatus:', false);
+            //console.log('Updated connectionStatus:', false);
             return false;
           });
         }
 
-        console.log(latestTimestamp);
-        console.log(currentTime);
-        console.log(timeDifference);
+        //console.log(latestTimestamp);
+        //console.log(currentTime);
+        //console.log(timeDifference);
       } else {
         setConnectionStatus((prevStatus) => {
-          console.log('Updated connectionStatus:', false);
+          //console.log('Updated connectionStatus:', false);
           return false;
         });
       }
@@ -100,7 +114,7 @@ const DefaultPage = (data) => {
   }, []); // Empty dependency array to run only once on mount
 
   useEffect(() => {
-    console.log('Connection status changed:', connectionStatus);
+    //console.log('Connection status changed:', connectionStatus);
   }, [connectionStatus]);
 
   const mapContainerRef = useRef(null);
@@ -181,7 +195,7 @@ const DefaultPage = (data) => {
       }
 
       const data = await response.json();
-      console.log(data);
+      //console.log(data);
       return data;
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -193,13 +207,13 @@ const DefaultPage = (data) => {
   const isNonMobile = useMediaQuery('(min-width: 600px)');
 
   const handleSubmit = () => {
-    console.log('sub');
-    console.log(userData);
+    //console.log('sub');
+    //console.log(userData);
     const startUnix = convertDateToUnix(startDate);
     const endUnix = convertDateToUnix(endDate);
 
-    console.log('Start Unix:', startUnix);
-    console.log('End Unix:', endUnix);
+    //console.log('Start Unix:', startUnix);
+    //console.log('End Unix:', endUnix);
 
     getGraphData(userData.data.profileData._id, startUnix, endUnix)
       .then((data) => {
@@ -209,14 +223,14 @@ const DefaultPage = (data) => {
           const timestamp = data.map((item) => item.timestamp.slice(11, 19));
           setGraphByDateData(values);
           setGraphByDateTimeStamp(timestamp);
-          setGraphDataByDate(values);
-          setGraphDataByDateTimestamp(timestamp);
+          // setGraphDataByDate(values);
+          // setGraphDataByDateTimestamp(timestamp);
         } else {
           toast.error('No data points found');
         }
       })
       .catch((error) => {
-        console.log(error);
+        // //console.log(error);
         toast.error(error);
         // Handle errors here
       });
@@ -224,7 +238,7 @@ const DefaultPage = (data) => {
 
   useEffect(() => {
     const devicesdb = async () => {
-      console.log('useeffect trigerred');
+      //console.log('useeffect trigerred');
       try {
         const id = userData.data.currentUserId;
 
@@ -236,10 +250,16 @@ const DefaultPage = (data) => {
               if (
                 response.data.deviceDocuments[r].currentUserId ==
                 userData.data.currentUserId
-              )
+              ) {
+                console.log(response.data.deviceDocuments[r]);
                 setLatitude(response.data.deviceDocuments[r].location[0].lat);
 
-              setLongitude(response.data.deviceDocuments[r].location[0].lon);
+                setLongitude(response.data.deviceDocuments[r].location[0].lon);
+                updateAddress(
+                  response.data.deviceDocuments[r].location[0].lat,
+                  response.data.deviceDocuments[r].location[0].lon
+                );
+              }
             }
           }
         }
@@ -249,11 +269,12 @@ const DefaultPage = (data) => {
         const collection2 = mongodb2.db('test').collection('devices');
 
         const changeStream2 = collection2.watch();
-
+        console.log('Location update');
         for await (const change of changeStream2) {
           if (
             userData.data.currentUserId == change?.fullDocument?.currentUserId
           ) {
+            console.log('Location update');
             const lat = change.fullDocument.location[0].lat;
 
             const lon = change.fullDocument.location[0].lon;
@@ -261,6 +282,7 @@ const DefaultPage = (data) => {
             setLatitude(lat);
 
             setLongitude(lon);
+            updateAddress(lat, lon);
           } else {
           }
         }
@@ -472,16 +494,16 @@ const DefaultPage = (data) => {
     },
   ];
   useEffect(() => {
-    //console.log('shivnashu 22', localStorage.getItem('tabhistory'));
+    ////console.log('shivnashu 22', localStorage.getItem('tabhistory'));
     const login = async () => {
       try {
         const id = userData.data.currentUserId;
 
         if (setEvents.length <= 1) {
-          // //console.log(id);
+          // ////console.log(id);
 
           const response = await getSensorDB(token, id);
-          console.log(response);
+          //console.log(response);
 
           if (response.status === 200) {
             mapSensorData(response.data, sensorDataMappings);
@@ -542,11 +564,13 @@ const DefaultPage = (data) => {
                 },
               }}
             >
+              <p>{address}</p>
               <div
                 id='map'
                 className='MuiBox-root css-1nt5awt'
                 ref={mapContainerRef}
               />
+
               {sensorDataMappings.map(
                 ({ sensor, setData, setTimeStamp, name, data }) => (
                   <ApexGraph
@@ -568,7 +592,7 @@ const DefaultPage = (data) => {
                     label='Start Date'
                     value={startDate}
                     onChange={(e) => {
-                      console.log(e);
+                      //console.log(e);
                       setStartDate(e);
                     }}
                     InputLabelProps={{
@@ -579,7 +603,7 @@ const DefaultPage = (data) => {
                     label='End Date'
                     value={endDate}
                     onChange={(e) => {
-                      console.log(e);
+                      //console.log(e);
                       setEndDate(e);
                     }}
                     InputLabelProps={{
@@ -674,9 +698,21 @@ const DefaultPage = (data) => {
               >
                 <div>
                   <IconButton>
-                    <PowerIcon className={iconClass} />
+                    <PowerIcon
+                      style={{
+                        color: connectionStatus
+                          ? 'rgba(124, 214, 171, 0.9)'
+                          : 'rgba(255, 36, 36, 0.9)',
+                      }}
+                    />
                   </IconButton>
-                  <span className={spanClass}>
+                  <span
+                    style={{
+                      color: connectionStatus
+                        ? 'rgba(124, 214, 171, 0.9)'
+                        : 'rgba(255, 36, 36, 0.9)',
+                    }}
+                  >
                     {connectionStatus ? 'Connected' : 'Disconnected'}
                   </span>
                 </div>
