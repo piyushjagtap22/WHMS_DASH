@@ -304,9 +304,8 @@ const SidebarNew = ({
         </Box>
       </Box>
       <Box hidden={tabValueSidebar !== 1} p={2}>
-        {/* History content goes here */}
         {Object.keys(sensorData).map((key, index) => (
-          <>
+          <React.Fragment key={index}>
             <Box sx={{}} key={index}>
               {sensorData[key] ? (
                 <Paper
@@ -335,7 +334,6 @@ const SidebarNew = ({
                   >
                     3:22 pm UTC, Today
                   </Typography>
-                  {/* Example sensor data, replace with actual data */}
                   <Typography
                     variant='body2'
                     sx={{
@@ -363,27 +361,27 @@ const SidebarNew = ({
                       </Typography>
                     </Grid>
                     {/* <Grid item sx={{ ml: 2 }}>
-                  <DirectionsRunIcon style={{ color: '#7CD6AB', fontSize: '1rem' }} />
-                </Grid>
-                <Grid item>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontSize: '0.9rem',
-                      color: '#fff'
-                    }}
-                  >
-                    20.1 resp/min
-                  </Typography>
-                </Grid> */}
+                <DirectionsRunIcon style={{ color: '#7CD6AB', fontSize: '1rem' }} />
+              </Grid>
+              <Grid item>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: '0.9rem',
+                    color: '#fff'
+                  }}
+                >
+                  20.1 resp/min
+                </Typography>
+              </Grid> */}
                   </Grid>
                 </Paper>
               ) : (
-                <h1 key={`nodata-${index}`}>No data for {key}</h1>
+                <h1>No data for {key}</h1>
               )}
             </Box>
             <Divider className={classes.divider}></Divider>
-          </>
+          </React.Fragment>
         ))}
       </Box>
     </Box>

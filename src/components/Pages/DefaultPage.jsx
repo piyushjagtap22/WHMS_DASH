@@ -28,6 +28,8 @@ import ApexGraphPrint from './ApexGraphPrint';
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 
 const DefaultPage = (data) => {
+  const latitudeRef = useRef(null);
+  const longitudeRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const componentRef = useRef();
@@ -57,19 +59,44 @@ const DefaultPage = (data) => {
     heartRateTimeStampRef.current = heartRateTimeStamp;
   }, [heartRateTimeStamp]);
   const [address, setAddress] = useState('');
+  const [address2, setAddress2] = useState('');
   const tooltipClass = connectionStatus ? 'tooltip' : 'tooltip disconnected';
   const iconClass = connectionStatus ? 'icon' : 'icon disconnected';
   const spanClass = connectionStatus ? '' : 'disconnected';
   const mapRef = useRef(null); // Create a ref for the map object
-
+  const getDir = async (start, end) => {
+    try {
+      console.log(start, end);
+      const req2 = `https://api.mapbox.com/directions/v5/mapbox/cycling/${start[1]},${start[0]};${end[1]},${end[0]}?steps=true&geometries=geojson&access_token=pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw`;
+      const loc2 = await axios.get(req2);
+      return loc2;
+    } catch (error) {
+      console.error('Error fetching location:', error);
+      return null;
+    }
+  };
   const updateAddress = async (lat, lon) => {
     console.log(lat, lon);
     console.log('rev geocoding');
     const req = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lon}%2C%20${lat}.json?access_token=pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw`;
     try {
       const loc = await axios.get(req);
+
       console.log(loc.data?.features[0]?.place_name);
       setAddress(loc.data?.features[0]?.place_name);
+    } catch (error) {
+      console.error('Error fetching location:', error);
+    }
+  };
+
+  const updateAddress2 = async (lat, lon) => {
+    console.log(lat, lon);
+    console.log('rev geocoding 2');
+    const req = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lat}%2C%20${lon}.json?access_token=pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw`;
+    try {
+      const loc = await axios.get(req);
+      console.log(loc.data?.features[0]?.place_name);
+      setAddress2(loc.data?.features[0]?.place_name);
     } catch (error) {
       console.error('Error fetching location:', error);
     }
@@ -236,6 +263,65 @@ const DefaultPage = (data) => {
       });
   };
 
+  async function getRoute(map, start, end) {
+    // make a directions request using cycling profile
+    // an arbitrary start will always be the same
+    // only the end or destination will change
+    // const req = `https://api.mapbox.com/directions/v5/mapbox/cycling/${start[0]},${start[1]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token='pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw'`;
+    // console.log(req);
+    console.log(start, end);
+    const query = await getDir(start, end);
+    console.log(query);
+    console.log(query.data.routes[0]?.geometry.coordinates);
+    // const json = await query.json();
+    // const data = json.routes[0];
+    const route = query.data.routes[0]?.geometry?.coordinates;
+    const geojson = {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: route,
+      },
+    };
+    // if the route already exists on the map, we'll reset it using setData
+    if (map.getSource('route')) {
+      map.getSource('route').setData(geojson);
+    }
+    // otherwise, we'll make a new request
+    else {
+      map.addLayer({
+        id: 'route',
+        type: 'line',
+        source: {
+          type: 'geojson',
+          data: geojson,
+        },
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round',
+        },
+        paint: {
+          'line-color': '#3887be',
+          'line-width': 5,
+          'line-opacity': 0.75,
+        },
+      });
+    }
+
+    // update the sidebar with the instructions
+    //   const instructions = document.getElementById('instructions');
+    //  const steps = data.legs[0].steps;
+
+    //   let tripInstructions = '';
+    //   for (const step of steps) {
+    //     tripInstructions += `<li>${step.maneuver.instruction}</li>`;
+    //   }
+    //   instructions.innerHTML = `<p><strong>Trip duration: ${Math.floor(
+    //     data.duration / 60
+    //   )} min 🚴 </strong></p><ol>${tripInstructions}</ol>`;
+  }
+
   useEffect(() => {
     const devicesdb = async () => {
       //console.log('useeffect trigerred');
@@ -255,6 +341,10 @@ const DefaultPage = (data) => {
                 setLatitude(response.data.deviceDocuments[r].location[0].lat);
 
                 setLongitude(response.data.deviceDocuments[r].location[0].lon);
+                latitudeRef.current =
+                  response.data.deviceDocuments[r].location[0].lat;
+                longitudeRef.current =
+                  response.data.deviceDocuments[r].location[0].lon;
                 updateAddress(
                   response.data.deviceDocuments[r].location[0].lat,
                   response.data.deviceDocuments[r].location[0].lon
@@ -282,8 +372,11 @@ const DefaultPage = (data) => {
             setLatitude(lat);
 
             setLongitude(lon);
+            latitudeRef.current = lat;
+            longitudeRef.current = lon;
             updateAddress(lat, lon);
           } else {
+            console.log('Data is Not Relevant');
           }
         }
       } catch (error) {
@@ -348,7 +441,7 @@ const DefaultPage = (data) => {
           });
 
           const updateSource = setInterval(async () => {
-            // const geojson = await getLocation(updateSource);
+            const geojson = await getLocation(updateSource);
             map.getSource('iss').setData(geojson);
           }, 5000);
 
@@ -358,8 +451,12 @@ const DefaultPage = (data) => {
               const dataloc = await getLoc(token, userData.data.currentUserId);
 
               const latitude = dataloc.data[0].lat;
+              setLatitude(latitude);
 
               const longitude = dataloc.data[0].lon;
+              setLongitude(longitude);
+              latitudeRef.current = latitude;
+              longitudeRef.current = longitude;
 
               // Fly the map to the location.
 
@@ -394,6 +491,60 @@ const DefaultPage = (data) => {
               throw new Error(err);
             }
           }
+        });
+
+        map.on('click', (event) => {
+          const coords = Object.keys(event.lngLat).map(
+            (key) => event.lngLat[key]
+          );
+          const end = {
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                  type: 'Point',
+                  coordinates: coords,
+                },
+              },
+            ],
+          };
+
+          if (map.getLayer('end')) {
+            map.getSource('end').setData(end);
+          } else {
+            map.addLayer({
+              id: 'end',
+              type: 'circle',
+              source: {
+                type: 'geojson',
+                data: {
+                  type: 'FeatureCollection',
+                  features: [
+                    {
+                      type: 'Feature',
+                      properties: {},
+                      geometry: {
+                        type: 'Point',
+                        coordinates: coords,
+                      },
+                    },
+                  ],
+                },
+              },
+              paint: {
+                'circle-radius': 10,
+                'circle-color': '#f30',
+              },
+            });
+          }
+          updateAddress2(coords[0], coords[1]);
+          getRoute(
+            map,
+            [latitudeRef.current, longitudeRef.current],
+            [coords[1], coords[0]]
+          );
         });
       }
     }
@@ -564,7 +715,8 @@ const DefaultPage = (data) => {
                 },
               }}
             >
-              <p>{address}</p>
+              <p>To: {address}</p>
+              <p>From: {address2}</p>
               <div
                 id='map'
                 className='MuiBox-root css-1nt5awt'
