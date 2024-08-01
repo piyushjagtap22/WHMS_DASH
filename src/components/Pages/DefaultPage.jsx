@@ -1,3 +1,4 @@
+import { useLayoutEffect } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import '../../css/DefaultPage.css';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -7,7 +8,7 @@ import { getDeviceIds, getLoc, getSensorDB } from '../../slices/adminApiSlice';
 import { Box, Grid, MenuItem, TextField, useMediaQuery } from '@mui/material';
 
 import { useDispatch, useSelector } from 'react-redux';
-
+import Loader from '../Loader';
 import * as Realm from 'realm-web';
 import IconButton from '@mui/material/IconButton';
 
@@ -28,6 +29,8 @@ import ApexGraphPrint from './ApexGraphPrint';
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 
 const DefaultPage = (data) => {
+  const loading = useSelector((state) => state.loading.loading);
+  console.log(loading);
   const latitudeRef = useRef(null);
   const longitudeRef = useRef(null);
   const navigate = useNavigate();
@@ -64,10 +67,17 @@ const DefaultPage = (data) => {
   const iconClass = connectionStatus ? 'icon' : 'icon disconnected';
   const spanClass = connectionStatus ? '' : 'disconnected';
   const mapRef = useRef(null); // Create a ref for the map object
+  const MAPBOX_TOKEN =
+    'pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw';
+  const GEOCODING_URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places';
+  const DIRECTIONS_URL = 'https://api.mapbox.com/directions/v5/mapbox/cycling';
+
   const getDir = async (start, end) => {
     try {
       console.log(start, end);
-      const req2 = `https://api.mapbox.com/directions/v5/mapbox/cycling/${start[1]},${start[0]};${end[1]},${end[0]}?steps=true&geometries=geojson&access_token=pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw`;
+
+      const req2 = `${DIRECTIONS_URL}/${start[1]},${start[0]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${MAPBOX_TOKEN}`;
+      console.log('REQ', req2);
       const loc2 = await axios.get(req2);
       return loc2;
     } catch (error) {
@@ -75,35 +85,29 @@ const DefaultPage = (data) => {
       return null;
     }
   };
-  const updateAddress = async (lat, lon) => {
+
+  const updateAddress = async (lat, lon, addressType) => {
     console.log(lat, lon);
     console.log('rev geocoding');
-    const req = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lon}%2C%20${lat}.json?access_token=pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw`;
+    const req = `${GEOCODING_URL}/${lon}%2C%20${lat}.json?access_token=${MAPBOX_TOKEN}`;
     try {
+      console.log(req);
       const loc = await axios.get(req);
+      const placeName = loc.data?.features[0]?.place_name;
+      console.log(placeName);
 
-      console.log(loc.data?.features[0]?.place_name);
-      setAddress(loc.data?.features[0]?.place_name);
-    } catch (error) {
-      console.error('Error fetching location:', error);
-    }
-  };
-
-  const updateAddress2 = async (lat, lon) => {
-    console.log(lat, lon);
-    console.log('rev geocoding 2');
-    const req = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lat}%2C%20${lon}.json?access_token=pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw`;
-    try {
-      const loc = await axios.get(req);
-      console.log(loc.data?.features[0]?.place_name);
-      setAddress2(loc.data?.features[0]?.place_name);
+      if (addressType === 'address1') {
+        setAddress(placeName);
+      } else if (addressType === 'address2') {
+        setAddress2(placeName);
+      }
     } catch (error) {
       console.error('Error fetching location:', error);
     }
   };
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
+    const checkConnectionStatus = () => {
       if (heartRateTimeStampRef.current.length > 0) {
         const latestTimestamp =
           heartRateTimeStampRef.current[
@@ -113,46 +117,30 @@ const DefaultPage = (data) => {
         const currentTime = new Date();
         const timeDifference = (currentTime - latestTime) / 1000; // Difference in seconds
 
-        if (timeDifference <= 13) {
-          setConnectionStatus((prevStatus) => {
-            //console.log('up');
-            //console.log('Updated connectionStatus:', true);
-            return true;
-          });
-        } else {
-          setConnectionStatus((prevStatus) => {
-            //console.log('Updated connectionStatus:', false);
-            return false;
-          });
-        }
-
-        //console.log(latestTimestamp);
-        //console.log(currentTime);
-        //console.log(timeDifference);
+        setConnectionStatus(timeDifference <= 13);
       } else {
-        setConnectionStatus((prevStatus) => {
-          //console.log('Updated connectionStatus:', false);
-          return false;
-        });
+        setConnectionStatus(false);
       }
-    }, 1000);
+    };
+
+    checkConnectionStatus();
+    const intervalId = setInterval(checkConnectionStatus, 1000);
 
     return () => clearInterval(intervalId);
-  }, []); // Empty dependency array to run only once on mount
-
-  useEffect(() => {
-    //console.log('Connection status changed:', connectionStatus);
-  }, [connectionStatus]);
+  }, []);
 
   const mapContainerRef = useRef(null);
 
   const [initialTable, setinitialTable] = useState({});
-  const { state: userData } = useLocation();
+
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
-  if (userData == null) {
-    dispatch(setAuthState('/dashboard'));
-    navigate('/dashboard');
-  }
+
+  const { state: userData } = useLocation();
+  // if (userData == null) {
+  //   console.log('got to dashboard');
+  //   dispatch(setAuthState('/dashboard'));
+  //   navigate('/dashboard');
+  // }
 
   const [graphByDateData, setGraphByDateData] = useState([]);
   const [graphByDateTimeStamp, setGraphByDateTimeStamp] = useState([]);
@@ -199,132 +187,187 @@ const DefaultPage = (data) => {
 
   const uid = useSelector((state) => state.auth.AuthUser?.uid);
   const [events, setEvents] = useState([]);
+
   async function getGraphData(iid, startTimeStamp, endTimeStamp) {
     const url = 'http://localhost:3000/api/admin/getGraphData';
-    const body = JSON.stringify({
+    const payload = {
       id: iid,
       sensorType: sensorType,
       startTimeStamp: startTimeStamp,
       endTimeStamp: endTimeStamp,
-    });
+    };
 
     try {
-      const response = await fetch(url, {
-        method: 'POST',
+      const response = await axios.post(url, payload, {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: body,
       });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const data = await response.json();
-      //console.log(data);
-      return data;
+      return response.data;
     } catch (error) {
       console.error('Error fetching data:', error);
-
-      toast.error('Error Fetching data, please check dates');
       throw error;
     }
   }
   const isNonMobile = useMediaQuery('(min-width: 600px)');
 
-  const handleSubmit = () => {
-    //console.log('sub');
-    //console.log(userData);
-    const startUnix = convertDateToUnix(startDate);
-    const endUnix = convertDateToUnix(endDate);
+  const handleSubmit = async () => {
+    try {
+      const startUnix = convertDateToUnix(startDate);
+      const endUnix = convertDateToUnix(endDate);
 
-    //console.log('Start Unix:', startUnix);
-    //console.log('End Unix:', endUnix);
+      const data = await getGraphData(
+        userData.data.profileData._id,
+        startUnix,
+        endUnix
+      );
 
-    getGraphData(userData.data.profileData._id, startUnix, endUnix)
-      .then((data) => {
-        if (data && data.length > 0) {
-          // Extracting values from data
-          const values = data.map((item) => item.value);
-          const timestamp = data.map((item) => item.timestamp.slice(11, 19));
-          setGraphByDateData(values);
-          setGraphByDateTimeStamp(timestamp);
-          // setGraphDataByDate(values);
-          // setGraphDataByDateTimestamp(timestamp);
-        } else {
-          toast.error('No data points found');
-        }
-      })
-      .catch((error) => {
-        // //console.log(error);
-        toast.error(error);
-        // Handle errors here
-      });
+      if (data && data.length > 0) {
+        const values = data.map((item) => item.value);
+        const timestamp = data.map((item) => item.timestamp.slice(11, 19));
+
+        setGraphByDateData(values);
+        setGraphByDateTimeStamp(timestamp);
+      } else {
+        toast.error('No data points found');
+      }
+    } catch (error) {
+      toast.error('Error fetching data. Please check dates.');
+      console.error('Error in handleSubmit:', error);
+    }
   };
 
   async function getRoute(map, start, end) {
-    // make a directions request using cycling profile
-    // an arbitrary start will always be the same
-    // only the end or destination will change
-    // const req = `https://api.mapbox.com/directions/v5/mapbox/cycling/${start[0]},${start[1]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token='pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw'`;
-    // console.log(req);
-    console.log(start, end);
-    const query = await getDir(start, end);
-    console.log(query);
-    console.log(query.data.routes[0]?.geometry.coordinates);
-    // const json = await query.json();
-    // const data = json.routes[0];
-    const route = query.data.routes[0]?.geometry?.coordinates;
-    const geojson = {
-      type: 'Feature',
-      properties: {},
-      geometry: {
-        type: 'LineString',
-        coordinates: route,
-      },
-    };
-    // if the route already exists on the map, we'll reset it using setData
-    if (map.getSource('route')) {
-      map.getSource('route').setData(geojson);
-    }
-    // otherwise, we'll make a new request
-    else {
-      map.addLayer({
-        id: 'route',
-        type: 'line',
-        source: {
-          type: 'geojson',
-          data: geojson,
-        },
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round',
-        },
-        paint: {
-          'line-color': '#3887be',
-          'line-width': 5,
-          'line-opacity': 0.75,
-        },
-      });
-    }
+    try {
+      const sourceId = 'route';
+      if (map.getLayer(sourceId)) {
+        map.removeLayer(sourceId);
+      }
+      if (map.getSource(sourceId)) {
+        map.removeSource(sourceId);
+      }
+      const query = await getDir(start, end);
+      console.log(query);
+      const coordinates = query.data.routes[0]?.geometry?.coordinates;
+      console.log('COOD');
+      console.log(coordinates);
 
-    // update the sidebar with the instructions
-    //   const instructions = document.getElementById('instructions');
-    //  const steps = data.legs[0].steps;
+      if (!coordinates) {
+        console.log('to remove layer');
 
-    //   let tripInstructions = '';
-    //   for (const step of steps) {
-    //     tripInstructions += `<li>${step.maneuver.instruction}</li>`;
-    //   }
-    //   instructions.innerHTML = `<p><strong>Trip duration: ${Math.floor(
-    //     data.duration / 60
-    //   )} min 🚴 </strong></p><ol>${tripInstructions}</ol>`;
+        throw new Error('No route data available');
+      }
+
+      const geojson = {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates,
+        },
+      };
+      if (map.getSource(sourceId)) {
+        map.getSource(sourceId).setData(geojson);
+      } else {
+        map.addLayer({
+          id: sourceId,
+          type: 'line',
+          source: {
+            type: 'geojson',
+            data: geojson,
+          },
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round',
+          },
+          paint: {
+            'line-color': '#3887be',
+            'line-width': 5,
+            'line-opacity': 0.75,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching or processing route:', error);
+    }
   }
 
   useEffect(() => {
-    const devicesdb = async () => {
-      //console.log('useeffect trigerred');
+    let updateSourceInterval = null;
+
+    // Function to initialize Mapbox
+    const initializeMap = () => {
+      if (!mapContainerRef.current) return;
+
+      mapboxgl.accessToken =
+        'pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw';
+
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        zoom: 14.0,
+      });
+
+      map.on('load', async () => {
+        try {
+          const geojson = await getLocation(map);
+          map.addSource('iss', { type: 'geojson', data: geojson });
+          map.addLayer({
+            id: 'iss',
+            type: 'symbol',
+            source: 'iss',
+            layout: { 'icon-image': 'rocket' },
+          });
+
+          updateSourceInterval = setInterval(async () => {
+            try {
+              const geojson = await getLocation(map);
+              map.getSource('iss').setData(geojson);
+            } catch (err) {
+              clearInterval(updateSourceInterval);
+              console.error('Error updating map source:', err);
+            }
+          }, 5000);
+
+          map.on('click', async (event) => {
+            const coords = [event.lngLat.lng, event.lngLat.lat];
+            const end = {
+              type: 'FeatureCollection',
+              features: [
+                {
+                  type: 'Feature',
+                  geometry: { type: 'Point', coordinates: coords },
+                },
+              ],
+            };
+
+            if (map.getLayer('end')) {
+              map.getSource('end').setData(end);
+            } else {
+              map.addLayer({
+                id: 'end',
+                type: 'circle',
+                source: { type: 'geojson', data: end },
+                paint: { 'circle-radius': 10, 'circle-color': '#f30' },
+              });
+            }
+
+            updateAddress(coords[1], coords[0], 'address2');
+            await getRoute(
+              map,
+              [latitudeRef.current, longitudeRef.current],
+              coords
+            );
+          });
+        } catch (err) {
+          console.error('Error initializing map:', err);
+        }
+      });
+    };
+
+    // Function to fetch and set device data
+    const fetchDeviceData = async () => {
       try {
         const id = userData.data.currentUserId;
 
@@ -332,225 +375,122 @@ const DefaultPage = (data) => {
           const response = await getDeviceIds(token, id);
 
           if (response.status === 200) {
-            for (var r in response.data.deviceDocuments) {
-              if (
-                response.data.deviceDocuments[r].currentUserId ==
-                userData.data.currentUserId
-              ) {
-                console.log(response.data.deviceDocuments[r]);
-                setLatitude(response.data.deviceDocuments[r].location[0].lat);
+            const device = response.data.deviceDocuments.find(
+              (doc) => doc.currentUserId === id
+            );
 
-                setLongitude(response.data.deviceDocuments[r].location[0].lon);
-                latitudeRef.current =
-                  response.data.deviceDocuments[r].location[0].lat;
-                longitudeRef.current =
-                  response.data.deviceDocuments[r].location[0].lon;
-                updateAddress(
-                  response.data.deviceDocuments[r].location[0].lat,
-                  response.data.deviceDocuments[r].location[0].lon
-                );
-              }
+            if (device) {
+              const { lat, lon } = device.location[0];
+              setLatitude(lat);
+              setLongitude(lon);
+              latitudeRef.current = lat;
+              longitudeRef.current = lon;
+              updateAddress(lat, lon, 'address1');
+            } else {
+              throw new Error('No relevant device data found');
             }
           }
         }
 
         const mongodb2 = app.currentUser.mongoClient('mongodb-atlas');
-
         const collection2 = mongodb2.db('test').collection('devices');
-
         const changeStream2 = collection2.watch();
+
         console.log('Location update');
         for await (const change of changeStream2) {
           if (
-            userData.data.currentUserId == change?.fullDocument?.currentUserId
+            userData.data.currentUserId === change?.fullDocument?.currentUserId
           ) {
             console.log('Location update');
-            const lat = change.fullDocument.location[0].lat;
-
-            const lon = change.fullDocument.location[0].lon;
-
+            const { lat, lon } = change.fullDocument.location[0];
             setLatitude(lat);
-
             setLongitude(lon);
             latitudeRef.current = lat;
             longitudeRef.current = lon;
-            updateAddress(lat, lon);
+            updateAddress(lat, lon, 'address1');
           } else {
             console.log('Data is Not Relevant');
           }
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error fetching device data:', error);
       }
     };
 
-    devicesdb();
+    // Function to get current location
+    const getLocation = async (map) => {
+      try {
+        const dataloc = await getLoc(token, userData.data.currentUserId);
+        const latitude = dataloc.data[0].lat;
+        const longitude = dataloc.data[0].lon;
 
+        setLatitude(latitude);
+        setLongitude(longitude);
+        latitudeRef.current = latitude;
+        longitudeRef.current = longitude;
+
+        // Fly the map to the location.
+        if (
+          latitudeRef.current != latitude ||
+          longitudeRef.current != longitude
+        ) {
+          if (map.getLayer('route')) {
+            map.removeLayer('route');
+          }
+          if (map.getSource('route')) {
+            map.removeSource('route');
+          }
+
+          if (map.getLayer('end')) {
+            map.removeLayer('end');
+          }
+          if (map.getSource('end')) {
+            map.removeSource('end');
+          }
+        }
+        map.flyTo({
+          center: [longitude, latitude],
+          speed: 4.5,
+        });
+
+        // Return the location of the ISS as GeoJSON.
+        return {
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [longitude, latitude], // lon lat
+              },
+            },
+          ],
+        };
+      } catch (err) {
+        console.error('Error fetching location:', err);
+        throw new Error(err);
+      }
+    };
+
+    // Fetch initial device data and initialize Mapbox
+    fetchDeviceData();
     const mapboxScript = document.createElement('script');
-
     mapboxScript.src =
       'https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js';
-
     mapboxScript.onload = initializeMap;
-
     document.body.appendChild(mapboxScript);
 
     const mapboxLink = document.createElement('link');
-
     mapboxLink.href =
       'https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css';
-
     mapboxLink.rel = 'stylesheet';
-
     document.head.appendChild(mapboxLink);
 
-    function initializeMap() {
-      if (mapContainerRef.current) {
-        mapboxgl.accessToken =
-          'pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw';
-
-        const map = new mapboxgl.Map({
-          container: 'map',
-
-          style: 'mapbox://styles/mapbox/streets-v12',
-
-          zoom: 14.0,
-        });
-
-        map.on('load', async () => {
-          const geojson = await getLocation();
-
-          // Add the ISS location as a source.
-
-          map.addSource('iss', {
-            type: 'geojson',
-
-            data: geojson,
-          });
-
-          map.addLayer({
-            id: 'iss',
-
-            type: 'symbol',
-
-            source: 'iss',
-
-            layout: {
-              'icon-image': 'rocket',
-            },
-          });
-
-          const updateSource = setInterval(async () => {
-            const geojson = await getLocation(updateSource);
-            map.getSource('iss').setData(geojson);
-          }, 5000);
-
-          async function getLocation(updateSource) {
-            // Make a GET request to the API and return the location of the ISS.
-            try {
-              const dataloc = await getLoc(token, userData.data.currentUserId);
-
-              const latitude = dataloc.data[0].lat;
-              setLatitude(latitude);
-
-              const longitude = dataloc.data[0].lon;
-              setLongitude(longitude);
-              latitudeRef.current = latitude;
-              longitudeRef.current = longitude;
-
-              // Fly the map to the location.
-
-              map.flyTo({
-                center: [longitude, latitude],
-
-                speed: 4.5,
-              });
-
-              // Return the location of the ISS as GeoJSON.
-
-              return {
-                type: 'FeatureCollection',
-
-                features: [
-                  {
-                    type: 'Feature',
-
-                    geometry: {
-                      type: 'Point',
-
-                      coordinates: [longitude, latitude], //lon lat
-                    },
-                  },
-                ],
-              };
-            } catch (err) {
-              // If the updateSource interval is defined, clear the interval to stop updating the source.
-
-              if (updateSource) clearInterval(updateSource);
-
-              throw new Error(err);
-            }
-          }
-        });
-
-        map.on('click', (event) => {
-          const coords = Object.keys(event.lngLat).map(
-            (key) => event.lngLat[key]
-          );
-          const end = {
-            type: 'FeatureCollection',
-            features: [
-              {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                  type: 'Point',
-                  coordinates: coords,
-                },
-              },
-            ],
-          };
-
-          if (map.getLayer('end')) {
-            map.getSource('end').setData(end);
-          } else {
-            map.addLayer({
-              id: 'end',
-              type: 'circle',
-              source: {
-                type: 'geojson',
-                data: {
-                  type: 'FeatureCollection',
-                  features: [
-                    {
-                      type: 'Feature',
-                      properties: {},
-                      geometry: {
-                        type: 'Point',
-                        coordinates: coords,
-                      },
-                    },
-                  ],
-                },
-              },
-              paint: {
-                'circle-radius': 10,
-                'circle-color': '#f30',
-              },
-            });
-          }
-          updateAddress2(coords[0], coords[1]);
-          getRoute(
-            map,
-            [latitudeRef.current, longitudeRef.current],
-            [coords[1], coords[0]]
-          );
-        });
-      }
-    }
-
+    // Cleanup function
     return () => {
-      // Clean up Mapbox instance if needed
+      if (updateSourceInterval) clearInterval(updateSourceInterval);
+      document.body.removeChild(mapboxScript);
+      document.head.removeChild(mapboxLink);
     };
   }, []); // Empty dependency array: Execute only once on component mount
 
@@ -567,9 +507,6 @@ const DefaultPage = (data) => {
     return null; // Handle case where no date string is provided
   };
 
-  // Example usage
-  const dateString = 'Thu Jul 11 2024 01:15:00 GMT+0530 (India Standard Time)';
-  const unixTime = convertDateToUnix(dateString);
   const mapSensorData = (data, mappings) => {
     mappings.forEach(({ sensor, setData, setTimeStamp }) => {
       if (data[sensor]) {
@@ -644,17 +581,22 @@ const DefaultPage = (data) => {
       data: 'TidalVolumeSensorData',
     },
   ];
+
+  const getSensorName = (sensor) => {
+    console.log(sensor);
+    const sensorMapping = sensorDataMappings.find(
+      (mapping) => mapping.sensor === sensor
+    );
+    return sensorMapping ? sensorMapping.name : 'Please select sensor';
+  };
+
   useEffect(() => {
-    ////console.log('shivnashu 22', localStorage.getItem('tabhistory'));
     const login = async () => {
       try {
         const id = userData.data.currentUserId;
 
         if (setEvents.length <= 1) {
-          // ////console.log(id);
-
           const response = await getSensorDB(token, id);
-          //console.log(response);
 
           if (response.status === 200) {
             mapSensorData(response.data, sensorDataMappings);
@@ -685,194 +627,271 @@ const DefaultPage = (data) => {
   }, []);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
+  const handleButtonClick = () => {
+    console.log(latitudeRef.current, longitudeRef.current);
+    const url = `https://google.com/maps/search/${latitudeRef.current},${longitudeRef.current}`;
+    window.open(url, '_blank');
+  };
   return (
     <>
-      <Navbar />
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <Navbar />
 
-      <Toaster toastOptions={{ duration: 4000 }} />
-      <Box display='flex' flexDirection='row'>
-        <SidebarNew
-          user={userData || {}}
-          isNonMobile={isNonMobile}
-          drawerWidth='250px'
-          isSidebarOpen={isSidebarOpen}
-          setIsSidebarOpen={setIsSidebarOpen}
-          setTabValue={setTabValue}
-        />
-        <Box flexGrow={1} m='2rem 0rem'>
-          {tabValue === 0 ? (
-            <Box
-              margin='2rem 2rem'
-              display='grid'
-              gridTemplateColumns='repeat(12, 1fr)'
-              gridAutoRows='160px'
-              gap='12px'
-              zIndex={2}
-              sx={{
-                '& > div': {
-                  gridColumn: isNonMediumScreens ? undefined : 'span 12',
-                },
-              }}
-            >
-              <p>To: {address}</p>
-              <p>From: {address2}</p>
-              <div
-                id='map'
-                className='MuiBox-root css-1nt5awt'
-                ref={mapContainerRef}
-              />
-
-              {sensorDataMappings.map(
-                ({ sensor, setData, setTimeStamp, name, data }) => (
-                  <ApexGraph
-                    key={sensor}
-                    name={name}
-                    data={eval(data)}
-                    timestamp={eval(data.replace('Data', 'TimeStamp'))}
-                    max={90}
-                    zoomEnabled={false}
-                  />
-                )
-              )}
-            </Box>
-          ) : (
-            <>
-              <form className='dpForm'>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                  <DateTimePicker
-                    label='Start Date'
-                    value={startDate}
-                    onChange={(e) => {
-                      //console.log(e);
-                      setStartDate(e);
-                    }}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                  <DateTimePicker
-                    label='End Date'
-                    value={endDate}
-                    onChange={(e) => {
-                      //console.log(e);
-                      setEndDate(e);
-                    }}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                </LocalizationProvider>
-                <TextField
-                  style={{ width: '125px' }}
-                  select
-                  label='Sensor Type'
-                  value={sensorType}
-                  onChange={(e) => setSensorType(e.target.value)}
+          <Toaster toastOptions={{ duration: 4000 }} />
+          <Box display='flex' flexDirection='row'>
+            <SidebarNew
+              user={userData || {}}
+              isNonMobile={isNonMobile}
+              drawerWidth='250px'
+              isSidebarOpen={isSidebarOpen}
+              setIsSidebarOpen={setIsSidebarOpen}
+              setTabValue={setTabValue}
+            />
+            <Box flexGrow={1} m='2rem 0rem'>
+              {tabValue === 0 ? (
+                <Box
+                  margin='2rem 2rem'
+                  display='grid'
+                  gridTemplateColumns='repeat(12, 1fr)'
+                  gridAutoRows='160px'
+                  gap='12px'
+                  zIndex={2}
+                  sx={{
+                    '& > div': {
+                      gridColumn: isNonMediumScreens ? undefined : 'span 12',
+                    },
+                  }}
                 >
-                  <MenuItem value='heartSensor'>Heart Rate</MenuItem>
-                  <MenuItem value='BloodPressureSensor'>Breath Rate</MenuItem>
-                  <MenuItem value='VentilatonSensor'>VentilatonSensor</MenuItem>
-                  <MenuItem value='TidalVolumeSensor'>
-                    TidalVolumeSensor
-                  </MenuItem>
-                  <MenuItem value='ActivitySensor'>ActivitySensor</MenuItem>
-                  <MenuItem value='CadenceSensor'>CadenceSensor</MenuItem>
-                </TextField>
-
-                <CustomButton onClick={handleSubmit} variant='contained'>
-                  Submit
-                </CustomButton>
-              </form>
-              <Grid container>
-                <Grid item></Grid>
-                <Grid
-                  item
-                  xs={12}
-                  md={6}
-                  container
-                  direction='column'
-                  alignItems='flex-start'
-                >
-                  <div style={{ padding: '20px', width: '100%' }}>
-                    <ApexGraphPrint
-                      name={userData.data.initialUserData.name}
-                      email={userData.data.initialUserData.email}
-                      phone={userData.data.initialUserData.phone}
-                      data={graphByDateData}
-                      timestamp={graphByDateTimeStamp}
-                      max={90}
-                      zoomEnabled={true}
-                      ref={componentRef}
-                      startDate={startDate}
-                      endDate={endDate}
-                      sensorType={sensorType}
+                  <div
+                    className='MuiBox-root'
+                    style={{
+                      gridColumn: 'span 7',
+                      gridRow: 'span 4',
+                      height: '34rem',
+                      backgroundColor: '#191C23',
+                      padding: '0rem',
+                      borderRadius: '1.55rem',
+                      zIndex: 2,
+                      width: '',
+                    }}
+                  >
+                    <div
+                      id='map'
+                      style={{
+                        borderTopLeftRadius: '1.55rem',
+                        borderTopRightRadius: '1.55rem',
+                        height: '23rem',
+                      }}
+                      // className='MuiBox-root css-1nt5awt'
+                      ref={mapContainerRef}
                     />
                     <div
                       style={{
-                        display: 'flex',
-                        gap: '10px',
-                        marginTop: '20px',
-                        justifyContent: 'center',
+                        padding: '16px',
                       }}
                     >
-                      <CustomButton onClick={handlePrint}>
-                        Print this out!
+                      <p
+                        style={{
+                          maxWidth: '754.5px',
+
+                          padding: '8px',
+                          border: '2px solid gray',
+                          borderRadius: '0.73rem',
+                        }}
+                      >
+                        To: {address}
+                      </p>
+
+                      <p
+                        style={{
+                          maxWidth: '754.5px',
+
+                          padding: '8px',
+                          border: '2px solid gray',
+                          borderRadius: '0.73rem',
+                        }}
+                      >
+                        From: {address2}
+                      </p>
+
+                      <CustomButton onClick={handleButtonClick}>
+                        Open in Maps
                       </CustomButton>
                     </div>
                   </div>
-                </Grid>
-              </Grid>
-            </>
-          )}
 
-          {isNonMediumScreens && tabValue === 0 && (
-            <Box>
-              <BodyFigure
-                sensorData={{
-                  'heart rate': heartRateData[heartRateData.length - 1],
-                  temperature:
-                    VentilatonSensorData[VentilatonSensorData.length - 1],
-                  medication: heartRateData[heartRateData.length - 1],
-                  'breath rate':
-                    BreathRateSensorData[BreathRateSensorTimeStamp.length - 1],
-                  activity: heartRateData[heartRateData.length - 1],
-                }}
-              />
+                  {sensorDataMappings.map(
+                    ({ sensor, setData, setTimeStamp, name, data }) => (
+                      <ApexGraph
+                        key={sensor}
+                        name={name}
+                        data={eval(data)}
+                        timestamp={eval(data.replace('Data', 'TimeStamp'))}
+                        max={90}
+                        zoomEnabled={false}
+                      />
+                    )
+                  )}
+                </Box>
+              ) : (
+                <>
+                  <form className='dpForm'>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                      <DateTimePicker
+                        label='Start Date'
+                        value={startDate}
+                        onChange={(e) => {
+                          //console.log(e);
+                          setStartDate(e);
+                        }}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                      />
+                      <DateTimePicker
+                        label='End Date'
+                        value={endDate}
+                        onChange={(e) => {
+                          //console.log(e);
+                          setEndDate(e);
+                        }}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                      />
+                    </LocalizationProvider>
+                    <TextField
+                      style={{ width: '125px' }}
+                      select
+                      label='Sensor Type'
+                      value={sensorType}
+                      onChange={(e) => setSensorType(e.target.value)}
+                    >
+                      <MenuItem value='heartSensor'>Heart Rate</MenuItem>
+                      <MenuItem value='BloodPressureSensor'>
+                        Breath Rate
+                      </MenuItem>
+                      <MenuItem value='VentilatonSensor'>
+                        VentilatonSensor
+                      </MenuItem>
+                      <MenuItem value='TidalVolumeSensor'>
+                        TidalVolumeSensor
+                      </MenuItem>
+                      <MenuItem value='ActivitySensor'>ActivitySensor</MenuItem>
+                      <MenuItem value='CadenceSensor'>CadenceSensor</MenuItem>
+                    </TextField>
 
-              <Tooltip
-                title={`Connection Status: ${currentTime} and ${
-                  heartRateTimeStamp[heartRateTimeStamp.length - 1]
-                }`}
-                arrow
-                placement='left-end'
-                className={tooltipClass}
-              >
-                <div>
-                  <IconButton>
-                    <PowerIcon
-                      style={{
-                        color: connectionStatus
-                          ? 'rgba(124, 214, 171, 0.9)'
-                          : 'rgba(255, 36, 36, 0.9)',
-                      }}
-                    />
-                  </IconButton>
-                  <span
-                    style={{
-                      color: connectionStatus
-                        ? 'rgba(124, 214, 171, 0.9)'
-                        : 'rgba(255, 36, 36, 0.9)',
+                    <CustomButton onClick={handleSubmit} variant='contained'>
+                      Submit
+                    </CustomButton>
+                  </form>
+                  <Grid container>
+                    <Grid item></Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      md={6}
+                      container
+                      direction='column'
+                      alignItems='flex-start'
+                    >
+                      <div style={{ padding: '20px', width: '100%' }}>
+                        <ApexGraphPrint
+                          name={userData.data.initialUserData.name}
+                          email={userData.data.initialUserData.email}
+                          phone={userData.data.initialUserData.phone}
+                          data={graphByDateData}
+                          timestamp={graphByDateTimeStamp}
+                          max={90}
+                          zoomEnabled={true}
+                          ref={componentRef}
+                          startDate={startDate}
+                          endDate={endDate}
+                          sensorType={getSensorName(sensorType)}
+                        />
+                        <div
+                          style={{
+                            display: 'flex',
+                            gap: '10px',
+                            marginTop: '20px',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <CustomButton onClick={handlePrint}>
+                            Print this out!
+                          </CustomButton>
+                        </div>
+                      </div>
+                    </Grid>
+                  </Grid>
+                </>
+              )}
+
+              {isNonMediumScreens && tabValue === 0 && (
+                <Box>
+                  <BodyFigure
+                    sensorData={{
+                      'Heart Rate': heartRateData[heartRateData.length - 1],
+                      'Min. Ventilation':
+                        VentilatonSensorData[VentilatonSensorData.length - 1],
+                      'Breathing Rate':
+                        BreathRateSensorData[
+                          BreathRateSensorTimeStamp.length - 1
+                        ],
+                      Activity:
+                        ActivitySensorData[ActivitySensorData.length - 1],
+                      'Tidal Volume':
+                        TidalVolumeSensorData[TidalVolumeSensorData.length - 1],
+                      SPO2: OxygenSaturationSensorData[
+                        OxygenSaturationSensorData.length - 1
+                      ],
+                      Steps: ActivitySensorData[ActivitySensorData.length - 1],
+                      Cadence: CadenceSensorData[CadenceSensorData.length - 1],
+
+                      Temperature:
+                        TemperatureSensorData[TemperatureSensorData.length - 1],
+                      'Blood Pressure': BPSensorData[BPSensorData.length - 1],
                     }}
+                  />
+
+                  <Tooltip
+                    title={`Connection Status: ${currentTime} and ${
+                      heartRateTimeStamp[heartRateTimeStamp.length - 1]
+                    }`}
+                    arrow
+                    placement='left-end'
+                    className={tooltipClass}
                   >
-                    {connectionStatus ? 'Connected' : 'Disconnected'}
-                  </span>
-                </div>
-              </Tooltip>
+                    <div>
+                      <IconButton>
+                        <PowerIcon
+                          style={{
+                            color: connectionStatus
+                              ? 'rgba(124, 214, 171, 0.9)'
+                              : 'rgba(255, 36, 36, 0.9)',
+                          }}
+                        />
+                      </IconButton>
+                      <span
+                        style={{
+                          color: connectionStatus
+                            ? 'rgba(124, 214, 171, 0.9)'
+                            : 'rgba(255, 36, 36, 0.9)',
+                        }}
+                      >
+                        {connectionStatus ? 'Connected' : 'Disconnected'}
+                      </span>
+                    </div>
+                  </Tooltip>
+                </Box>
+              )}
             </Box>
-          )}
-        </Box>
-      </Box>
+          </Box>
+        </>
+      )}
     </>
   );
 };

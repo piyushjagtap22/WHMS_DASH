@@ -51,7 +51,7 @@ const Dashboard = () => {
   const [events, setEvents] = useState([]);
   const [realTimeData, setRealTimeData] = useState([]);
   const [newRealTimeData, setNewRealTimeData] = useState([]);
-  console.log('shiv' + JSON.stringify(import.meta.env.VITE_REACT_API_URL));
+
   // const {data } = useGetUserQuery();
   console.log(userInfo + 'userInfo');
   const token = useSelector(
@@ -69,8 +69,6 @@ const Dashboard = () => {
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
 
-    console.log('THIS IS SEARCH', searchTerm);
-
     if (searchTerm.length >= 2) {
       const filteredData = data.filter((row) => {
         return (
@@ -82,9 +80,7 @@ const Dashboard = () => {
       setUsers(filteredData);
       console.log('filtered data', filteredData);
     } else {
-      console.log('reset horha h ');
       setUsers(initialTable); // Reset to original data when empty search term
-      console.log('arijit da', initialTable);
     }
   };
 
@@ -95,32 +91,7 @@ const Dashboard = () => {
       setUsers(initialTable);
     }
   };
-
-  // // const {data } = useGetUserQuery();
-  // console.log(userInfo + "userInfo");
-  // console.log("bunny",searchTerm)
   useEffect(() => {
-    // Fetch user data when the component mounts
-    const fetchData = async () => {
-      try {
-        console.log('in fetchdata');
-        // const response = await getAllUsers(token);
-        // console.log(response + 'R ');
-        // if (response.status === 200) {
-        //   setUsers(response.data);
-        //   setinitialTable(response.data);
-        //   console.log('bunny', response.data);
-        //   console.log('bunny crazy', typeof response.data);
-        // } else {
-        //   // Handle any errors or show a message
-        //   console.log('Something Went Wrong');
-        // }
-      } catch (error) {
-        // Handle any network or API request errors
-        console.log(error);
-      }
-    };
-    fetchData();
     const login = async () => {
       try {
         // Log in anonymously
@@ -133,17 +104,7 @@ const Dashboard = () => {
 
           // Set up change stream and handle real-time updates
           const changeStream = collection.watch();
-          // Set up a change stream with a filter on the sensor_id field
-          // const pipeline = [
-          //   {
-          //     $match: {
-          //       'fullDocument.sensor_id': '233', // Change 'sensor_id' to the actual field name
-          //     },
-          //   },
-          // ];
 
-          // const changeStream = collection.watch();
-          // console.log(changeStream);
           for await (const change of changeStream) {
             console.log('Change Stream Event:', change);
 
@@ -216,22 +177,6 @@ const Dashboard = () => {
           : params.row.heartSensor?.value || '';
       },
     },
-    // {
-    //   field: 'timeStamp',
-    //   headerName: 'Time Stamp',
-    //   flex: 0.4,
-    //   valueGetter: (params) => {
-    //     // Get the real-time value from the state based on _id
-    //     const realTimeValue = realTimeData.find(
-    //       (item) => item._id === params.row._id
-    //     );
-
-    //     // Display the real-time value if available, else display the default value
-    //     return realTimeValue
-    //       ? realTimeValue.timeStamp
-    //       : params.row.heartSensor.timeStamp;
-    //   },
-    // },
     {
       field: 'email',
       headerName: 'email',

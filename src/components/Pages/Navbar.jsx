@@ -1,13 +1,18 @@
 import {
   ArrowDropDownOutlined,
   DarkModeOutlined,
-  LightModeOutlined
+  LightModeOutlined,
 } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import profileImage from '../../assets/profile.png';
-import { setAuthState, setAuthUser, setMongoUser } from '../../slices/authSlice';
+import {
+  setAuthState,
+  setAuthUser,
+  setMongoUser,
+} from '../../slices/authSlice';
 import { setLoading } from '../../slices/loadingSlice';
 import { setMode } from '../../slices/modeSlice.js';
 import FlexBetween from '../FlexBetween.jsx';
@@ -21,7 +26,7 @@ import {
   MenuItem,
   Toolbar,
   Typography,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import { signOut } from 'firebase/auth';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -120,13 +125,20 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
           )}
           <FlexBetween borderRadius='9px' gap='4rem' p='0.1rem 1.5rem'>
             <Typography fontSize='14px' fontWeight='bold'>
-              {location.pathname === '/Default'
-                ?
-                  'Dashboard / WHMS-' +
-                  AuthUser.uid.substring(0, 4).toUpperCase()
-                : location.pathname.substring(1).toUpperCase()}
+              {location.pathname === '/Default' ? (
+                <>
+                  <Link
+                    to='/dashboard'
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    Dashboard
+                  </Link>
+                  {' / WHMS-' + AuthUser.uid.substring(0, 4).toUpperCase()}
+                </>
+              ) : (
+                location.pathname.substring(1).toUpperCase()
+              )}
             </Typography>
-            
           </FlexBetween>
         </FlexBetween>
 

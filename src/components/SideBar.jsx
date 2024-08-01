@@ -79,18 +79,18 @@ const Sidebar = ({
                 onClose={() => setIsSidebarOpen(false)}
                 variant='persistent'
                 anchor='left'
-                overflowY='hidden'
+                overflowy='hidden'
                 sx={{
                   width: drawerWidth,
                   '& .MuiDrawer-paper': {
                     color: theme.palette.secondary[200],
                     backgroundColor: theme.palette.background.alt,
                     borderRight: `solid ${theme.palette.secondary[400]}`,
-                    boxSixing: 'border-box',
+                    boxSizing: 'border-box',
                     borderWidth: isNonMobile ? '1px' : '2px',
                     width: drawerWidth,
-                    overflowX: 'hidden', // Hide horizontal scrollbar
-                    overflowY: 'auto', // Show vertical scrollbar when needed
+                    overflowx: 'hidden', // Hide horizontal scrollbar
+                    overflowy: 'auto', // Show vertical scrollbar when needed
                   },
                 }}
               >
@@ -196,8 +196,8 @@ const Sidebar = ({
                 onClose={() => setIsSidebarOpen(false)}
                 variant='persistent'
                 anchor='left'
-                overflowX='hidden'
-                overflowY='auto'
+                overflowx='hidden'
+                overflowy='auto'
                 sx={{
                   width: drawerWidth,
                   '& .MuiDrawer-paper': {
@@ -208,8 +208,8 @@ const Sidebar = ({
                     borderRadius: '30px',
                     margin: '1px 15px',
                     width: drawerWidth,
-                    overflowX: 'hidden', // Hide horizontal scrollbar
-                    overflowY: 'auto', // Show vertical scrollbar when needed
+                    overflowx: 'hidden', // Hide horizontal scrollbar
+                    overflowy: 'auto', // Show vertical scrollbar when needed
                     scrollbarWidth: 'none', // Firefox
                     '-ms-overflow-style': 'none', // Internet Explorer and Edge
                     '&::-webkit-scrollbar': {

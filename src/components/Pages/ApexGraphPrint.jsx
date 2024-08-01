@@ -13,6 +13,61 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
       lastValues.reduce((acc, value) => acc + value, 0) / lastValues.length
     );
   };
+  const sensorDataMappings = [
+    {
+      sensor: 'heartSensor',
+      name: 'Heart Rate',
+      unit: 'bpm',
+    },
+    {
+      sensor: 'BreathRateSensor',
+      name: 'Breath Rate',
+      unit: 'resp/min',
+    },
+    {
+      sensor: 'VentilatonSensor',
+      name: 'Ventilaton',
+      unit: 'L/min',
+    },
+    {
+      sensor: 'ActivitySensor',
+      name: 'Activity',
+      unit: 'g',
+    },
+    {
+      sensor: 'BloodPressureSensor',
+      name: 'Blood Pressure',
+      unit: 'mmHg',
+    },
+    {
+      sensor: 'CadenceSensor',
+      name: 'Cadence',
+      unit: 'step/min ',
+    },
+    {
+      sensor: 'OxygenSaturationSensor',
+      name: 'Oxygen Saturation',
+      unit: '%',
+    },
+    {
+      sensor: 'TemperatureSensor',
+      name: 'Temperature',
+      unit: '°C',
+    },
+    {
+      sensor: 'TidalVolumeSensor',
+      name: 'Tidal Volume',
+      unit: 'L',
+    },
+  ];
+
+  const getUnitForKey = (key) => {
+    const sensorMapping = sensorDataMappings.find(
+      (mapping) => mapping.name.toLowerCase() === key.toLowerCase()
+    );
+    console.log(sensorMapping ? sensorMapping.unit : '');
+    return sensorMapping ? sensorMapping.unit : '';
+  };
   function convertUTCToIST(dateString) {
     // Parse the UTC date-time string
     const utcDate = new Date(dateString);
@@ -85,8 +140,8 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
       },
     },
     yaxis: {
-      labels: { formatter: (val) => `${val.toFixed(0)}M` },
-      title: { text: 'Value' },
+      labels: { formatter: (val) => `${val.toFixed(0)}` },
+      title: { text: getUnitForKey(sensorType) },
       tickAmount: 4,
     },
     xaxis: {
@@ -106,7 +161,7 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
     },
     tooltip: {
       shared: false,
-      y: { formatter: (val) => `${val.toFixed(0)}M` },
+      y: { formatter: (val) => `${val.toFixed(0)}` },
     },
   };
 

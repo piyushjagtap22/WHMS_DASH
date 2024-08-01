@@ -31,17 +31,12 @@ import './index.css';
 import store from './store.js';
 import { themeSettings } from './theme';
 
-// import PrivateRoute3 from './components/PrivateRoute3.jsx';
 import EmailRegisterValidator from './components/EmailRegisterValidator.jsx';
 import RegisterValidator from './components/RegisterValidator.jsx';
 import VerifyValidator from './components/VerifyValidator.jsx';
-// import UniqueLayout from './components/Pages/uniqueLayout.jsx';
-import GraphByDate from './components/Pages/GraphByDate.jsx';
 import TempPage from './components/Pages/TempPage.jsx';
+import DefaultPageValidator from './components/DefaultPageValidator.jsx';
 const theme = createTheme(themeSettings('dark'));
-//
-//Firebase auth Initilialization
-// store.dispatch(initializeAuthUser());
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -56,8 +51,13 @@ const router = createBrowserRouter(
         path='/verify'
         element={<VerifyValidator component={DocumentVerificationScreen} />}
       />
-      <Route path='/GraphByDate' element={<GraphByDate />} />
       <Route path='/Default' element={<DefaultPage />} />
+      {/* <Route path='' element={<Layout />}>
+        <Route
+          path='/Default'
+          element={<DefaultPageValidator component={DefaultPage} />}
+        />
+      </Route> */}
       <Route path='' element={<Layout />}>
         <Route
           path='/dashboard'

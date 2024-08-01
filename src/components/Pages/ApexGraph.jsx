@@ -15,10 +15,63 @@ const ApexGraph = React.memo((props) => {
     return sum / lastValues.length;
   }
 
-  // Dummy data
+  const sensorDataMappings = [
+    {
+      sensor: 'heartSensor',
+      name: 'Heart Rate',
+      unit: 'bpm',
+    },
+    {
+      sensor: 'BreathRateSensor',
+      name: 'Breath Rate',
+      unit: 'resp/min',
+    },
+    {
+      sensor: 'VentilatonSensor',
+      name: 'Ventilaton',
+      unit: 'L/min',
+    },
+    {
+      sensor: 'ActivitySensor',
+      name: 'Activity',
+      unit: 'g',
+    },
+    {
+      sensor: 'BloodPressureSensor',
+      name: 'Blood Pressure',
+      unit: 'mmHg',
+    },
+    {
+      sensor: 'CadenceSensor',
+      name: 'Cadence',
+      unit: 'step/min ',
+    },
+    {
+      sensor: 'OxygenSaturationSensor',
+      name: 'Oxygen Saturation',
+      unit: '%',
+    },
+    {
+      sensor: 'TemperatureSensor',
+      name: 'Temperature',
+      unit: '°C',
+    },
+    {
+      sensor: 'TidalVolumeSensor',
+      name: 'Tidal Volume',
+      unit: 'L',
+    },
+  ];
+
+  const getUnitForKey = (key) => {
+    const sensorMapping = sensorDataMappings.find(
+      (mapping) => mapping.name.toLowerCase() === key.toLowerCase()
+    );
+    console.log(sensorMapping ? sensorMapping.unit : '');
+    return sensorMapping ? sensorMapping.unit : '';
+  };
+
   const labels = props.timestamp;
-  // console.log('apex2', labels);
-  // console.log(props.zoomEnabled);
   const data = props.data;
   const name = props.name;
   const max = 30;
@@ -81,18 +134,18 @@ const ApexGraph = React.memo((props) => {
     yaxis: {
       labels: {
         formatter: function (val) {
-          return val.toFixed(0) + 'M';
+          return val.toFixed(0);
         },
         style: {
           colors: 'rgba(255,255,255,0.4)', // set the x-axis label color to white
-          fontSize: '12px',
+          fontSize: '16px',
           fontFamily: 'Helvetica, Arial, sans-serif',
           fontWeight: 400,
           cssClass: 'apexcharts-xaxis-label',
         },
       },
       title: {
-        text: 'Value',
+        text: `${getUnitForKey(name)}`,
       },
       tickAmount: 4,
     },
@@ -181,10 +234,8 @@ const ApexGraph = React.memo((props) => {
             marginRight: '1rem',
             color: theme.palette.primary[100],
           }}
-        >
-          |
-        </span>
-        <span style={{ display: 'flex', alignItems: 'center' }}>
+        ></span>
+        {/* <span style={{ display: 'flex', alignItems: 'center' }}>
           <FiberManualRecordIcon
             style={{
               color: theme.palette.secondary[700],
@@ -193,7 +244,7 @@ const ApexGraph = React.memo((props) => {
             }}
           />
           Current Week
-        </span>
+        </span> */}
       </div>
       <Box height='100%' width='100%'>
         <ReactApexChart

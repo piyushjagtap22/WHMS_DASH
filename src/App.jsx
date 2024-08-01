@@ -17,16 +17,11 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log('22');
     const initializeApp = async () => {
       try {
         dispatch(setLoading(true));
-        console.log('25');
         await store.dispatch(initializeAuthUser());
-        // await store.dispatch(initializeMongoUser());
-        console.log('28');
         dispatch(setLoading(false));
-        console.log('30');
       } catch (error) {
         console.error('Error initializing app:', error);
         dispatch(setLoading(false));

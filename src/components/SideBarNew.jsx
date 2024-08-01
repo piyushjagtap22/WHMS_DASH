@@ -96,9 +96,61 @@ const SidebarNew = ({
 
     localStorage.setItem('tabhistory', newValue);
   };
-  const capitalizeFirstLetter = (string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+
+  const sensorDataMappings = [
+    {
+      sensor: 'heartSensor',
+      name: 'Heart Rate',
+      unit: 'bpm',
+    },
+    {
+      sensor: 'BreathRateSensor',
+      name: 'Breath Rate',
+      unit: 'resp/min',
+    },
+    {
+      sensor: 'VentilatonSensor',
+      name: 'Ventilaton',
+      unit: 'L/min',
+    },
+    {
+      sensor: 'ActivitySensor',
+      name: 'Activity',
+      unit: 'g',
+    },
+    {
+      sensor: 'BloodPressureSensor',
+      name: 'Blood Pressure',
+      unit: 'mmHg',
+    },
+    {
+      sensor: 'CadenceSensor',
+      name: 'Cadence',
+      unit: 'step/min ',
+    },
+    {
+      sensor: 'OxygenSaturationSensor',
+      name: 'Oxygen Saturation',
+      unit: '%',
+    },
+    {
+      sensor: 'TemperatureSensor',
+      name: 'Temperature',
+      unit: '°C',
+    },
+    {
+      sensor: 'TidalVolumeSensor',
+      name: 'Tidal Volume',
+      unit: 'L',
+    },
+  ];
+  const getSensorName = (sensor) => {
+    const sensorMapping = sensorDataMappings.find(
+      (mapping) => mapping.sensor === sensor
+    );
+    return sensorMapping ? sensorMapping.name : 'Please select sensor';
   };
+
   const [sensorData, setSensorData] = useState({
     heartSensor: '',
     BreathRateSensor: '',
@@ -111,11 +163,17 @@ const SidebarNew = ({
     BloodPressureSensor: '',
   });
 
-  const { state: bunnySensorData } = useLocation();
-
+  const { state: xSensorData } = useLocation();
+  const getUnitForKey = (key) => {
+    const sensorMapping = sensorDataMappings.find(
+      (mapping) => mapping.sensor === key
+    );
+    return sensorMapping ? sensorMapping.unit : '';
+  };
   useEffect(() => {
-    if (bunnySensorData) {
-      console.log('Sensor data received:', bunnySensorData.data);
+    console.log('xSensorData :', xSensorData);
+    if (xSensorData) {
+      console.log('Sensor data received:', xSensorData.data);
       const {
         heartSensor,
         BreathRateSensor,
@@ -126,7 +184,7 @@ const SidebarNew = ({
         TemperatureSensor,
         OxygenSaturationSensor,
         BloodPressureSensor,
-      } = bunnySensorData.data;
+      } = xSensorData.data;
 
       // Update state with the sensor data
       setSensorData({
@@ -145,7 +203,7 @@ const SidebarNew = ({
       dispatch(setAuthState('/dashboard'));
       navigate('/dashboard');
     }
-  }, [bunnySensorData]);
+  }, [xSensorData]);
 
   return !isSidebarOpen ? (
     <Box></Box>
@@ -323,7 +381,7 @@ const SidebarNew = ({
                       fontWeight: 'bold',
                     }}
                   >
-                    {capitalizeFirstLetter(key)}
+                    {getSensorName(key)}
                   </Typography>
                   <Typography
                     variant='body2'
@@ -357,7 +415,7 @@ const SidebarNew = ({
                           color: '#fff',
                         }}
                       >
-                        {sensorData[key]}
+                        {sensorData[key]} {getUnitForKey(key)}
                       </Typography>
                     </Grid>
                     {/* <Grid item sx={{ ml: 2 }}>

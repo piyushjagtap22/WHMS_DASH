@@ -22,7 +22,7 @@ const SensorPage = () => {
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
   const [buttonLoader, setButtonLoader] = useState(false);
-  const [open, setOpen] = useState();
+  const [open, setOpen] = useState(false);
   const [user, setUser] = useState();
   const [rowdata, setData] = useState([]);
   var devices = [];
@@ -191,10 +191,10 @@ const SensorPage = () => {
             console.log(response.data.deviceDocuments);
             setEvents(response.data.deviceDocuments);
             setinitialTable(response.data.deviceDocuments);
-            const bunnySet = new Set(response.data.devices.flat());
-            const bunnyList = [...bunnySet];
-            // Now, bunnyList contains unique values from the nested arrays
-            devices = bunnyList;
+            const deviceSet = new Set(response.data.devices.flat());
+            const deviceList = [...deviceSet];
+            // Now, deviceList contains unique values from the nested arrays
+            devices = deviceList;
           }
         }
         // setEvents(response.data.deviceDocuments)
