@@ -4,14 +4,13 @@ import '../../css/DefaultPage.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { getDeviceIds, getLoc, getSensorDB } from '../../slices/adminApiSlice';
-
+import MapboxMap from '../MapboxMap';
 import { Box, Grid, MenuItem, TextField, useMediaQuery } from '@mui/material';
-
+import { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../Loader';
 import * as Realm from 'realm-web';
 import IconButton from '@mui/material/IconButton';
-
 import { Toaster, toast } from 'react-hot-toast';
 import PowerIcon from '@mui/icons-material/Power';
 import { setAuthState } from '../../slices/authSlice';
@@ -28,11 +27,14 @@ import ApexGraphPrint from './ApexGraphPrint';
 
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 
+import { useCallback } from 'react';
 const DefaultPage = (data) => {
+  console.log('Default page is rerendering');
   const loading = useSelector((state) => state.loading.loading);
-  console.log(loading);
-  const latitudeRef = useRef(null);
-  const longitudeRef = useRef(null);
+  const [latitude, setLatitude] = useState(23); // Initial latitude
+  const [longitude, setLongitude] = useState(77); // Initial longitude
+  const latitudeRef = useRef(latitude);
+  const longitudeRef = useRef(longitude);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const componentRef = useRef();
@@ -42,9 +44,6 @@ const DefaultPage = (data) => {
   const [heartRateData, setHeartRateData] = useState([]);
   const [heartRateTimeStamp, setheartRateTimeStamp] = useState([]);
 
-  const [latitude, setLatitude] = useState(23); // Initial latitude
-
-  const [longitude, setLongitude] = useState(77); // Initial longitude
   const [connectionStatus, setConnectionStatus] = useState(false);
 
   const [startDate, setStartDate] = useState(null); // Use null instead of undefined
@@ -52,95 +51,51 @@ const DefaultPage = (data) => {
 
   const [sensorType, setSensorType] = useState('');
   const [tabValue, setTabValue] = useState(0);
-
+  const memoizedSetTabValue = useCallback((value) => {
+    setTabValue(value);
+  }, []);
   const [currentTime, setCurrentTime] = useState(
     new Date().toLocaleTimeString()
   );
-  const heartRateTimeStampRef = useRef(heartRateTimeStamp);
 
+  const heartRateTimeStampRef = useRef(heartRateTimeStamp);
+  const [latLonData, setLatLonData] = useState([]);
   useEffect(() => {
     heartRateTimeStampRef.current = heartRateTimeStamp;
   }, [heartRateTimeStamp]);
-  const [address, setAddress] = useState('');
-  const [address2, setAddress2] = useState('');
+
   const tooltipClass = connectionStatus ? 'tooltip' : 'tooltip disconnected';
   const iconClass = connectionStatus ? 'icon' : 'icon disconnected';
   const spanClass = connectionStatus ? '' : 'disconnected';
-  const mapRef = useRef(null); // Create a ref for the map object
-  const MAPBOX_TOKEN =
-    'pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw';
-  const GEOCODING_URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places';
-  const DIRECTIONS_URL = 'https://api.mapbox.com/directions/v5/mapbox/cycling';
 
-  const getDir = async (start, end) => {
-    try {
-      console.log(start, end);
+  // useEffect(() => {
+  //   const checkConnectionStatus = () => {
+  //     console.log('Check connection status function running');
+  //     if (heartRateTimeStampRef.current.length > 0) {
+  //       const latestTimestamp =
+  //         heartRateTimeStampRef.current[
+  //           heartRateTimeStampRef.current.length - 1
+  //         ];
+  //       const latestTime = new Date(latestTimestamp);
+  //       const currentTime = new Date();
+  //       const timeDifference = (currentTime - latestTime) / 1000; // Difference in seconds
 
-      const req2 = `${DIRECTIONS_URL}/${start[1]},${start[0]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${MAPBOX_TOKEN}`;
-      console.log('REQ', req2);
-      const loc2 = await axios.get(req2);
-      return loc2;
-    } catch (error) {
-      console.error('Error fetching location:', error);
-      return null;
-    }
-  };
+  //       setConnectionStatus(timeDifference <= 13);
+  //     } else {
+  //       setConnectionStatus(false);
+  //     }
+  //   //  TODO make this to update itself as per heartRateTimeStamp reading or something
+  //   };
 
-  const updateAddress = async (lat, lon, addressType) => {
-    console.log(lat, lon);
-    console.log('rev geocoding');
-    const req = `${GEOCODING_URL}/${lon}%2C%20${lat}.json?access_token=${MAPBOX_TOKEN}`;
-    try {
-      console.log(req);
-      const loc = await axios.get(req);
-      const placeName = loc.data?.features[0]?.place_name;
-      console.log(placeName);
+  //   checkConnectionStatus();
+  //   const intervalId = setInterval(checkConnectionStatus, 1000);
 
-      if (addressType === 'address1') {
-        setAddress(placeName);
-      } else if (addressType === 'address2') {
-        setAddress2(placeName);
-      }
-    } catch (error) {
-      console.error('Error fetching location:', error);
-    }
-  };
-
-  useEffect(() => {
-    const checkConnectionStatus = () => {
-      if (heartRateTimeStampRef.current.length > 0) {
-        const latestTimestamp =
-          heartRateTimeStampRef.current[
-            heartRateTimeStampRef.current.length - 1
-          ];
-        const latestTime = new Date(latestTimestamp);
-        const currentTime = new Date();
-        const timeDifference = (currentTime - latestTime) / 1000; // Difference in seconds
-
-        setConnectionStatus(timeDifference <= 13);
-      } else {
-        setConnectionStatus(false);
-      }
-    };
-
-    checkConnectionStatus();
-    const intervalId = setInterval(checkConnectionStatus, 1000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
-  const mapContainerRef = useRef(null);
-
-  const [initialTable, setinitialTable] = useState({});
+  //   return () => clearInterval(intervalId);
+  // }, []);
 
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
 
   const { state: userData } = useLocation();
-  // if (userData == null) {
-  //   console.log('got to dashboard');
-  //   dispatch(setAuthState('/dashboard'));
-  //   navigate('/dashboard');
-  // }
 
   const [graphByDateData, setGraphByDateData] = useState([]);
   const [graphByDateTimeStamp, setGraphByDateTimeStamp] = useState([]);
@@ -150,6 +105,7 @@ const DefaultPage = (data) => {
   const [BreathRateSensorTimeStamp, setBreathRateSensorTimeStamp] = useState(
     []
   );
+  const memoizedUserData = useMemo(() => userData, [userData]);
 
   const [VentilatonSensorData, setVentilatonSensorData] = useState([]);
   const [VentilatonSensorTimeStamp, setVentilatonSensorTimeStamp] = useState(
@@ -184,6 +140,24 @@ const DefaultPage = (data) => {
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
+  // useEffect(() => {
+  //   const fetchLatLonData = async () => {
+  //     console.log('inside this token userdata');
+  //     if (token && userData?.data?.currentUserId) {
+  //       try {
+  //         const latLonD = await getLoc(token, userData?.data?.currentUserId);
+  //         setLatLonData([latLonD.data[0].lat, latLonD.data[0].lon]);
+  //         latitudeRef.lat = latLonD.data[0].lat;
+  //         longitudeRef.lon = latLonD.data[0].lon;
+  //         console.log('get loc ', [latLonD.data[0].lat, latLonD.data[0].lon]);
+  //       } catch (error) {
+  //         console.error('Error fetching location data:', error);
+  //       }
+  //     }
+  //   };
+
+  //   fetchLatLonData();
+  // }, [token, userData]);
 
   const uid = useSelector((state) => state.auth.AuthUser?.uid);
   const [events, setEvents] = useState([]);
@@ -211,7 +185,80 @@ const DefaultPage = (data) => {
     }
   }
   const isNonMobile = useMediaQuery('(min-width: 600px)');
-
+  const sensorDataMappings = [
+    {
+      sensor: 'heartSensor',
+      setData: setHeartRateData,
+      setTimeStamp: setheartRateTimeStamp,
+      name: 'Heart Rate',
+      data: 'heartRateData',
+      unit: 'bpm',
+    },
+    {
+      sensor: 'BreathRateSensor',
+      setData: setBreathRateSensorData,
+      setTimeStamp: setBreathRateSensorTimeStamp,
+      name: 'Breath Rate',
+      data: 'BreathRateSensorData',
+      unit: 'resp/min',
+    },
+    {
+      sensor: 'VentilatonSensor',
+      setData: setVentilatonSensorData,
+      setTimeStamp: setVentilatonSensorTimeStamp,
+      name: 'Ventilaton',
+      data: 'VentilatonSensorData',
+      unit: 'L/min',
+    },
+    {
+      sensor: 'ActivitySensor',
+      setData: setActivitySensorData,
+      setTimeStamp: setActivitySensorTimeStamp,
+      name: 'Activity',
+      data: 'ActivitySensorData',
+      unit: 'g',
+    },
+    {
+      sensor: 'BloodPressureSensor',
+      setData: setBPSensorData,
+      setTimeStamp: setBPSensorTimeStamp,
+      name: 'Blood Pressure',
+      data: 'BPSensorData',
+      unit: 'mmHg',
+    },
+    {
+      sensor: 'CadenceSensor',
+      setData: setCadenceSensorData,
+      setTimeStamp: setCadenceSensorTimeStamp,
+      name: 'Cadence',
+      data: 'CadenceSensorData',
+      unit: 'step/min ',
+    },
+    {
+      sensor: 'OxygenSaturationSensor',
+      setData: setOxygenSaturationSensorData,
+      setTimeStamp: setOxygenSaturationSensorTimeStamp,
+      name: 'Oxygen Saturation',
+      data: 'OxygenSaturationSensorData',
+      unit: '%',
+    },
+    {
+      sensor: 'TemperatureSensor',
+      setData: setTemperatureSensorData,
+      setTimeStamp: setTemperatureSensorTimeStamp,
+      name: 'Temperature',
+      data: 'TemperatureSensorData',
+      unit: '°C',
+    },
+    {
+      sensor: 'TidalVolumeSensor',
+      setData: setTidalVolumeSensorData,
+      setTimeStamp: setTidalVolumeSensorTimeStamp,
+      name: 'Tidal Volume',
+      data: 'TidalVolumeSensorData',
+      unit: 'L',
+    },
+  ];
   const handleSubmit = async () => {
     try {
       const startUnix = convertDateToUnix(startDate);
@@ -238,136 +285,12 @@ const DefaultPage = (data) => {
     }
   };
 
-  async function getRoute(map, start, end) {
-    try {
-      const sourceId = 'route';
-      if (map.getLayer(sourceId)) {
-        map.removeLayer(sourceId);
-      }
-      if (map.getSource(sourceId)) {
-        map.removeSource(sourceId);
-      }
-      const query = await getDir(start, end);
-      console.log(query);
-      const coordinates = query.data.routes[0]?.geometry?.coordinates;
-      console.log('COOD');
-      console.log(coordinates);
-
-      if (!coordinates) {
-        console.log('to remove layer');
-
-        throw new Error('No route data available');
-      }
-
-      const geojson = {
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'LineString',
-          coordinates,
-        },
-      };
-      if (map.getSource(sourceId)) {
-        map.getSource(sourceId).setData(geojson);
-      } else {
-        map.addLayer({
-          id: sourceId,
-          type: 'line',
-          source: {
-            type: 'geojson',
-            data: geojson,
-          },
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round',
-          },
-          paint: {
-            'line-color': '#3887be',
-            'line-width': 5,
-            'line-opacity': 0.75,
-          },
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching or processing route:', error);
-    }
-  }
-
   useEffect(() => {
-    let updateSourceInterval = null;
-
-    // Function to initialize Mapbox
-    const initializeMap = () => {
-      if (!mapContainerRef.current) return;
-
-      mapboxgl.accessToken =
-        'pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw';
-
-      const map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v12',
-        zoom: 14.0,
-      });
-
-      map.on('load', async () => {
-        try {
-          const geojson = await getLocation(map);
-          map.addSource('iss', { type: 'geojson', data: geojson });
-          map.addLayer({
-            id: 'iss',
-            type: 'symbol',
-            source: 'iss',
-            layout: { 'icon-image': 'rocket' },
-          });
-
-          updateSourceInterval = setInterval(async () => {
-            try {
-              const geojson = await getLocation(map);
-              map.getSource('iss').setData(geojson);
-            } catch (err) {
-              clearInterval(updateSourceInterval);
-              console.error('Error updating map source:', err);
-            }
-          }, 5000);
-
-          map.on('click', async (event) => {
-            const coords = [event.lngLat.lng, event.lngLat.lat];
-            const end = {
-              type: 'FeatureCollection',
-              features: [
-                {
-                  type: 'Feature',
-                  geometry: { type: 'Point', coordinates: coords },
-                },
-              ],
-            };
-
-            if (map.getLayer('end')) {
-              map.getSource('end').setData(end);
-            } else {
-              map.addLayer({
-                id: 'end',
-                type: 'circle',
-                source: { type: 'geojson', data: end },
-                paint: { 'circle-radius': 10, 'circle-color': '#f30' },
-              });
-            }
-
-            updateAddress(coords[1], coords[0], 'address2');
-            await getRoute(
-              map,
-              [latitudeRef.current, longitudeRef.current],
-              coords
-            );
-          });
-        } catch (err) {
-          console.error('Error initializing map:', err);
-        }
-      });
-    };
-
+    console.log('Location update wala useEffect is running');
     // Function to fetch and set device data
+
     const fetchDeviceData = async () => {
+      console.log('fetch device data am running ', userData.data.currentUserId);
       try {
         const id = userData.data.currentUserId;
 
@@ -385,7 +308,6 @@ const DefaultPage = (data) => {
               setLongitude(lon);
               latitudeRef.current = lat;
               longitudeRef.current = lon;
-              updateAddress(lat, lon, 'address1');
             } else {
               throw new Error('No relevant device data found');
             }
@@ -396,18 +318,18 @@ const DefaultPage = (data) => {
         const collection2 = mongodb2.db('test').collection('devices');
         const changeStream2 = collection2.watch();
 
-        console.log('Location update');
         for await (const change of changeStream2) {
           if (
             userData.data.currentUserId === change?.fullDocument?.currentUserId
           ) {
-            console.log('Location update');
             const { lat, lon } = change.fullDocument.location[0];
-            setLatitude(lat);
-            setLongitude(lon);
-            latitudeRef.current = lat;
-            longitudeRef.current = lon;
-            updateAddress(lat, lon, 'address1');
+            if (lat !== latitudeRef.current || lon !== longitudeRef.current) {
+              console.log('setting lat lon');
+              setLatitude(lat);
+              setLongitude(lon);
+              latitudeRef.current = lat;
+              longitudeRef.current = lon;
+            }
           } else {
             console.log('Data is Not Relevant');
           }
@@ -417,82 +339,8 @@ const DefaultPage = (data) => {
       }
     };
 
-    // Function to get current location
-    const getLocation = async (map) => {
-      try {
-        const dataloc = await getLoc(token, userData.data.currentUserId);
-        const latitude = dataloc.data[0].lat;
-        const longitude = dataloc.data[0].lon;
-
-        setLatitude(latitude);
-        setLongitude(longitude);
-        latitudeRef.current = latitude;
-        longitudeRef.current = longitude;
-
-        // Fly the map to the location.
-        if (
-          latitudeRef.current != latitude ||
-          longitudeRef.current != longitude
-        ) {
-          if (map.getLayer('route')) {
-            map.removeLayer('route');
-          }
-          if (map.getSource('route')) {
-            map.removeSource('route');
-          }
-
-          if (map.getLayer('end')) {
-            map.removeLayer('end');
-          }
-          if (map.getSource('end')) {
-            map.removeSource('end');
-          }
-        }
-        map.flyTo({
-          center: [longitude, latitude],
-          speed: 4.5,
-        });
-
-        // Return the location of the ISS as GeoJSON.
-        return {
-          type: 'FeatureCollection',
-          features: [
-            {
-              type: 'Feature',
-              geometry: {
-                type: 'Point',
-                coordinates: [longitude, latitude], // lon lat
-              },
-            },
-          ],
-        };
-      } catch (err) {
-        console.error('Error fetching location:', err);
-        throw new Error(err);
-      }
-    };
-
-    // Fetch initial device data and initialize Mapbox
     fetchDeviceData();
-    const mapboxScript = document.createElement('script');
-    mapboxScript.src =
-      'https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js';
-    mapboxScript.onload = initializeMap;
-    document.body.appendChild(mapboxScript);
-
-    const mapboxLink = document.createElement('link');
-    mapboxLink.href =
-      'https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css';
-    mapboxLink.rel = 'stylesheet';
-    document.head.appendChild(mapboxLink);
-
-    // Cleanup function
-    return () => {
-      if (updateSourceInterval) clearInterval(updateSourceInterval);
-      document.body.removeChild(mapboxScript);
-      document.head.removeChild(mapboxLink);
-    };
-  }, []); // Empty dependency array: Execute only once on component mount
+  }, [token, userData]); // Empty dependency array: Execute only once on component mount
 
   const convertDateToUnix = (dateString) => {
     if (dateString) {
@@ -515,74 +363,23 @@ const DefaultPage = (data) => {
       }
     });
   };
+  const memoizedUserId = useMemo(
+    () => userData.data.currentUserId,
+    [userData.data.currentUserId]
+  );
 
-  const sensorDataMappings = [
-    {
-      sensor: 'heartSensor',
-      setData: setHeartRateData,
-      setTimeStamp: setheartRateTimeStamp,
-      name: 'Heart Rate',
-      data: 'heartRateData',
-    },
-    {
-      sensor: 'BreathRateSensor',
-      setData: setBreathRateSensorData,
-      setTimeStamp: setBreathRateSensorTimeStamp,
-      name: 'Breath Rate',
-      data: 'BreathRateSensorData',
-    },
-    {
-      sensor: 'VentilatonSensor',
-      setData: setVentilatonSensorData,
-      setTimeStamp: setVentilatonSensorTimeStamp,
-      name: 'Ventilaton',
-      data: 'VentilatonSensorData',
-    },
-    {
-      sensor: 'ActivitySensor',
-      setData: setActivitySensorData,
-      setTimeStamp: setActivitySensorTimeStamp,
-      name: 'Activity',
-      data: 'ActivitySensorData',
-    },
-    {
-      sensor: 'BloodPressureSensor',
-      setData: setBPSensorData,
-      setTimeStamp: setBPSensorTimeStamp,
-      name: 'Blood Pressure',
-      data: 'BPSensorData',
-    },
-    {
-      sensor: 'CadenceSensor',
-      setData: setCadenceSensorData,
-      setTimeStamp: setCadenceSensorTimeStamp,
-      name: 'Cadence',
-      data: 'CadenceSensorData',
-    },
-    {
-      sensor: 'OxygenSaturationSensor',
-      setData: setOxygenSaturationSensorData,
-      setTimeStamp: setOxygenSaturationSensorTimeStamp,
-      name: 'Oxygen Saturation',
-      data: 'OxygenSaturationSensorData',
-    },
-    {
-      sensor: 'TemperatureSensor',
-      setData: setTemperatureSensorData,
-      setTimeStamp: setTemperatureSensorTimeStamp,
-      name: 'Temperature',
-      data: 'TemperatureSensorData',
-    },
-    {
-      sensor: 'TidalVolumeSensor',
-      setData: setTidalVolumeSensorData,
-      setTimeStamp: setTidalVolumeSensorTimeStamp,
-      name: 'Tidal Volume',
-      data: 'TidalVolumeSensorData',
-    },
-  ];
+  const mapboxMapMemo = useMemo(() => {
+    return (
+      <MapboxMap
+        lat={latitude}
+        lon={longitude}
+        currentUserId={memoizedUserId}
+      />
+    );
+  }, [latitude, longitude, memoizedUserId]);
 
   const getSensorName = (sensor) => {
+    console.log('get Sonsor name running');
     console.log(sensor);
     const sensorMapping = sensorDataMappings.find(
       (mapping) => mapping.sensor === sensor
@@ -627,11 +424,7 @@ const DefaultPage = (data) => {
   }, []);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const handleButtonClick = () => {
-    console.log(latitudeRef.current, longitudeRef.current);
-    const url = `https://google.com/maps/search/${latitudeRef.current},${longitudeRef.current}`;
-    window.open(url, '_blank');
-  };
+
   return (
     <>
       {loading ? (
@@ -643,13 +436,14 @@ const DefaultPage = (data) => {
           <Toaster toastOptions={{ duration: 4000 }} />
           <Box display='flex' flexDirection='row'>
             <SidebarNew
-              user={userData || {}}
+              user={memoizedUserData || {}}
               isNonMobile={isNonMobile}
               drawerWidth='250px'
               isSidebarOpen={isSidebarOpen}
               setIsSidebarOpen={setIsSidebarOpen}
-              setTabValue={setTabValue}
+              setTabValue={memoizedSetTabValue}
             />
+
             <Box flexGrow={1} m='2rem 0rem'>
               {tabValue === 0 ? (
                 <Box
@@ -665,73 +459,16 @@ const DefaultPage = (data) => {
                     },
                   }}
                 >
-                  <div
-                    className='MuiBox-root'
-                    style={{
-                      gridColumn: 'span 7',
-                      gridRow: 'span 4',
-                      height: '34rem',
-                      backgroundColor: '#191C23',
-                      padding: '0rem',
-                      borderRadius: '1.55rem',
-                      zIndex: 2,
-                      width: '',
-                    }}
-                  >
-                    <div
-                      id='map'
-                      style={{
-                        borderTopLeftRadius: '1.55rem',
-                        borderTopRightRadius: '1.55rem',
-                        height: '23rem',
-                      }}
-                      // className='MuiBox-root css-1nt5awt'
-                      ref={mapContainerRef}
-                    />
-                    <div
-                      style={{
-                        padding: '16px',
-                      }}
-                    >
-                      <p
-                        style={{
-                          maxWidth: '754.5px',
-
-                          padding: '8px',
-                          border: '2px solid gray',
-                          borderRadius: '0.73rem',
-                        }}
-                      >
-                        To: {address}
-                      </p>
-
-                      <p
-                        style={{
-                          maxWidth: '754.5px',
-
-                          padding: '8px',
-                          border: '2px solid gray',
-                          borderRadius: '0.73rem',
-                        }}
-                      >
-                        From: {address2}
-                      </p>
-
-                      <CustomButton onClick={handleButtonClick}>
-                        Open in Maps
-                      </CustomButton>
-                    </div>
-                  </div>
+                  {mapboxMapMemo}
 
                   {sensorDataMappings.map(
-                    ({ sensor, setData, setTimeStamp, name, data }) => (
+                    ({ sensor, setData, setTimeStamp, unit, name, data }) => (
                       <ApexGraph
                         key={sensor}
                         name={name}
                         data={eval(data)}
                         timestamp={eval(data.replace('Data', 'TimeStamp'))}
-                        max={90}
-                        zoomEnabled={false}
+                        unit={unit}
                       />
                     )
                   )}

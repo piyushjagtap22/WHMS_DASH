@@ -1,204 +1,154 @@
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import ReactApexChart from 'react-apexcharts';
+
+// Define the sensor data mappings outside the component
+const sensorDataMappings = [
+  { sensor: 'heartSensor', name: 'Heart Rate', unit: 'bpm' },
+  { sensor: 'BreathRateSensor', name: 'Breath Rate', unit: 'resp/min' },
+  { sensor: 'VentilatonSensor', name: 'Ventilaton', unit: 'L/min' },
+  { sensor: 'ActivitySensor', name: 'Activity', unit: 'g' },
+  { sensor: 'BloodPressureSensor', name: 'Blood Pressure', unit: 'mmHg' },
+  { sensor: 'CadenceSensor', name: 'Cadence', unit: 'step/min ' },
+  { sensor: 'OxygenSaturationSensor', name: 'Oxygen Saturation', unit: '%' },
+  { sensor: 'TemperatureSensor', name: 'Temperature', unit: '°C' },
+  { sensor: 'TidalVolumeSensor', name: 'Tidal Volume', unit: 'L' },
+];
 
 const ApexGraph = React.memo((props) => {
   const theme = useTheme();
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
 
-  function calculateAverage(lastValues) {
-    var sum = lastValues.reduce(function (acc, value) {
-      return acc + value;
-    }, 0);
-
+  const calculateAverage = useCallback((lastValues) => {
+    console.log('calculate average running');
+    const sum = lastValues.reduce((acc, value) => acc + value, 0);
     return sum / lastValues.length;
-  }
+  }, []);
 
-  const sensorDataMappings = [
-    {
-      sensor: 'heartSensor',
-      name: 'Heart Rate',
-      unit: 'bpm',
-    },
-    {
-      sensor: 'BreathRateSensor',
-      name: 'Breath Rate',
-      unit: 'resp/min',
-    },
-    {
-      sensor: 'VentilatonSensor',
-      name: 'Ventilaton',
-      unit: 'L/min',
-    },
-    {
-      sensor: 'ActivitySensor',
-      name: 'Activity',
-      unit: 'g',
-    },
-    {
-      sensor: 'BloodPressureSensor',
-      name: 'Blood Pressure',
-      unit: 'mmHg',
-    },
-    {
-      sensor: 'CadenceSensor',
-      name: 'Cadence',
-      unit: 'step/min ',
-    },
-    {
-      sensor: 'OxygenSaturationSensor',
-      name: 'Oxygen Saturation',
-      unit: '%',
-    },
-    {
-      sensor: 'TemperatureSensor',
-      name: 'Temperature',
-      unit: '°C',
-    },
-    {
-      sensor: 'TidalVolumeSensor',
-      name: 'Tidal Volume',
-      unit: 'L',
-    },
-  ];
+  const zoomEnabled = false;
 
-  const getUnitForKey = (key) => {
-    const sensorMapping = sensorDataMappings.find(
-      (mapping) => mapping.name.toLowerCase() === key.toLowerCase()
-    );
-    console.log(sensorMapping ? sensorMapping.unit : '');
-    return sensorMapping ? sensorMapping.unit : '';
-  };
+  const { timestamp: labels, data, name, unit } = props;
+  console.log('Apex graph Untis', unit);
+  const max = 100;
+  const average = useMemo(
+    () => calculateAverage(data),
+    [data, calculateAverage]
+  );
+  const isAboveMax = useMemo(() => average > max, [average, max]);
 
-  const labels = props.timestamp;
-  const data = props.data;
-  const name = props.name;
-  const max = 30;
+  const series = useMemo(() => [{ name, data, unit }], [data, name, unit]);
 
-  const average = calculateAverage(data);
-  const isAboveMax = average > max;
-
-  const series = [
-    {
-      name: name,
-      data: data,
-    },
-  ];
-  const options = {
-    chart: {
-      type: 'area',
-      stacked: false,
-      height: 350,
-      zoom: {
-        type: 'x',
-        enabled: props.zoomEnabled,
-        autoScaleYaxis: true,
+  const options = useMemo(
+    () => ({
+      chart: {
+        type: 'area',
+        stacked: false,
+        height: 350,
+        zoom: {
+          type: 'x',
+          enabled: zoomEnabled,
+          autoScaleYaxis: true,
+        },
+        toolbar: {
+          show: true,
+          tools: {
+            download: false,
+          },
+          autoSelected: 'zoom',
+        },
       },
-      toolbar: {
+      stroke: {
         show: true,
-        tools: {
-          download: false,
-        },
-        autoSelected: 'zoom',
+        curve: 'smooth',
+        lineCap: 'butt',
+        width: 2,
+        dashArray: 0,
       },
-    },
-    stroke: {
-      show: true,
-      curve: 'smooth',
-      lineCap: 'butt',
-      width: 2,
-      dashArray: 0,
-    },
-    colors: isAboveMax ? ['#FF5733'] : ['#7CD6AB'],
-    dataLabels: {
-      enabled: false,
-    },
-    markers: {
-      size: 0,
-    },
-    // title: {
-    //   text: name,
-    //   align: 'right',
-    // },
-    fill: {
-      type: 'gradient',
-      gradient: {
-        shadeIntensity: 0.15,
-        inverseColors: false,
-        opacityFrom: 0.5,
-        opacityTo: 0,
-        stops: [0, 90, 100],
+      colors: isAboveMax ? ['#FF5733'] : ['#7CD6AB'],
+      dataLabels: {
+        enabled: false,
       },
-    },
-    yaxis: {
-      labels: {
-        formatter: function (val) {
-          return val.toFixed(0);
-        },
-        style: {
-          colors: 'rgba(255,255,255,0.4)', // set the x-axis label color to white
-          fontSize: '16px',
-          fontFamily: 'Helvetica, Arial, sans-serif',
-          fontWeight: 400,
-          cssClass: 'apexcharts-xaxis-label',
+      markers: {
+        size: 0,
+      },
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shadeIntensity: 0.15,
+          inverseColors: false,
+          opacityFrom: 0.5,
+          opacityTo: 0,
+          stops: [0, 90, 100],
         },
       },
-      title: {
-        text: `${getUnitForKey(name)}`,
-      },
-      tickAmount: 4,
-    },
-    xaxis: {
-      type: 'category', // Assuming x-axis is categorical based on your labels
-      labels: {
-        formatter: function (val) {
-          const date = new Date(val);
-          return date.toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-          });
+      yaxis: {
+        labels: {
+          formatter: (val) => val.toFixed(0),
+          style: {
+            colors: 'rgba(255,255,255,0.4)',
+            fontSize: '16px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 400,
+            cssClass: 'apexcharts-xaxis-label',
+          },
         },
-        style: {
-          colors: 'rgba(255,255,255,0.4)', // set the x-axis label color to white
-          fontSize: '12px',
-          fontFamily: 'Helvetica, Arial, sans-serif',
-          fontWeight: 400,
-          cssClass: 'apexcharts-xaxis-label',
-        },
-        rotate: 0,
-      },
-      categories: labels, // Ensure labels array contains timestamp strings
-      tickAmount: 10,
-      title: {
-        text: 'Time',
-      },
-      // Ensure x-axis labels are horizontal
-    },
-    grid: {
-      borderColor: '#FFFFFF44', // set the grid line color
-      strokeDashArray: 0, // set dashed grid lines
-    },
-    tooltip: {
-      theme: 'dark',
-      style: {
-        fontSize: '12px',
-      },
-      onDatasetHover: {
-        highlightDataSeries: true,
-      },
-      x: {
-        show: true,
-        format: 'dd MMM',
-      },
-      y: {
         title: {
-          formatter: (seriesName) => seriesName,
+          text: { unit },
+        },
+        tickAmount: 4,
+      },
+      xaxis: {
+        type: 'category',
+        labels: {
+          formatter: (val) => {
+            const date = new Date(val);
+            return date.toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+            });
+          },
+          style: {
+            colors: 'rgba(255,255,255,0.4)',
+            fontSize: '12px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 400,
+            cssClass: 'apexcharts-xaxis-label',
+          },
+          rotate: 0,
+        },
+        categories: labels,
+        tickAmount: 10,
+        title: {
+          text: 'Time',
         },
       },
-    },
-  };
+      grid: {
+        borderColor: '#FFFFFF44',
+        strokeDashArray: 0,
+      },
+      tooltip: {
+        theme: 'dark',
+        style: {
+          fontSize: '12px',
+        },
+        onDatasetHover: {
+          highlightDataSeries: true,
+        },
+        x: {
+          show: true,
+          format: 'dd MMM',
+        },
+        y: {
+          title: {
+            formatter: (seriesName) => seriesName,
+          },
+        },
+      },
+    }),
+    [name, labels, isAboveMax, unit]
+  );
 
   return (
     <Box
@@ -235,16 +185,6 @@ const ApexGraph = React.memo((props) => {
             color: theme.palette.primary[100],
           }}
         ></span>
-        {/* <span style={{ display: 'flex', alignItems: 'center' }}>
-          <FiberManualRecordIcon
-            style={{
-              color: theme.palette.secondary[700],
-              marginRight: '0.2rem',
-              fontSize: '0.8rem',
-            }}
-          />
-          Current Week
-        </span> */}
       </div>
       <Box height='100%' width='100%'>
         <ReactApexChart

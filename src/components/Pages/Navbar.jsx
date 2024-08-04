@@ -32,8 +32,11 @@ import { signOut } from 'firebase/auth';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { auth } from '../../firebase';
 import { logout } from '../../slices/authSlice.js';
-
+import { memo } from 'react';
 const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
+  useEffect(() => {
+    console.log('Navbar is rerendering');
+  });
   const dispatch = useDispatch();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -210,4 +213,4 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   );
 };
 
-export default Navbar;
+export default React.memo(Navbar);

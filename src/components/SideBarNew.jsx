@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import {
   Avatar,
@@ -82,6 +83,7 @@ const SidebarNew = ({
   HandleTabChange,
   setTabValue,
 }) => {
+  console.log('Sidebarnew is getting rerendered');
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -446,4 +448,4 @@ const SidebarNew = ({
   );
 };
 
-export default SidebarNew;
+export default memo(SidebarNew);
