@@ -189,7 +189,8 @@ const DefaultPage = (data) => {
   const [events, setEvents] = useState([]);
 
   async function getGraphData(iid, startTimeStamp, endTimeStamp) {
-    const url = 'http://localhost:3000/api/admin/getGraphData';
+    const url =
+      'https://whms-isro-sxur-cpbr-eyqdlmmsn-bugzzbunny007s-projects.vercel.app/api/admin/getGraphData';
     const payload = {
       id: iid,
       sensorType: sensorType,

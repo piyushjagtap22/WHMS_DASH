@@ -6,7 +6,7 @@ const axiosInstance = axios.create({
 })
 
 
-const ADMIN_URL = `http://localhost:3000/api/admin`;
+const ADMIN_URL = `https://whms-isro-sxur-cpbr-eyqdlmmsn-bugzzbunny007s-projects.vercel.app/api/admin`;
 
 export const AddUsersToAdmin = (data, token) => {
     // pass token as an argument to this function
@@ -16,29 +16,6 @@ export const AddUsersToAdmin = (data, token) => {
 };
 
 
-// export const getUserById =(data,token) => {
-//     alert(data);
-
-//     var myHeaders = new Headers();
-//     myHeaders.append("Authorization", `Bearer ${token}`);
-//     myHeaders.append("Content-Type", "application/json");
-
-//     var raw = JSON.stringify({
-//     "deviceId": "deviceId1"
-//     });
-
-//     var requestOptions = {
-//     method: 'POST',
-//     headers: myHeaders,
-//     body: raw,
-//     redirect: 'follow'
-//     };
-
-//     fetch("http://localhost:3000/api/admin/getDeviceData", requestOptions)
-//     .then(response => response.text())
-//     .then(result => console.log(result))
-//     .catch(error => console.log('error', error));
-// }
 
 export const getDeviceIds = (token) => {
     console.log("getDevice id chala");
@@ -48,7 +25,7 @@ export const getDeviceIds = (token) => {
 }
 
 export const getSensorDB = (token, id) => {
-    return axios.post(`http://localhost:3000/api/admin/getSensordb`, { id }, {
+    return axios.post(`https://whms-isro-sxur-cpbr-eyqdlmmsn-bugzzbunny007s-projects.vercel.app/api/admin/getSensordb`, { id }, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
 }
