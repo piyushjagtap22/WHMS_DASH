@@ -3,65 +3,177 @@ import { Box, useMediaQuery, useTheme } from '@mui/material';
 import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 
+const sensorDataMappings = [
+  {
+    sensor: 'heartSensor',
+    name: 'Heart Rate',
+    unit: 'bpm',
+    ranges: {
+      green: [60, 100],
+      yellow: [
+        [45, 60],
+        [100, 160],
+      ],
+      orange: [
+        [30, 45],
+        [160, 220],
+      ],
+      red: [
+        [0, 30],
+        [220, Infinity],
+      ],
+    },
+  },
+  {
+    sensor: 'BreathRateSensor',
+    name: 'Breath Rate',
+    unit: 'resp/min',
+    ranges: {
+      green: [12, 16],
+      yellow: [
+        [6, 12],
+        [16, 60],
+      ],
+      orange: [
+        [3, 6],
+        [60, 90],
+      ],
+      red: [
+        [0, 3],
+        [90, Infinity],
+      ],
+    },
+  },
+  {
+    sensor: 'VentilatonSensor',
+    name: 'Ventilaton',
+    unit: 'L/min',
+    ranges: {
+      green: [5, 8],
+      yellow: [
+        [4, 5],
+        [8, 40],
+      ],
+      orange: [
+        [3, 4],
+        [40, 90],
+      ],
+      red: [
+        [0, 3],
+        [90, Infinity],
+      ],
+    },
+  },
+  {
+    sensor: 'ActivitySensor',
+    name: 'Activity',
+    unit: 'g',
+    ranges: {
+      green: [60, 100],
+      yellow: [
+        [45, 60],
+        [100, 160],
+      ],
+      orange: [
+        [30, 45],
+        [160, 220],
+      ],
+      red: [
+        [0, 30],
+        [220, Infinity],
+      ],
+    },
+  },
+  {
+    sensor: 'BloodPressureSensor',
+    name: 'Blood Pressure',
+    unit: 'mmHg',
+    ranges: {
+      green: [110, 130],
+      yellow: [
+        [100, 110],
+        [130, 140],
+      ],
+      orange: [
+        [80, 100],
+        [140, 180],
+      ],
+      red: [
+        [0, 80],
+        [180, Infinity],
+      ],
+    },
+  },
+  {
+    sensor: 'CadenceSensor',
+    name: 'Cadence',
+    unit: 'step/min',
+    ranges: {
+      green: [70, 100],
+      yellow: [
+        [45, 70],
+        [100, 200],
+      ],
+      orange: [
+        [30, 45],
+        [200, 240],
+      ],
+      red: [
+        [0, 30],
+        [240, Infinity],
+      ],
+    },
+  },
+  {
+    sensor: 'OxygenSaturationSensor',
+    name: 'Oxygen Saturation',
+    unit: '%',
+    ranges: {
+      green: [90, 100],
+      yellow: [75, 90],
+      orange: [50, 75],
+      red: [0, 50],
+    },
+  },
+  {
+    sensor: 'TemperatureSensor',
+    name: 'Temperature',
+    unit: '°C',
+    ranges: {
+      green: [35, 37],
+      yellow: [34, 35],
+      orange: [37, 38],
+      red: [
+        [0, 34],
+        [38, Infinity],
+      ],
+    },
+  },
+  {
+    sensor: 'TidalVolumeSensor',
+    name: 'Tidal Volume',
+    unit: 'L',
+    ranges: {
+      green: [0.5, 0.7],
+      yellow: [
+        [0.3, 0.5],
+        [0.7, 0.8],
+      ],
+      orange: [
+        [0.1, 0.3],
+        [0.8, 0.9],
+      ],
+      red: [
+        [0, 0.1],
+        [0.9, Infinity],
+      ],
+    },
+  },
+];
+
 const ApexGraph = React.memo((props) => {
   const theme = useTheme();
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
-
-  function calculateAverage(lastValues) {
-    var sum = lastValues.reduce(function (acc, value) {
-      return acc + value;
-    }, 0);
-
-    return sum / lastValues.length;
-  }
-
-  const sensorDataMappings = [
-    {
-      sensor: 'heartSensor',
-      name: 'Heart Rate',
-      unit: 'bpm',
-    },
-    {
-      sensor: 'BreathRateSensor',
-      name: 'Breath Rate',
-      unit: 'resp/min',
-    },
-    {
-      sensor: 'VentilatonSensor',
-      name: 'Ventilaton',
-      unit: 'L/min',
-    },
-    {
-      sensor: 'ActivitySensor',
-      name: 'Activity',
-      unit: 'g',
-    },
-    {
-      sensor: 'BloodPressureSensor',
-      name: 'Blood Pressure',
-      unit: 'mmHg',
-    },
-    {
-      sensor: 'CadenceSensor',
-      name: 'Cadence',
-      unit: 'step/min ',
-    },
-    {
-      sensor: 'OxygenSaturationSensor',
-      name: 'Oxygen Saturation',
-      unit: '%',
-    },
-    {
-      sensor: 'TemperatureSensor',
-      name: 'Temperature',
-      unit: '°C',
-    },
-    {
-      sensor: 'TidalVolumeSensor',
-      name: 'Tidal Volume',
-      unit: 'L',
-    },
-  ];
 
   const getUnitForKey = (key) => {
     const sensorMapping = sensorDataMappings.find(
@@ -74,10 +186,48 @@ const ApexGraph = React.memo((props) => {
   const labels = props.timestamp;
   const data = props.data;
   const name = props.name;
-  const max = 30;
+  if (name == 'Tidal Volume') {
+    console.log(data);
+  }
+  function calculateAverage(lastValues) {
+    var sum = lastValues.reduce(function (acc, value) {
+      return acc + value;
+    }, 0);
 
+    return sum / lastValues.length;
+  }
+
+  function getColor(average, ranges) {
+    for (const [color, range] of Object.entries(ranges)) {
+      if (Array.isArray(range[0])) {
+        for (const subRange of range) {
+          if (average >= subRange[0] && average <= subRange[1]) {
+            return color === 'red'
+              ? '#FF5733'
+              : color === 'green'
+              ? '#7CD6AB'
+              : color;
+          }
+        }
+      } else if (average >= range[0] && average <= range[1]) {
+        return color === 'red'
+          ? '#FF5733'
+          : color === 'green'
+          ? '#7CD6AB'
+          : color;
+      }
+    }
+    return '#FF5733'; // Default color if no range matches
+  }
   const average = calculateAverage(data);
-  const isAboveMax = average > max;
+  const sensorMapping = sensorDataMappings.find(
+    (mapping) => mapping.name === name
+  );
+  const color = sensorMapping
+    ? getColor(average, sensorMapping.ranges)
+    : '#FF5733';
+
+  // const isAboveMax = average > max;
 
   const series = [
     {
@@ -110,7 +260,7 @@ const ApexGraph = React.memo((props) => {
       width: 2,
       dashArray: 0,
     },
-    colors: isAboveMax ? ['#FF5733'] : ['#7CD6AB'],
+    colors: [color],
     dataLabels: {
       enabled: false,
     },
@@ -134,14 +284,14 @@ const ApexGraph = React.memo((props) => {
     yaxis: {
       labels: {
         formatter: function (val) {
-          return val.toFixed(0);
+          return name === 'Tidal Volume' ? val.toFixed(2) : val.toFixed(0);
         },
         style: {
-          colors: 'rgba(255,255,255,0.4)', // set the x-axis label color to white
+          colors: 'rgba(255,255,255,0.4)', // set the y-axis label color to white
           fontSize: '16px',
           fontFamily: 'Helvetica, Arial, sans-serif',
           fontWeight: 400,
-          cssClass: 'apexcharts-xaxis-label',
+          cssClass: 'apexcharts-yaxis-label',
         },
       },
       title: {
@@ -149,6 +299,7 @@ const ApexGraph = React.memo((props) => {
       },
       tickAmount: 4,
     },
+
     xaxis: {
       type: 'category', // Assuming x-axis is categorical based on your labels
       labels: {

@@ -240,54 +240,6 @@ const DefaultPage = (data) => {
 
   async function getRoute(map, start, end) {
     try {
-      const sourceId = 'route';
-      if (map.getLayer(sourceId)) {
-        map.removeLayer(sourceId);
-      }
-      if (map.getSource(sourceId)) {
-        map.removeSource(sourceId);
-      }
-      const query = await getDir(start, end);
-      console.log(query);
-      const coordinates = query.data.routes[0]?.geometry?.coordinates;
-      console.log('COOD');
-      console.log(coordinates);
-
-      if (!coordinates) {
-        console.log('to remove layer');
-
-        throw new Error('No route data available');
-      }
-
-      const geojson = {
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'LineString',
-          coordinates,
-        },
-      };
-      if (map.getSource(sourceId)) {
-        map.getSource(sourceId).setData(geojson);
-      } else {
-        map.addLayer({
-          id: sourceId,
-          type: 'line',
-          source: {
-            type: 'geojson',
-            data: geojson,
-          },
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round',
-          },
-          paint: {
-            'line-color': '#3887be',
-            'line-width': 5,
-            'line-opacity': 0.75,
-          },
-        });
-      }
     } catch (error) {
       console.error('Error fetching or processing route:', error);
     }
@@ -329,37 +281,6 @@ const DefaultPage = (data) => {
               console.error('Error updating map source:', err);
             }
           }, 5000);
-
-          map.on('click', async (event) => {
-            const coords = [event.lngLat.lng, event.lngLat.lat];
-            const end = {
-              type: 'FeatureCollection',
-              features: [
-                {
-                  type: 'Feature',
-                  geometry: { type: 'Point', coordinates: coords },
-                },
-              ],
-            };
-
-            if (map.getLayer('end')) {
-              map.getSource('end').setData(end);
-            } else {
-              map.addLayer({
-                id: 'end',
-                type: 'circle',
-                source: { type: 'geojson', data: end },
-                paint: { 'circle-radius': 10, 'circle-color': '#f30' },
-              });
-            }
-
-            updateAddress(coords[1], coords[0], 'address2');
-            await getRoute(
-              map,
-              [latitudeRef.current, longitudeRef.current],
-              coords
-            );
-          });
         } catch (err) {
           console.error('Error initializing map:', err);
         }
@@ -652,90 +573,94 @@ const DefaultPage = (data) => {
             />
             <Box flexGrow={1} m='2rem 0rem'>
               {tabValue === 0 ? (
-                <Box
-                  margin='2rem 2rem'
-                  display='grid'
-                  gridTemplateColumns='repeat(12, 1fr)'
-                  gridAutoRows='160px'
-                  gap='12px'
-                  zIndex={2}
-                  sx={{
-                    '& > div': {
-                      gridColumn: isNonMediumScreens ? undefined : 'span 12',
-                    },
-                  }}
-                >
-                  <div
-                    className='MuiBox-root'
-                    style={{
-                      gridColumn: 'span 7',
-                      gridRow: 'span 4',
-                      height: '34rem',
-                      backgroundColor: '#191C23',
-                      padding: '0rem',
-                      borderRadius: '1.55rem',
-                      zIndex: 2,
-                      width: '',
+                <>
+                  <Box
+                    margin='2rem 2rem'
+                    display='grid'
+                    gridTemplateColumns='repeat(12, 1fr)'
+                    gridAutoRows='160px'
+                    gap='12px'
+                    zIndex={2}
+                    sx={{
+                      '& > div': {
+                        gridColumn: isNonMediumScreens ? undefined : 'span 12',
+                      },
                     }}
+                    style={{ marginBottom: '64px' }}
                   >
                     <div
-                      id='map'
+                      className='MuiBox-root'
                       style={{
-                        borderTopLeftRadius: '1.55rem',
-                        borderTopRightRadius: '1.55rem',
-                        height: '23rem',
-                      }}
-                      // className='MuiBox-root css-1nt5awt'
-                      ref={mapContainerRef}
-                    />
-                    <div
-                      style={{
-                        padding: '16px',
+                        gridColumn: 'span 7',
+                        gridRow: 'span 3',
+                        height: '34rem',
+                        backgroundColor: '#191C23',
+                        padding: '0rem',
+                        borderRadius: '1.55rem',
+                        zIndex: 2,
+                        width: '',
                       }}
                     >
-                      <p
+                      <div
+                        id='map'
                         style={{
-                          maxWidth: '754.5px',
-
-                          padding: '8px',
-                          border: '2px solid gray',
-                          borderRadius: '0.73rem',
+                          borderTopLeftRadius: '1.55rem',
+                          borderTopRightRadius: '1.55rem',
+                          height: '23rem',
                         }}
-                      >
-                        To: {address}
-                      </p>
-
-                      <p
-                        style={{
-                          maxWidth: '754.5px',
-
-                          padding: '8px',
-                          border: '2px solid gray',
-                          borderRadius: '0.73rem',
-                        }}
-                      >
-                        From: {address2}
-                      </p>
-
-                      <CustomButton onClick={handleButtonClick}>
-                        Open in Maps
-                      </CustomButton>
-                    </div>
-                  </div>
-
-                  {sensorDataMappings.map(
-                    ({ sensor, setData, setTimeStamp, name, data }) => (
-                      <ApexGraph
-                        key={sensor}
-                        name={name}
-                        data={eval(data)}
-                        timestamp={eval(data.replace('Data', 'TimeStamp'))}
-                        max={90}
-                        zoomEnabled={false}
+                        // className='MuiBox-root css-1nt5awt'
+                        ref={mapContainerRef}
                       />
-                    )
-                  )}
-                </Box>
+                      <div
+                        style={{
+                          padding: '16px',
+                        }}
+                      >
+                        <p
+                          style={{
+                            maxWidth: '754.5px',
+
+                            padding: '8px',
+                            border: '2px solid gray',
+                            borderRadius: '0.73rem',
+                          }}
+                        >
+                          Location: {address}
+                        </p>
+
+                        <CustomButton onClick={handleButtonClick}>
+                          Open in Maps
+                        </CustomButton>
+                      </div>
+                    </div>
+                  </Box>
+                  <Box
+                    margin='2rem 2rem'
+                    display='grid'
+                    gridTemplateColumns='repeat(12, 1fr)'
+                    gridAutoRows='160px'
+                    gap='12px'
+                    zIndex={2}
+                    sx={{
+                      '& > div': {
+                        gridColumn: isNonMediumScreens ? undefined : 'span 12',
+                      },
+                    }}
+                  >
+                    {sensorDataMappings.map(
+                      ({ sensor, setData, setTimeStamp, name, data }) => (
+                        <ApexGraph
+                          key={sensor}
+                          name={name}
+                          data={eval(data)}
+                          timestamp={eval(data.replace('Data', 'TimeStamp'))}
+                          max={90}
+                          zoomEnabled={false}
+                        />
+                      )
+                    )}
+                  </Box>
+                </>
               ) : (
                 <>
                   <form className='dpForm'>
@@ -772,16 +697,21 @@ const DefaultPage = (data) => {
                     >
                       <MenuItem value='heartSensor'>Heart Rate</MenuItem>
                       <MenuItem value='BloodPressureSensor'>
-                        Breath Rate
+                        Blood Pressure
                       </MenuItem>
-                      <MenuItem value='VentilatonSensor'>
-                        VentilatonSensor
-                      </MenuItem>
+                      <MenuItem value='VentilatonSensor'>Ventilation</MenuItem>
+
+                      <MenuItem value='BreathRateSensor'>Breath Rate</MenuItem>
                       <MenuItem value='TidalVolumeSensor'>
-                        TidalVolumeSensor
+                        Tidal Volume
                       </MenuItem>
-                      <MenuItem value='ActivitySensor'>ActivitySensor</MenuItem>
-                      <MenuItem value='CadenceSensor'>CadenceSensor</MenuItem>
+                      <MenuItem value='ActivitySensor'>Activity</MenuItem>
+                      <MenuItem value='CadenceSensor'>Cadence</MenuItem>
+
+                      <MenuItem value='OxygenSaturationSensor'>
+                        Oxygen Saturation
+                      </MenuItem>
+                      <MenuItem value='TemperatureSensor'>Temperature</MenuItem>
                     </TextField>
 
                     <CustomButton onClick={handleSubmit} variant='contained'>
