@@ -136,7 +136,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
                   >
                     Dashboard
                   </Link>
-                  {` / WHMS-'${deviceID}`}
+                  {` / WHMS-${deviceID}`}
                 </>
               ) : (
                 location.pathname.substring(1).toUpperCase()

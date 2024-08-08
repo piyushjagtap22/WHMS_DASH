@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import NotFoundPage from './components/Pages/NotFoundPage.jsx';
 
+import { PersistGate } from 'redux-persist/integration/react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Provider } from 'react-redux';
 import {
@@ -28,7 +29,7 @@ import Layout from './components/Pages/Layout.jsx';
 import Register from './components/Pages/Register.jsx';
 import SuperAdminScreen from './components/Pages/superAdminScreen.jsx';
 import './index.css';
-import store from './store.js';
+import store, { persistor } from './store';
 import { themeSettings } from './theme';
 
 import EmailRegisterValidator from './components/EmailRegisterValidator.jsx';
@@ -84,6 +85,7 @@ const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}></PersistGate>
     {/* <AppInitializer /> */}
     {/* <React.StrictMode> */}
     <RouterProvider router={router}>

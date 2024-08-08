@@ -116,37 +116,6 @@ const MapboxMap = ({ lat, lon, currentUserId }) => {
             console.error('Error updating map source:', err);
           }
         }, 5000);
-
-        map.on('click', async (event) => {
-          const coords = [event.lngLat.lng, event.lngLat.lat];
-          const end = {
-            type: 'FeatureCollection',
-            features: [
-              {
-                type: 'Feature',
-                geometry: { type: 'Point', coordinates: coords },
-              },
-            ],
-          };
-
-          if (map.getLayer('end')) {
-            map.getSource('end').setData(end);
-          } else {
-            map.addLayer({
-              id: 'end',
-              type: 'circle',
-              source: { type: 'geojson', data: end },
-              paint: { 'circle-radius': 10, 'circle-color': '#f30' },
-            });
-          }
-
-          updateAddress(coords[1], coords[0], 'address2');
-          await getRoute(
-            map,
-            [latitudeRef.current, longitudeRef.current],
-            coords
-          );
-        });
       } catch (err) {
         console.error('Error initializing map:', err);
       }
