@@ -194,7 +194,7 @@ const MapboxMap = ({ lat, lon, currentUserId }) => {
         className='MuiBox-root'
         style={{
           gridColumn: 'span 7',
-          gridRow: 'span 4',
+          gridRow: 'span 3',
           height: '34rem',
           backgroundColor: '#191C23',
           padding: '0rem',
@@ -210,10 +210,15 @@ const MapboxMap = ({ lat, lon, currentUserId }) => {
                 borderTopLeftRadius: '1.55rem',
                 borderTopRightRadius: '1.55rem',
                 height: '23rem',
+                width: '100%', // Make sure the map container takes full width
               }}
               ref={mapContainerRef}
             />
-            <div style={{ padding: '16px' }}>
+            <div
+              style={{
+                padding: '16px',
+              }}
+            >
               {address !== '' && (
                 <p
                   style={{
@@ -223,7 +228,7 @@ const MapboxMap = ({ lat, lon, currentUserId }) => {
                     borderRadius: '0.73rem',
                   }}
                 >
-                  {address}
+                  Location: {address}
                 </p>
               )}
               <CustomButton onClick={handleButtonClick}>

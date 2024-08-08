@@ -14,6 +14,7 @@ import IconButton from '@mui/material/IconButton';
 import { Toaster, toast } from 'react-hot-toast';
 import PowerIcon from '@mui/icons-material/Power';
 import { setAuthState } from '../../slices/authSlice';
+import { setLocation } from '../../slices/deviceSlice';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import Tooltip from '@mui/material/Tooltip';
@@ -111,7 +112,7 @@ const DefaultPage = (data) => {
   const [VentilatonSensorTimeStamp, setVentilatonSensorTimeStamp] = useState(
     []
   );
-
+  const url = 'http://localhost:3000/api/admin/getGraphData';
   const [ActivitySensorData, setActivitySensorData] = useState([]);
   const [ActivitySensorTimeStamp, setActivitySensorTimeStamp] = useState([]);
 
@@ -163,7 +164,7 @@ const DefaultPage = (data) => {
   const [events, setEvents] = useState([]);
 
   async function getGraphData(iid, startTimeStamp, endTimeStamp) {
-    const url = 'http://localhost:3000/api/admin/getGraphData';
+    const url = `${url}/api/admin/getGraphData`;
     const payload = {
       id: iid,
       sensorType: sensorType,
@@ -306,6 +307,7 @@ const DefaultPage = (data) => {
               const { lat, lon } = device.location[0];
               setLatitude(lat);
               setLongitude(lon);
+              dispatch(setLocation({ lat, lon }));
               latitudeRef.current = lat;
               longitudeRef.current = lon;
             } else {
@@ -327,6 +329,7 @@ const DefaultPage = (data) => {
               console.log('setting lat lon');
               setLatitude(lat);
               setLongitude(lon);
+              dispatch(setLocation({ lat, lon }));
               latitudeRef.current = lat;
               longitudeRef.current = lon;
             }
@@ -358,8 +361,13 @@ const DefaultPage = (data) => {
   const mapSensorData = (data, mappings) => {
     mappings.forEach(({ sensor, setData, setTimeStamp }) => {
       if (data[sensor]) {
-        setData(data[sensor].map((item) => item.value));
-        setTimeStamp(data[sensor].map((item) => item.timestamp));
+        const sensorValues = data[sensor].map((item) => item.value).slice(-20);
+        const sensorTimestamps = data[sensor]
+          .map((item) => item.timestamp)
+          .slice(-20);
+
+        setData(sensorValues);
+        setTimeStamp(sensorTimestamps);
       }
     });
   };
@@ -446,33 +454,51 @@ const DefaultPage = (data) => {
 
             <Box flexGrow={1} m='2rem 0rem'>
               {tabValue === 0 ? (
-                <Box
-                  margin='2rem 2rem'
-                  display='grid'
-                  gridTemplateColumns='repeat(12, 1fr)'
-                  gridAutoRows='160px'
-                  gap='12px'
-                  zIndex={2}
-                  sx={{
-                    '& > div': {
-                      gridColumn: isNonMediumScreens ? undefined : 'span 12',
-                    },
-                  }}
-                >
-                  {mapboxMapMemo}
-
-                  {sensorDataMappings.map(
-                    ({ sensor, setData, setTimeStamp, unit, name, data }) => (
-                      <ApexGraph
-                        key={sensor}
-                        name={name}
-                        data={eval(data)}
-                        timestamp={eval(data.replace('Data', 'TimeStamp'))}
-                        unit={unit}
-                      />
-                    )
-                  )}
-                </Box>
+                <>
+                  <Box
+                    margin='2rem 2rem'
+                    display='grid'
+                    gridTemplateColumns='repeat(12, 1fr)'
+                    gridAutoRows='160px'
+                    gap='12px'
+                    zIndex={2}
+                    sx={{
+                      '& > div': {
+                        gridColumn: isNonMediumScreens ? undefined : 'span 12',
+                      },
+                    }}
+                    style={{ marginBottom: '64px' }}
+                  >
+                    {mapboxMapMemo}
+                  </Box>
+                  <Box
+                    margin='2rem 2rem'
+                    display='grid'
+                    gridTemplateColumns='repeat(12, 1fr)'
+                    gridAutoRows='160px'
+                    gap='12px'
+                    zIndex={2}
+                    sx={{
+                      '& > div': {
+                        gridColumn: isNonMediumScreens ? undefined : 'span 12',
+                      },
+                    }}
+                    style={{ marginBottom: '64px' }}
+                  >
+                    {sensorDataMappings.map(
+                      ({ sensor, setData, setTimeStamp, name, data }) => (
+                        <ApexGraph
+                          key={sensor}
+                          name={name}
+                          data={eval(data)}
+                          timestamp={eval(data.replace('Data', 'TimeStamp'))}
+                          max={90}
+                          zoomEnabled={false}
+                        />
+                      )
+                    )}
+                  </Box>
+                </>
               ) : (
                 <>
                   <form className='dpForm'>
@@ -509,16 +535,21 @@ const DefaultPage = (data) => {
                     >
                       <MenuItem value='heartSensor'>Heart Rate</MenuItem>
                       <MenuItem value='BloodPressureSensor'>
-                        Breath Rate
+                        Blood Pressure
                       </MenuItem>
-                      <MenuItem value='VentilatonSensor'>
-                        VentilatonSensor
-                      </MenuItem>
+                      <MenuItem value='VentilatonSensor'>Ventilation</MenuItem>
+
+                      <MenuItem value='BreathRateSensor'>Breath Rate</MenuItem>
                       <MenuItem value='TidalVolumeSensor'>
-                        TidalVolumeSensor
+                        Tidal Volume
                       </MenuItem>
-                      <MenuItem value='ActivitySensor'>ActivitySensor</MenuItem>
-                      <MenuItem value='CadenceSensor'>CadenceSensor</MenuItem>
+                      <MenuItem value='ActivitySensor'>Activity</MenuItem>
+                      <MenuItem value='CadenceSensor'>Cadence</MenuItem>
+
+                      <MenuItem value='OxygenSaturationSensor'>
+                        Oxygen Saturation
+                      </MenuItem>
+                      <MenuItem value='TemperatureSensor'>Temperature</MenuItem>
                     </TextField>
 
                     <CustomButton onClick={handleSubmit} variant='contained'>

@@ -65,7 +65,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
       console.log('Delay called ', milliseconds);
       setTimeout(resolve, milliseconds);
     });
-
+  const deviceID = useSelector((state) => state.device.currentDevice);
   const handleLogout = async () => {
     try {
       dispatch(setLoading(true));
@@ -136,7 +136,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
                   >
                     Dashboard
                   </Link>
-                  {' / WHMS-' + AuthUser.uid.substring(0, 4).toUpperCase()}
+                  {` / WHMS-'${deviceID}`}
                 </>
               ) : (
                 location.pathname.substring(1).toUpperCase()
