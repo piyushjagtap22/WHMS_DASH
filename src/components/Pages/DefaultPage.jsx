@@ -27,7 +27,6 @@ import Navbar from './Navbar';
 import ApexGraphPrint from './ApexGraphPrint';
 
 const app = new Realm.App({ id: 'application-0-vdlpx' });
-
 const DefaultPage = (data) => {
   const loading = useSelector((state) => state.loading.loading);
   console.log(loading);
@@ -189,8 +188,7 @@ const DefaultPage = (data) => {
   const [events, setEvents] = useState([]);
 
   async function getGraphData(iid, startTimeStamp, endTimeStamp) {
-    const url =
-      'https://whms-isro-sxur-cpbr-eyqdlmmsn-bugzzbunny007s-projects.vercel.app/api/admin/getGraphData';
+    const url = `${import.meta.env.VITE_REACT_API_URL}/api/admin/getGraphData`;
     const payload = {
       id: iid,
       sensorType: sensorType,
@@ -432,8 +430,13 @@ const DefaultPage = (data) => {
   const mapSensorData = (data, mappings) => {
     mappings.forEach(({ sensor, setData, setTimeStamp }) => {
       if (data[sensor]) {
-        setData(data[sensor].map((item) => item.value));
-        setTimeStamp(data[sensor].map((item) => item.timestamp));
+        const sensorValues = data[sensor].map((item) => item.value).slice(-20);
+        const sensorTimestamps = data[sensor]
+          .map((item) => item.timestamp)
+          .slice(-20);
+
+        setData(sensorValues);
+        setTimeStamp(sensorTimestamps);
       }
     });
   };

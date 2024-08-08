@@ -16,8 +16,6 @@ export const createAdmin = (data, token) => {
 }
 console.log("superadmin" + SUPERADMIN_URL);
 
-
-
 export const addDeviceID = (data, token) => {
     console.log("slice running")
     console.log('check the data', data)

@@ -14,13 +14,15 @@ import * as Realm from 'realm-web';
 import { getDeviceIds } from '../../src/slices/adminApiSlice';
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 import CustomButton from './Button.jsx';
-
+import { setCurrentDevice } from '../slices/adminSlice.js';
+import { useDispatch } from 'react-redux';
 const SensorPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
+  const dispatch = useDispatch();
   const [buttonLoader, setButtonLoader] = useState(false);
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState();
@@ -32,6 +34,8 @@ const SensorPage = () => {
 
   const handleRowClick = (data) => {
     setOpen(true);
+    console.log('deve;p[ong');
+    console.log(data);
     setData(data);
     //console.log(data);
     // toast('Hello World', {
@@ -165,14 +169,60 @@ const SensorPage = () => {
     }
   };
 
-  const getCellStyle = (stringValue) => {
+  const getCellStyle = (sensorType, stringValue) => {
     const value = parseInt(stringValue, 10) || 0;
-    if (value > 80 || !value) {
-      return { color: '#FF2424' };
-    } else if (value > 30) {
-      return { color: '#EFBE56' };
-    } else {
-      return { color: '#7CD6AB' };
+
+    switch (sensorType) {
+      case 'heartRate':
+        if (value < 30 || value > 220) {
+          return { color: '#FF5733' }; // red
+        } else if (
+          (value >= 30 && value < 45) ||
+          (value > 160 && value <= 220)
+        ) {
+          return { color: '#FFA500' }; // orange
+        } else if (
+          (value >= 45 && value < 60) ||
+          (value > 100 && value <= 160)
+        ) {
+          return { color: '#FFFF00' }; // yellow
+        } else if (value >= 60 && value <= 100) {
+          return { color: '#7CD6AB' }; // green
+        }
+        break;
+
+      case 'bloodPressure':
+        if (value < 60 || value > 260) {
+          return { color: '#FF5733' }; // red
+        } else if (
+          (value >= 80 && value < 100) ||
+          (value > 140 && value <= 180)
+        ) {
+          return { color: '#FFA500' }; // orange
+        } else if (
+          (value >= 100 && value < 110) ||
+          (value > 130 && value <= 140)
+        ) {
+          return { color: '#FFFF00' }; // yellow
+        } else if (value >= 110 && value <= 130) {
+          return { color: '#7CD6AB' }; // green
+        }
+        break;
+
+      case 'spo2':
+        if (value < 50) {
+          return { color: '#FF5733' }; // red
+        } else if (value >= 50 && value < 75) {
+          return { color: '#FFA500' }; // orange
+        } else if (value >= 75 && value < 90) {
+          return { color: '#FFFF00' }; // yellow
+        } else if (value >= 90 && value <= 100) {
+          return { color: '#7CD6AB' }; // green
+        }
+        break;
+
+      default:
+        return { color: 'inherit' };
     }
   };
 
@@ -307,6 +357,12 @@ const SensorPage = () => {
         >
           <CustomButton
             onClick={() => {
+              console.log(
+                'will cann dispatch setCurrentDevice',
+                rowdata.deviceId
+              );
+              console.log(rowdata.deviceId);
+              dispatch(setCurrentDevice(rowdata.deviceId));
               navigate(`/Default`, {
                 state: {
                   data: rowdata,
@@ -439,13 +495,26 @@ const SensorPage = () => {
                     >
                       {e?.initialUserData?.name || '---'}
                     </td>
-                    <td style={{ ...getCellStyle(e?.heartSensor) }}>
+                    <td
+                      style={{ ...getCellStyle('heartRate', e?.heartSensor) }}
+                    >
                       {e?.heartSensor || '---'} bpm
                     </td>
-                    <td style={{ ...getCellStyle(e?.OxygenSaturationSensor) }}>
+                    <td
+                      style={{
+                        ...getCellStyle('spo2', e?.OxygenSaturationSensor),
+                      }}
+                    >
                       {e?.OxygenSaturationSensor || '---'} %
                     </td>
-                    <td style={{ ...getCellStyle(e?.BloodPressureSensor) }}>
+                    <td
+                      style={{
+                        ...getCellStyle(
+                          'bloodPressure',
+                          e?.BloodPressureSensor
+                        ),
+                      }}
+                    >
                       {e?.BloodPressureSensor || '---'} mmhg
                     </td>
                   </tr>

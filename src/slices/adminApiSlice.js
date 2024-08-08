@@ -6,7 +6,7 @@ const axiosInstance = axios.create({
 })
 
 
-const ADMIN_URL = `https://whms-isro-sxur-cpbr-eyqdlmmsn-bugzzbunny007s-projects.vercel.app/api/admin`;
+const ADMIN_URL = `${import.meta.env.VITE_REACT_API_URL}/api/admin`;
 
 export const AddUsersToAdmin = (data, token) => {
     // pass token as an argument to this function
@@ -25,7 +25,7 @@ export const getDeviceIds = (token) => {
 }
 
 export const getSensorDB = (token, id) => {
-    return axios.post(`https://whms-isro-sxur-cpbr-eyqdlmmsn-bugzzbunny007s-projects.vercel.app/api/admin/getSensordb`, { id }, {
+    return axios.post(`${import.meta.env.VITE_REACT_API_URL}/api/admin/getSensordb`, { id }, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
 }

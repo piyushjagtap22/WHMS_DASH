@@ -1,8 +1,9 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, current } from '@reduxjs/toolkit';
 
 const initialState = {
     // Define the initial state for profile data
     adminInfo: null, // You can set it to null or an empty object initially
+    currentDevice: null
 };
 
 const adminSlice = createSlice({
@@ -14,12 +15,17 @@ const adminSlice = createSlice({
             console.log(action.payload)
             state.adminInfo = action.payload;
         },
+        setCurrentDevice: (state, action) => {
+            console.log("Current Device updated to", action.payload)
+            state.currentDevice = action.payload; // Corrected this line
+
+        }
         // Add more actions as needed
     },
 });
 
 
 
-export const { setAdminInfo } = adminSlice.actions;
+export const { setAdminInfo, setCurrentDevice } = adminSlice.actions;
 
 export default adminSlice.reducer;

@@ -46,6 +46,11 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const MongoUser = useSelector((state) => state.auth.MongoUser);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const deviceID = useSelector((state) => state.admin.currentDevice);
+
+  console.log('Check ');
+  console.log(deviceID);
   const userSignOut = () => {
     signOut(auth)
       .then(() => {
@@ -133,7 +138,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
                   >
                     Dashboard
                   </Link>
-                  {' / WHMS-' + AuthUser.uid.substring(0, 4).toUpperCase()}
+                  {` / WHMS-${deviceID}`}
                 </>
               ) : (
                 location.pathname.substring(1).toUpperCase()
