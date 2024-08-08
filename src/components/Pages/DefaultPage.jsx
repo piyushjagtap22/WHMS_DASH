@@ -112,7 +112,7 @@ const DefaultPage = (data) => {
   const [VentilatonSensorTimeStamp, setVentilatonSensorTimeStamp] = useState(
     []
   );
-  const url = 'http://localhost:3000/api/admin/getGraphData';
+  const url = import.meta.env.VITE_REACT_API_URL;
   const [ActivitySensorData, setActivitySensorData] = useState([]);
   const [ActivitySensorTimeStamp, setActivitySensorTimeStamp] = useState([]);
 
@@ -164,7 +164,7 @@ const DefaultPage = (data) => {
   const [events, setEvents] = useState([]);
 
   async function getGraphData(iid, startTimeStamp, endTimeStamp) {
-    const url = `${url}/api/admin/getGraphData`;
+    const getGraphUrl = `${url}/api/admin/getGraphData`;
     const payload = {
       id: iid,
       sensorType: sensorType,
@@ -173,7 +173,7 @@ const DefaultPage = (data) => {
     };
 
     try {
-      const response = await axios.post(url, payload, {
+      const response = await axios.post(getGraphUrl, payload, {
         headers: {
           'Content-Type': 'application/json',
         },
