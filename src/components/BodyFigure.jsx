@@ -21,8 +21,8 @@ import StepsIcon from '../../src/assets/SensorIcons/Steps.svg';
 import TemperatureIcon from '../../src/assets/SensorIcons/Temperature.svg';
 import TidalVolumeIcon from '../../src/assets/SensorIcons/TidalVolume.svg';
 import CadenceIcon from '../../src/assets/SensorIcons/Cadence.svg';
+
 const BodyFigure = React.memo(({ sensorData }) => {
-  console.log(sensorData);
   const sensors = useMemo(
     () => [
       {

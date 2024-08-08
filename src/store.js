@@ -6,7 +6,7 @@ import superAdminReducer from './slices/superAdminSlice';
 import modeReducer from './slices/modeSlice';
 import loadingReducer from './slices/loadingSlice'
 import authSliceReducer from './slices/authSlice'; // Import the authSlice.reducer
-import adminReducer from './slices/adminSlice';
+import adminReducer from './slices/deviceSlice';
 
 const store = configureStore({
   reducer: {

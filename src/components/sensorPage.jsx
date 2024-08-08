@@ -14,7 +14,7 @@ import * as Realm from 'realm-web';
 import { getDeviceIds } from '../../src/slices/adminApiSlice';
 const app = new Realm.App({ id: 'application-0-vdlpx' });
 import CustomButton from './Button.jsx';
-import { setCurrentDevice } from '../slices/adminSlice.js';
+import { setCurrentDevice } from '../slices/deviceSlice.js';
 import { useDispatch } from 'react-redux';
 const SensorPage = () => {
   const theme = useTheme();

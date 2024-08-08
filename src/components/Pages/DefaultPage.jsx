@@ -24,6 +24,7 @@ import CustomButton from '../Button';
 import SidebarNew from '../SideBarNew';
 import ApexGraph from './ApexGraph';
 import Navbar from './Navbar';
+import { setLocation } from '../../slices/deviceSlice';
 import ApexGraphPrint from './ApexGraphPrint';
 
 const app = new Realm.App({ id: 'application-0-vdlpx' });
@@ -34,6 +35,7 @@ const DefaultPage = (data) => {
   const longitudeRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const componentRef = useRef();
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
@@ -303,6 +305,7 @@ const DefaultPage = (data) => {
               const { lat, lon } = device.location[0];
               setLatitude(lat);
               setLongitude(lon);
+              dispatch(setLocation({ lat, lon }));
               latitudeRef.current = lat;
               longitudeRef.current = lon;
               updateAddress(lat, lon, 'address1');
@@ -325,6 +328,7 @@ const DefaultPage = (data) => {
             const { lat, lon } = change.fullDocument.location[0];
             setLatitude(lat);
             setLongitude(lon);
+            dispatch(setLocation({ lat, lon }));
             latitudeRef.current = lat;
             longitudeRef.current = lon;
             updateAddress(lat, lon, 'address1');
@@ -346,6 +350,7 @@ const DefaultPage = (data) => {
 
         setLatitude(latitude);
         setLongitude(longitude);
+        dispatch(setLocation({ lat: latitude, lon: longitude }));
         latitudeRef.current = latitude;
         longitudeRef.current = longitude;
 
@@ -784,7 +789,6 @@ const DefaultPage = (data) => {
                       ],
                       Steps: ActivitySensorData[ActivitySensorData.length - 1],
                       Cadence: CadenceSensorData[CadenceSensorData.length - 1],
-
                       Temperature:
                         TemperatureSensorData[TemperatureSensorData.length - 1],
                       'Blood Pressure': BPSensorData[BPSensorData.length - 1],

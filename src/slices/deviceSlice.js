@@ -3,11 +3,12 @@ import { createSlice, current } from '@reduxjs/toolkit';
 const initialState = {
     // Define the initial state for profile data
     adminInfo: null, // You can set it to null or an empty object initially
-    currentDevice: null
+    currentDevice: null,
+    location: [null, null]
 };
 
-const adminSlice = createSlice({
-    name: 'admin',
+const deviceSlice = createSlice({
+    name: 'device',
     initialState,
     reducers: {
         // Define actions to update profile data
@@ -18,7 +19,11 @@ const adminSlice = createSlice({
         setCurrentDevice: (state, action) => {
             console.log("Current Device updated to", action.payload)
             state.currentDevice = action.payload; // Corrected this line
-
+        },
+        setLocation: (state, action) => {
+            console.log(action.payload.lat)
+            console.log("Setting lcoation in deviceSlice")
+            state.location = [action.payload.lat, action.payload.lon]
         }
         // Add more actions as needed
     },
@@ -26,6 +31,6 @@ const adminSlice = createSlice({
 
 
 
-export const { setAdminInfo, setCurrentDevice } = adminSlice.actions;
+export const { setAdminInfo, setCurrentDevice, setLocation } = deviceSlice.actions;
 
-export default adminSlice.reducer;
+export default deviceSlice.reducer;
