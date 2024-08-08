@@ -11,7 +11,7 @@ const Loader = () => {
       }}
     >
       <img
-        src='../assets/loader.gif'
+        src='/src/assets/loader.gif'
         alt='Loading...'
         style={{
           width: '100px' /* Adjust the width as needed */,
