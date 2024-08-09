@@ -173,6 +173,12 @@ const sensorDataMappings = [
 ];
 
 const ApexGraph = React.memo((props) => {
+function getUnitByName(sensorName) {
+    const sensor = sensorDataMappings.find(
+      (mapping) => mapping.name === sensorName
+    );
+    return sensor ? sensor.unit : undefined;
+  }
   const { timestamp: labels, data, name, unit } = props;
   const theme = useTheme();
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
@@ -283,7 +289,7 @@ const ApexGraph = React.memo((props) => {
           },
         },
         title: {
-          text: { unit },
+          text: `${getUnitByName(name)}`,
         },
         tickAmount: 4,
       },
