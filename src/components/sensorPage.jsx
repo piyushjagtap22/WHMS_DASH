@@ -6,6 +6,10 @@ import {
   DialogTitle,
   useTheme,
 } from '@mui/material';
+import {
+  setCurrentDeviceUserId,
+  setCurrentDeviceData,
+} from '../slices/deviceSlice.js';
 import React, { useEffect, useState } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { useSelector } from 'react-redux';
@@ -36,79 +40,12 @@ const SensorPage = () => {
   const handleRowClick = (data) => {
     setOpen(true);
     setData(data);
-    //console.log(data);
-    // toast('Hello World', {
-    //   duration: 4000,
-    //   position: 'top-center',
-
-    //   // Styling
-    //   style: {
-    //     left: '0px',
-    //     right: '0px',
-    //     display: 'flex',
-    //     position: 'absolute',
-    //     transition: 'all 230ms cubic-bezier(0.21, 1.02, 0.73, 1) 0s',
-    //     transform: 'translateY(34.179px)',
-    //     top: '0px',
-    //     justifyContent: 'center',
-    //     zIndex: '9999',
-    //   },
-    //   className: '',
-
-    //   // Custom Icon
-    //   icon: '👏',
-
-    //   // Change colors of success/error/loading icon
-    //   iconTheme: {
-    //     primary: '#000',
-    //     secondary: '#fff',
-    //   },
-
-    //   // Aria
-    //   ariaProps: {
-    //     role: 'status',
-    //     'aria-live': 'polite',
-    //   },
-    // });
-    // // toast.success('Hey There', { duration: 4000 });
-    // toast.custom(
-    //   <div>
-    //     Do you want to Navigate to User details Page
-    //     <button
-    //       onClick={() => {
-    //         navigate(`/Default`, {
-    //           state: {
-    //             data: data,
-    //           },
-    //         }); // Pass the row data as a prop
-    //       }}
-    //     >
-    //       OK
-    //     </button>
-    //     <button>Cancel</button>
-    //   </div>
-    // );
-    // const result = window.confirm(
-    //   'Do you want to Navigate to User details Page'
-    // );
-
-    // if (result) {
-    //   navigate(`/Default`, {
-    //     state: {
-    //       data: data,
-    //     },
-    //   }); // Pass the row data as a prop
-    // } else {
-    // }
   };
   // Function to handle real-time updates
   const handleRealTimeUpdate = (updatedObject) => {
     setData((prevData) => {
       const updatedData = prevData.map((obj) => {
-        // //console.log('updatedObject', updatedObject);
         if (obj._id === updatedObject._id) {
-          // If the _id matches, update BreathRateSensor and VentilatonSensor values
-
           return {
             ...obj,
             BreathRateSensor: {
@@ -130,30 +67,20 @@ const SensorPage = () => {
 
   const [initialTable, setinitialTable] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
-  // const [user, setUser] = useState();
 
   //Table Searching
   const handleSearchChange = (eve) => {
     setSearchTerm(eve.target.value);
-
-    // //console.log('THIS IS SEARCH', searchTerm);ß
     console.log('in sensor page');
     if (searchTerm.length >= 2) {
-      // //console.log('search runinnh');
-
       const filteredData = events.filter((row) => {
         return row?.initialUserData?.name
           ?.toUpperCase()
           .includes(searchTerm.toUpperCase());
       });
-      // const filteredData = row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) || row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
-      // setUsers(filteredData);
       console.log(filteredData);
       setEvents(filteredData);
-      // //console.log('filtered data', filteredData);
     } else {
-      // Reset to original data when empty search term
-      // //console.log('arijit da', initialTable);
       console.log(initialTable);
       setEvents(initialTable);
     }
@@ -161,9 +88,7 @@ const SensorPage = () => {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Backspace') {
-      // //console.log('keydown working');
       setSearchTerm('');
-      // setUsers(initialTable);
       setEvents(initialTable);
     }
   };
@@ -228,30 +153,22 @@ const SensorPage = () => {
     console.log('In sensor page');
     const login = async () => {
       try {
-        //console.log(setEvents.length);
         if (setEvents.length <= 1) {
-          // const token="eyJhbGciOiJSUzI1NiIsImtpZCI6IjdjZjdmODcyNzA5MWU0Yzc3YWE5OTVkYjYwNzQzYjdkZDJiYjcwYjUiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiQURNSU4iLCJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vd2htcy1hdXRoLTdlZDRiIiwiYXVkIjoid2htcy1hdXRoLTdlZDRiIiwiYXV0aF90aW1lIjoxNzA1NDI5ODQ2LCJ1c2VyX2lkIjoicUFDbFFEVU9ZdE15MjZ5VHRzMHlncXFBQzZvMSIsInN1YiI6InFBQ2xRRFVPWXRNeTI2eVR0czB5Z3FxQUM2bzEiLCJpYXQiOjE3MDU0Mjk4NDYsImV4cCI6MTcwNTQzMzQ0NiwiZW1haWwiOiJhd2FzdGhpLmFyeWEwNEBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfbnVtYmVyIjoiKzkxOTcxMzM3NjYxNiIsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsiYXdhc3RoaS5hcnlhMDRAZ21haWwuY29tIl0sInBob25lIjpbIis5MTk3MTMzNzY2MTYiXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.Ou2WVNCjpgw36LYKOGKlf9VGpvlXaoxSfLQlXalsCKAzRG-uIn5xDzYaiNUKR3dZy9S66ZNEdGm36BQnRqm67wZjxbJukD-t-2fchPQPfttshEqO5_kxvKcq8NTYJzamEBysbGZca2cr2ajce_4e__EhVCv_Fn5JSUWUQf8YrfLsnYp41qkFBVD5oCf5SlVdgA0R8UCGzUokYTZSBRkleWrS4UysEjQhcIMaAEA8iaGaFdwTVO1nPVIoKy74r9ZBoaualbEn3eKfOhXLTK86BzdsGzX4krMSsTEfk5EjN47XFKov2fVhpceUTt0xnnMxYPemBQEJ1ggDtyw6wRADTg"
+          console.log('setevents 0');
 
           const response = await getDeviceIds(token);
           if (response.status === 200) {
-            //console.log('Chalao');
-            //console.log('Device id data response', response.data);
             console.log(response.data.deviceDocuments);
             setEvents(response.data.deviceDocuments);
             setinitialTable(response.data.deviceDocuments);
             const deviceSet = new Set(response.data.devices.flat());
             const deviceList = [...deviceSet];
-            // Now, deviceList contains unique values from the nested arrays
             devices = deviceList;
           }
         }
-        // setEvents(response.data.deviceDocuments)
-        //console.log('list of devices--> Outside', devices);
         const user = await app.logIn(Realm.Credentials.anonymous());
         setUser(user);
         const mongodb = app.currentUser.mongoClient('mongodb-atlas');
-        // const collection = mongodb.db('test').collection('someCollection');
-        // const collection = mongodb.db('test').collection('devic/es');
         const collection = mongodb.db('test').collection('devices');
 
         const pipeline = [
@@ -260,7 +177,6 @@ const SensorPage = () => {
               $or: [
                 { 'fullDocument.BreathRateSensor.value': 'bunn' },
                 { 'fullDocument.VentilatonSensor.value': 'bunn' },
-                // Add more conditions as needed
               ],
             },
           },
@@ -268,19 +184,15 @@ const SensorPage = () => {
         events.forEach((update) => handleRealTimeUpdate(update));
 
         const changeStream = collection.watch(pipeline);
-        //console.log(changeStream);
         for await (const change of changeStream) {
-          //console.log('this is change', change);
+          console.log('this is change sensorPage');
 
           //console.log('list of devices--> --> Inside', devices);
 
           if (devices.includes(change?.fullDocument?.deviceId)) {
+            console.log('if sensorpage');
             //console.log('has this value proccing to other things');
             setEvents((prevEvents) => {
-              // Find the index of the changed document in the events array
-              //console.log('this is change', change?.fullDocument?.deviceId);
-              //console.log('this is previous', change?.fullDocument?.deviceId);
-
               const index = prevEvents.findIndex(
                 (e) => e._id.toString() === change.documentKey._id.toString()
               );
@@ -354,8 +266,10 @@ const SensorPage = () => {
           }}
         >
           <CustomButton
-            onClick={() => {
+            onClick={async () => {
               dispatch(setCurrentDevice(rowdata.deviceId));
+              dispatch(setCurrentDeviceUserId(rowdata.currentUserId));
+              await dispatch(setCurrentDeviceData(rowdata));
               navigate(`/Default`, {
                 state: {
                   data: rowdata,
