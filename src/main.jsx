@@ -27,6 +27,7 @@ import EmailRegister from './components/Pages/EmailRegister.jsx';
 import Layout from './components/Pages/Layout.jsx';
 import Register from './components/Pages/Register.jsx';
 import SuperAdminScreen from './components/Pages/superAdminScreen.jsx';
+import LandingPage from './components/Pages/LandingPage.jsx';
 import './index.css';
 import store from './store.js';
 import { themeSettings } from './theme';
@@ -78,6 +79,7 @@ const router = createBrowserRouter(
       />
       <Route path='*' element={<NotFoundPage />} />
       <Route path='/test' element={<TempPage />} />
+      <Route path='/landing' element={<LandingPage />} />
     </Route>
   )
 );
