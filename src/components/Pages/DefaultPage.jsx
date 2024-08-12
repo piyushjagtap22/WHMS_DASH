@@ -13,7 +13,8 @@ import { setLocation } from '../../slices/deviceSlice';
 import SidebarNew from '../SideBarNew';
 import Navbar from './Navbar';
 
-const app = new Realm.App({ id: 'application-0-vdlpx' });
+// const app = new Realm.App({ id: 'application-0-vdlpx' });
+const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
 
 import { useCallback } from 'react';
 import GraphsComp from '../GraphsComp';

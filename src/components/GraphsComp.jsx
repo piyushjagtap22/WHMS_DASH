@@ -9,8 +9,11 @@ import { getSensorDB } from '../slices/adminApiSlice';
 import { Box, Grid, MenuItem, TextField, useMediaQuery } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import * as Realm from 'realm-web';
-const app = new Realm.App({ id: 'application-0-vdlpx' });
+// const app = new Realm.App({ id: 'application-0-vdlpx' }); // for whmstestdb
+
+const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
 import { setSensorData } from '../slices/deviceSlice';
+
 const GraphsComp = () => {
   const dispatch = useDispatch();
   const { state: userData } = useLocation();
@@ -22,9 +25,10 @@ const GraphsComp = () => {
     mappings.forEach(({ sensor, setData, setTimeStamp }) => {
       if (data[sensor]) {
         const sensorValues = data[sensor].map((item) => item.value).slice(-20);
+        // const sensorValues = data[sensor].map((item) => item.value);
         const sensorTimestamps = data[sensor]
           .map((item) => item.timestamp)
-          .slice(-20);
+          .slice(-20); // Slice Code TODO
 
         setData(sensorValues);
         setTimeStamp(sensorTimestamps);
@@ -73,6 +77,26 @@ const GraphsComp = () => {
   const [TidalVolumeSensorTimeStamp, setTidalVolumeSensorTimeStamp] = useState(
     []
   );
+  const stateMapping = {
+    heartRateData,
+    heartRateTimeStamp,
+    BreathRateSensorData,
+    BreathRateSensorTimeStamp,
+    VentilatonSensorData,
+    VentilatonSensorTimeStamp,
+    ActivitySensorData,
+    ActivitySensorTimeStamp,
+    BPSensorData,
+    BPSensorTimeStamp,
+    CadenceSensorData,
+    CadenceSensorTimeStamp,
+    OxygenSaturationSensorData,
+    OxygenSaturationSensorTimeStamp,
+    TemperatureSensorData,
+    TemperatureSensorTimeStamp,
+    TidalVolumeSensorData,
+    TidalVolumeSensorTimeStamp,
+  };
   const sensorDataMappings = [
     {
       sensor: 'heartSensor',
@@ -178,6 +202,9 @@ const GraphsComp = () => {
           } else {
           }
         }
+        return () => {
+          changeStream.close();
+        };
       } catch (error) {
         console.error('Error:', error);
       }
@@ -207,8 +234,8 @@ const GraphsComp = () => {
             <ApexGraph
               key={sensor}
               name={name}
-              data={eval(data)}
-              timestamp={eval(data.replace('Data', 'TimeStamp'))}
+              data={stateMapping[data]}
+              timestamp={stateMapping[data.replace('Data', 'TimeStamp')]}
               max={90}
               zoomEnabled={false}
             />

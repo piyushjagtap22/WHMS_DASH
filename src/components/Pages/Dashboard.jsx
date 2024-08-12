@@ -34,7 +34,8 @@ ChartJS.register(
   Legend
 );
 
-const app = new Realm.App({ id: 'sensor_realtimedb-ujgdc' });
+// const app = new Realm.App({ id: 'sensor_realtimedb-ujgdc' });
+const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
 import { useDispatch, useSelector } from 'react-redux';
 
 const SensorPage = lazy(() => import('../sensorPage'));
