@@ -44,15 +44,16 @@ const deviceSlice = createSlice({
         setSensorData: (state, action) => {
 
 
-            state.sensorData['heartRateObj'] = action.payload['heartSensor'];
-            state.sensorData['breathRateObj'] = action.payload['BreathRateSensor'];
-            state.sensorData['ventilationObj'] = action.payload['VentilatonSensor'];
-            state.sensorData['activityObj'] = action.payload['ActivitySensor'];
-            state.sensorData['bpObj'] = action.payload['BloodPressureSensor'];
-            state.sensorData['candenceObj'] = action.payload['CadenceSensor'];
-            state.sensorData['oxygenSaturationObj'] = action.payload['OxygenSaturationSensor'];
-            state.sensorData['tempObj'] = action.payload['TemperatureSensor'];
-            state.sensorData['tidalVolObj'] = action.payload['TidalVolumeSensor'];
+            state.sensorData['heartRateObj'] = action.payload['heartSensor'] ?? null;
+            state.sensorData['breathRateObj'] = action.payload['BreathRateSensor'] ?? null;
+            state.sensorData['ventilationObj'] = action.payload['VentilatonSensor'] ?? null;
+            state.sensorData['activityObj'] = action.payload['ActivitySensor'] ?? null;
+            state.sensorData['bpObj'] = action.payload['BloodPressureSensor'] ?? null;
+            state.sensorData['candenceObj'] = action.payload['CadenceSensor'] ?? null;
+            state.sensorData['oxygenSaturationObj'] = action.payload['OxygenSaturationSensor'] ?? null;
+            state.sensorData['tempObj'] = action.payload['TemperatureSensor'] ?? null;
+            state.sensorData['tidalVolObj'] = action.payload['TidalVolumeSensor'] ?? null;
+
 
             // state.sensorData.heartRateData = [action.payload['heartSensor']];
             // state.sensorData.heartRateTimeStamp = [action.payload.heartRateTime];
