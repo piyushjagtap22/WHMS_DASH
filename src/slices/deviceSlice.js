@@ -42,7 +42,9 @@ const deviceSlice = createSlice({
             state.location = [action.payload.lat, action.payload.lon]
         },
         setSensorData: (state, action) => {
-
+            if (!state.sensorData) {
+                state.sensorData = {};
+            }
 
             state.sensorData['heartRateObj'] = action.payload['heartSensor'] ?? null;
             state.sensorData['breathRateObj'] = action.payload['BreathRateSensor'] ?? null;
