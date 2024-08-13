@@ -27,7 +27,7 @@ const BodyFigure = React.memo(({ sensorData }) => {
 
   const data2 = useSelector((state) => state.device.sensorData);
   console.log('bdy fig');
-  console.log(data2.heartRateObj[data2.heartRateObj.length - 1].value);
+  // console.log(data2.heartRateObj[data2.heartRateObj.length - 1].value);
   // sensorData['Heart Rate'] = data2.heartRateObj[0];
   // console.log(sensorData['Heart Rate']);
   sensorData = {
