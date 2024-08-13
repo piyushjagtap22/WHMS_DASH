@@ -31,18 +31,24 @@ const BodyFigure = React.memo(({ sensorData }) => {
   // sensorData['Heart Rate'] = data2.heartRateObj[0];
   // console.log(sensorData['Heart Rate']);
   sensorData = {
-    'Heart Rate': data2.heartRateObj[data2.heartRateObj.length - 1].value,
-    'Breathing Rate': data2.breathRateObj[data2.breathRateObj.length - 1].value,
+    'Heart Rate':
+      data2?.heartRateObj?.[data2.heartRateObj.length - 1]?.value ?? '-',
+    'Breathing Rate':
+      data2?.breathRateObj?.[data2.breathRateObj.length - 1]?.value ?? '-',
     'Min. Ventilation':
-      data2.ventilationObj[data2.ventilationObj.length - 1].value,
-    Activity: data2.activityObj[data2.activityObj.length - 1].value,
-    'Blood Pressure': data2.bpObj[data2.bpObj.length - 1].value,
-    Cadence: data2.candenceObj[data2.candenceObj.length - 1].value,
-    SPO2: data2.oxygenSaturationObj[data2.oxygenSaturationObj.length - 1].value,
-    Temperature: data2.tempObj[data2.tempObj.length - 1].value,
-    'Tidal Volume': data2.tidalVolObj[data2.tidalVolObj.length - 1].value,
-    Steps: data2.activityObj[data2.activityObj.length - 1].value,
+      data2?.ventilationObj?.[data2.ventilationObj.length - 1]?.value ?? '-',
+    Activity: data2?.activityObj?.[data2.activityObj.length - 1]?.value ?? '-',
+    'Blood Pressure': data2?.bpObj?.[data2.bpObj.length - 1]?.value ?? '-',
+    Cadence: data2?.candenceObj?.[data2.candenceObj.length - 1]?.value ?? '-',
+    SPO2:
+      data2?.oxygenSaturationObj?.[data2.oxygenSaturationObj.length - 1]
+        ?.value ?? '-',
+    Temperature: data2?.tempObj?.[data2.tempObj.length - 1]?.value ?? '-',
+    'Tidal Volume':
+      data2?.tidalVolObj?.[data2.tidalVolObj.length - 1]?.value ?? '-',
+    Steps: data2?.activityObj?.[data2.activityObj.length - 1]?.value ?? '-',
   };
+
   const sensors = useMemo(
     () => [
       {
