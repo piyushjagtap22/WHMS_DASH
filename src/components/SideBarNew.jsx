@@ -83,6 +83,12 @@ const SidebarNew = ({
   HandleTabChange,
   setTabValue,
 }) => {
+  const data2 = useSelector((state) => state.device.sensorData);
+  // console.log('bdy fig');
+  // console.log(data2.heartRateObj[data2.heartRateObj.length - 1].value);
+  // sensorData['Heart Rate'] = data2.heartRateObj[0];
+  // console.log(sensorData['Heart Rate']);
+
   console.log('Sidebarnew is getting rerendered');
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -166,6 +172,7 @@ const SidebarNew = ({
   });
 
   const { state: xSensorData } = useLocation();
+  console.log('xsensor, ', xSensorData.data);
   const getUnitForKey = (key) => {
     const sensorMapping = sensorDataMappings.find(
       (mapping) => mapping.sensor === key
@@ -173,20 +180,45 @@ const SidebarNew = ({
     return sensorMapping ? sensorMapping.unit : '';
   };
   useEffect(() => {
-    console.log('xSensorData :', xSensorData);
-    if (xSensorData) {
-      console.log('Sensor data received:', xSensorData.data);
-      const {
+    console.log('data2 :', data2);
+    if (data2) {
+      console.log('Sensor data received:', data2.sensorData);
+
+      // const {
+      const heartSensor =
+        data2?.heartRateObj?.[data2.heartRateObj.length - 1]?.value ?? '-';
+      const BreathRateSensor =
+        data2?.breathRateObj?.[data2.breathRateObj.length - 1]?.value ?? '-';
+      const VentilatonSensor =
+        data2?.ventilationObj?.[data2.ventilationObj.length - 1]?.value ?? '-';
+      const TidalVolumeSensor =
+        data2?.tidalVolObj?.[data2.tidalVolObj.length - 1]?.value ?? '-';
+      const ActivitySensor =
+        data2?.activityObj?.[data2.activityObj.length - 1]?.value ?? '-';
+      const CadenceSensor =
+        data2?.candenceObj?.[data2.candenceObj.length - 1]?.value ?? '-';
+      const TemperatureSensor =
+        data2?.tempObj?.[data2.tempObj.length - 1]?.value ?? '-';
+      const OxygenSaturationSensor =
+        data2?.oxygenSaturationObj?.[data2.oxygenSaturationObj.length - 1]
+          ?.value ?? '-';
+      const BloodPressureSensor =
+        data2?.bpObj?.[data2.bpObj.length - 1]?.value ?? '-';
+
+      console.log(
+        'someData',
         heartSensor,
         BreathRateSensor,
         VentilatonSensor,
         TidalVolumeSensor,
         ActivitySensor,
         CadenceSensor,
+        'this',
         TemperatureSensor,
         OxygenSaturationSensor,
-        BloodPressureSensor,
-      } = xSensorData.data;
+        BloodPressureSensor
+      );
+      // const} = xSensorData;
 
       // Update state with the sensor data
       setSensorData({
@@ -205,7 +237,7 @@ const SidebarNew = ({
       dispatch(setAuthState('/dashboard'));
       navigate('/dashboard');
     }
-  }, [xSensorData]);
+  }, [data2]);
 
   return !isSidebarOpen ? (
     <Box></Box>
@@ -367,60 +399,61 @@ const SidebarNew = ({
         {Object.keys(sensorData).map((key, index) => (
           <React.Fragment key={index}>
             <Box sx={{}} key={index}>
-              {sensorData[key] ? (
-                <Paper
+              {/* {sensorData[key] ? ( */}
+              <Paper
+                sx={{
+                  p: 2,
+                  color: '#fff',
+                  background: '#191C23',
+                }}
+              >
+                <Typography
                   sx={{
-                    p: 2,
-                    color: '#fff',
-                    background: '#191C23',
+                    marginBottom: '2px',
+                    fontSize: '0.9rem',
+                    letterSpacing: '0.4px',
+                    fontWeight: 'bold',
                   }}
                 >
-                  <Typography
-                    sx={{
-                      marginBottom: '2px',
-                      fontSize: '0.9rem',
-                      letterSpacing: '0.4px',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {getSensorName(key)}
-                  </Typography>
-                  <Typography
-                    variant='body2'
-                    sx={{
-                      color: '#888888',
-                      marginBottom: '0px',
-                    }}
-                  >
-                    3:22 pm UTC, Today
-                  </Typography>
-                  <Typography
-                    variant='body2'
-                    sx={{
-                      color: '#888888',
-                      marginBottom: '12px',
-                    }}
-                  >
-                    {/* {sensorData[key]} */}
-                  </Typography>
-                  <Grid container alignItems='center' spacing={1}>
-                    <Grid item>
-                      <FavoriteIcon
-                        style={{ color: '#7CD6AB', fontSize: '1rem' }}
-                      />
-                    </Grid>
-                    <Grid item>
-                      <Typography
-                        variant='body2'
-                        sx={{
-                          fontSize: '0.9rem',
-                          color: '#fff',
-                        }}
-                      >
-                        {sensorData[key]} {getUnitForKey(key)}
-                      </Typography>
-                    </Grid>
-                    {/* <Grid item sx={{ ml: 2 }}>
+                  {getSensorName(key)}
+                </Typography>
+                <Typography
+                  variant='body2'
+                  sx={{
+                    color: '#888888',
+                    marginBottom: '0px',
+                  }}
+                >
+                  3:22 pm UTC, Today
+                </Typography>
+                <Typography
+                  variant='body2'
+                  sx={{
+                    color: '#888888',
+                    marginBottom: '12px',
+                  }}
+                >
+                  {/* {sensorData[key]} */}
+                </Typography>
+                <Grid container alignItems='center' spacing={1}>
+                  <Grid item>
+                    <FavoriteIcon
+                      style={{ color: '#7CD6AB', fontSize: '1rem' }}
+                    />
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      variant='body2'
+                      sx={{
+                        fontSize: '0.9rem',
+                        color: '#fff',
+                      }}
+                    >
+                      {sensorData[key] == '' ? 'NaN' : sensorData[key]}{' '}
+                      {getUnitForKey(key)}
+                    </Typography>
+                  </Grid>
+                  {/* <Grid item sx={{ ml: 2 }}>
                 <DirectionsRunIcon style={{ color: '#7CD6AB', fontSize: '1rem' }} />
               </Grid>
               <Grid item>
@@ -434,11 +467,11 @@ const SidebarNew = ({
                   20.1 resp/min
                 </Typography>
               </Grid> */}
-                  </Grid>
-                </Paper>
-              ) : (
+                </Grid>
+              </Paper>
+              {/* ) : (
                 <h1>No data for {key}</h1>
-              )}
+              )} */}
             </Box>
             <Divider className={classes.divider}></Divider>
           </React.Fragment>
