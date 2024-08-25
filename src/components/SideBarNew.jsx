@@ -130,7 +130,7 @@ const SidebarNew = ({
       </Tabs>
       <Divider className={classes.divider} />
       <Box sx={{ padding: '0px' }} hidden={tabValueSidebar !== 0} p={2}>
-        {/* <UserProfile /> */} // TODO
+        {/* <UserProfile />  // TODO*/}
         <Box className={classes.row}>
           <Box className={classes.column}>
             <Avatar
