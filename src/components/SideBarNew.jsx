@@ -16,6 +16,8 @@ import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setAuthState } from '../slices/authSlice';
+import SideBarNewHistoryTab from './SideBarNewHistoryTab';
+import UserProfile from './UserProfile';
 const drawerWidth = 280;
 
 const useStyles = makeStyles((theme) => ({
@@ -90,8 +92,7 @@ const SidebarNew = ({
   // console.log(sensorData['Heart Rate']);
 
   console.log('Sidebarnew is getting rerendered');
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+
   const classes = useStyles();
 
   const AuthUser = useSelector((state) => state.auth.AuthUser);
@@ -104,140 +105,6 @@ const SidebarNew = ({
 
     localStorage.setItem('tabhistory', newValue);
   };
-
-  const sensorDataMappings = [
-    {
-      sensor: 'heartSensor',
-      name: 'Heart Rate',
-      unit: 'bpm',
-    },
-    {
-      sensor: 'BreathRateSensor',
-      name: 'Breath Rate',
-      unit: 'resp/min',
-    },
-    {
-      sensor: 'VentilatonSensor',
-      name: 'Ventilaton',
-      unit: 'L/min',
-    },
-    {
-      sensor: 'ActivitySensor',
-      name: 'Activity',
-      unit: 'g',
-    },
-    {
-      sensor: 'BloodPressureSensor',
-      name: 'Blood Pressure',
-      unit: 'mmHg',
-    },
-    {
-      sensor: 'CadenceSensor',
-      name: 'Cadence',
-      unit: 'step/min ',
-    },
-    {
-      sensor: 'OxygenSaturationSensor',
-      name: 'Oxygen Saturation',
-      unit: '%',
-    },
-    {
-      sensor: 'TemperatureSensor',
-      name: 'Temperature',
-      unit: '°C',
-    },
-    {
-      sensor: 'TidalVolumeSensor',
-      name: 'Tidal Volume',
-      unit: 'L',
-    },
-  ];
-  const getSensorName = (sensor) => {
-    const sensorMapping = sensorDataMappings.find(
-      (mapping) => mapping.sensor === sensor
-    );
-    return sensorMapping ? sensorMapping.name : 'Please select sensor';
-  };
-
-  const [sensorData, setSensorData] = useState({
-    heartSensor: '',
-    BreathRateSensor: '',
-    VentilatonSensor: '',
-    TidalVolumeSensor: '',
-    ActivitySensor: '',
-    CadenceSensor: '',
-    TemperatureSensor: '',
-    OxygenSaturationSensor: '',
-    BloodPressureSensor: '',
-  });
-
-  const { state: xSensorData } = useLocation();
-  console.log('xsensor, ', xSensorData.data);
-  const getUnitForKey = (key) => {
-    const sensorMapping = sensorDataMappings.find(
-      (mapping) => mapping.sensor === key
-    );
-    return sensorMapping ? sensorMapping.unit : '';
-  };
-  useEffect(() => {
-    console.log('data2 :', data2);
-    if (data2) {
-      console.log('Sensor data received:', data2.sensorData);
-
-      // const {
-      const heartSensor =
-        data2?.heartRateObj?.[data2.heartRateObj.length - 1]?.value ?? '-';
-      const BreathRateSensor =
-        data2?.breathRateObj?.[data2.breathRateObj.length - 1]?.value ?? '-';
-      const VentilatonSensor =
-        data2?.ventilationObj?.[data2.ventilationObj.length - 1]?.value ?? '-';
-      const TidalVolumeSensor =
-        data2?.tidalVolObj?.[data2.tidalVolObj.length - 1]?.value ?? '-';
-      const ActivitySensor =
-        data2?.activityObj?.[data2.activityObj.length - 1]?.value ?? '-';
-      const CadenceSensor =
-        data2?.candenceObj?.[data2.candenceObj.length - 1]?.value ?? '-';
-      const TemperatureSensor =
-        data2?.tempObj?.[data2.tempObj.length - 1]?.value ?? '-';
-      const OxygenSaturationSensor =
-        data2?.oxygenSaturationObj?.[data2.oxygenSaturationObj.length - 1]
-          ?.value ?? '-';
-      const BloodPressureSensor =
-        data2?.bpObj?.[data2.bpObj.length - 1]?.value ?? '-';
-
-      console.log(
-        'someData',
-        heartSensor,
-        BreathRateSensor,
-        VentilatonSensor,
-        TidalVolumeSensor,
-        ActivitySensor,
-        CadenceSensor,
-        'this',
-        TemperatureSensor,
-        OxygenSaturationSensor,
-        BloodPressureSensor
-      );
-      // const} = xSensorData;
-
-      // Update state with the sensor data
-      setSensorData({
-        heartSensor,
-        BreathRateSensor,
-        VentilatonSensor,
-        TidalVolumeSensor,
-        ActivitySensor,
-        CadenceSensor,
-        TemperatureSensor,
-        OxygenSaturationSensor,
-        BloodPressureSensor,
-      });
-    } else {
-      console.log('No data');
-      dispatch(setAuthState('/dashboard'));
-      navigate('/dashboard');
-    }
-  }, [data2]);
 
   return !isSidebarOpen ? (
     <Box></Box>
@@ -263,6 +130,7 @@ const SidebarNew = ({
       </Tabs>
       <Divider className={classes.divider} />
       <Box sx={{ padding: '0px' }} hidden={tabValueSidebar !== 0} p={2}>
+        {/* <UserProfile /> */} // TODO
         <Box className={classes.row}>
           <Box className={classes.column}>
             <Avatar
@@ -396,86 +264,7 @@ const SidebarNew = ({
         </Box>
       </Box>
       <Box hidden={tabValueSidebar !== 1} p={2}>
-        {Object.keys(sensorData).map((key, index) => (
-          <React.Fragment key={index}>
-            <Box sx={{}} key={index}>
-              {/* {sensorData[key] ? ( */}
-              <Paper
-                sx={{
-                  p: 2,
-                  color: '#fff',
-                  background: '#191C23',
-                }}
-              >
-                <Typography
-                  sx={{
-                    marginBottom: '2px',
-                    fontSize: '0.9rem',
-                    letterSpacing: '0.4px',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {getSensorName(key)}
-                </Typography>
-                <Typography
-                  variant='body2'
-                  sx={{
-                    color: '#888888',
-                    marginBottom: '0px',
-                  }}
-                >
-                  3:22 pm UTC, Today
-                </Typography>
-                <Typography
-                  variant='body2'
-                  sx={{
-                    color: '#888888',
-                    marginBottom: '12px',
-                  }}
-                >
-                  {/* {sensorData[key]} */}
-                </Typography>
-                <Grid container alignItems='center' spacing={1}>
-                  <Grid item>
-                    <FavoriteIcon
-                      style={{ color: '#7CD6AB', fontSize: '1rem' }}
-                    />
-                  </Grid>
-                  <Grid item>
-                    <Typography
-                      variant='body2'
-                      sx={{
-                        fontSize: '0.9rem',
-                        color: '#fff',
-                      }}
-                    >
-                      {sensorData[key] == '' ? 'NaN' : sensorData[key]}{' '}
-                      {getUnitForKey(key)}
-                    </Typography>
-                  </Grid>
-                  {/* <Grid item sx={{ ml: 2 }}>
-                <DirectionsRunIcon style={{ color: '#7CD6AB', fontSize: '1rem' }} />
-              </Grid>
-              <Grid item>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: '0.9rem',
-                    color: '#fff'
-                  }}
-                >
-                  20.1 resp/min
-                </Typography>
-              </Grid> */}
-                </Grid>
-              </Paper>
-              {/* ) : (
-                <h1>No data for {key}</h1>
-              )} */}
-            </Box>
-            <Divider className={classes.divider}></Divider>
-          </React.Fragment>
-        ))}
+        <SideBarNewHistoryTab />
       </Box>
     </Box>
   );

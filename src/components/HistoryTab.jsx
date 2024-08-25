@@ -235,8 +235,6 @@ const HistoryTab = () => {
           </div>
         </Grid>
       </Grid>
-
-      <div>HistoryTab </div>
     </>
   );
 };
