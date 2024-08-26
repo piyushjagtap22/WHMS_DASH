@@ -4,12 +4,13 @@ import axios from 'axios';
 import CustomButton from './Button';
 import { getLoc } from '../slices/adminApiSlice';
 import mapboxgl from 'mapbox-gl';
-
+import { Toaster, toast } from 'react-hot-toast';
 import { Box, useMediaQuery } from '@mui/material';
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw';
 const GEOCODING_URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places';
 
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 const MapboxMap = () => {
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
@@ -142,6 +143,20 @@ const MapboxMap = () => {
     window.open(url, '_blank');
   };
 
+  const copyLocation = () => {
+    const url = `https://google.com/maps/search/${latitudeRef.current},${longitudeRef.current}`;
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        console.log('URL copied to clipboard');
+        toast.success('Location Copied to clipboard');
+      })
+      .catch((err) => {
+        toast.error('Unable to copy location');
+        console.error('Failed to copy URL to clipboard', err);
+      });
+  };
+
   return (
     <>
       <Box
@@ -188,20 +203,27 @@ const MapboxMap = () => {
                 }}
               >
                 {address !== '' && (
-                  <p
-                    style={{
-                      maxWidth: '754.5px',
-                      padding: '8px',
-                      border: '2px solid gray',
-                      borderRadius: '0.73rem',
-                    }}
-                  >
-                    Location: {address}
-                  </p>
+                  <>
+                    <p
+                      style={{
+                        maxWidth: '754.5px',
+                        padding: '8px',
+                        border: '2px solid gray',
+                        borderRadius: '0.73rem',
+                      }}
+                    >
+                      Location: {address}
+                    </p>
+                  </>
                 )}
                 <CustomButton onClick={handleButtonClick}>
                   Open in Maps
                 </CustomButton>
+
+                <ContentCopyIcon
+                  onClick={copyLocation}
+                  style={{ marginLeft: '500px' }}
+                />
               </div>
             </>
           ) : (

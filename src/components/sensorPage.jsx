@@ -71,20 +71,25 @@ const SensorPage = () => {
 
   //Table Searching
   const handleSearchChange = (eve) => {
-    setSearchTerm(eve.target.value);
+    const searchTerm = eve.target.value;
+    setSearchTerm(searchTerm);
+
     console.log('in sensor page');
-    if (searchTerm.length >= 2) {
-      const filteredData = events.filter((row) => {
-        return row?.initialUserData?.name
-          ?.toUpperCase()
-          .includes(searchTerm.toUpperCase());
-      });
-      console.log(filteredData);
-      setEvents(filteredData);
-    } else {
-      console.log(initialTable);
-      setEvents(initialTable);
-    }
+    console.log(searchTerm);
+
+    const filteredData = events.filter((row) => {
+      const name = row?.initialUserData?.name?.toUpperCase() || '';
+      const deviceId = row?.deviceId?.toUpperCase() || '';
+      const searchText = searchTerm.toUpperCase();
+
+      console.log(name);
+      console.log(deviceId);
+
+      return name.includes(searchText) || deviceId.includes(searchText);
+    });
+
+    console.log(filteredData);
+    setEvents(filteredData);
   };
 
   const handleKeyDown = (e) => {
@@ -241,7 +246,7 @@ const SensorPage = () => {
           id='dialog-title'
           sx={{ fontWeight: 'bold', textAlign: 'center' }}
         >
-          List of Documents
+          Please Confirm
         </DialogTitle>
         <DialogContent
           sx={{
@@ -271,11 +276,17 @@ const SensorPage = () => {
               dispatch(setCurrentDevice(rowdata.deviceId));
               dispatch(setCurrentDeviceUserId(rowdata.currentUserId));
               await dispatch(setCurrentDeviceData(rowdata));
-              navigate(`/Default`, {
-                state: {
-                  data: rowdata,
-                },
-              }); // Pass the row data as a prop
+              console.log('rowdata', rowdata);
+              if (rowdata?.ActivitySensor === '') {
+                toast.error('No Data found for the device');
+                handleClose();
+              } else {
+                navigate(`/Default`, {
+                  state: {
+                    data: rowdata,
+                  },
+                }); // Pass the row data as a prop
+              }
             }}
             variant='contained'
             disabled={buttonLoader}

@@ -1,19 +1,50 @@
-// NotFoundPage.jsx
+// PrivacyAndSecurityPage.jsx
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function NotFoundPage() {
-  return <>
-    <div className="notfoundd">
-		<div className="notfound">
-			<div className="notfound-404">
-				<h1>4<span></span>4</h1>
-			</div>
-			<h2>Oops! Page Not Be Found</h2>
-			<p>Sorry but the page you are looking for does not exist, have been removed. name changed or is temporarily unavailable</p>
-			<a href="/Dashboard">Back to homepage</a>
-		</div>
-	</div>
-  </>;
+import CustomButton from '../Button';
+function PrivacyAndSecurityPage() {
+  const navigate = useNavigate();
+  const goToDash = () => {
+    navigate('/dashboard');
+  };
+
+  // Inline styles
+  const pageStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    textAlign: 'center',
+  };
+
+  const contentStyle = {
+    maxWidth: '600px',
+    width: '100%',
+  };
+
+  return (
+    <div style={pageStyle}>
+      <div style={contentStyle}>
+        <h2>Privacy and Security</h2>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
+          facilisi. Cras vulputate, nulla eu tincidunt sagittis, urna urna
+          lacinia eros, ac tempus tortor enim id elit. Vivamus non dui vel orci
+          bibendum accumsan. Donec euismod sem nec quam efficitur, ac tristique
+          odio fermentum. Suspendisse potenti.
+        </p>
+        <p>
+          Sed ut perspiciatis unde omnis iste natus error sit voluptatem
+          accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae
+          ab illo inventore veritatis et quasi architecto beatae vitae dicta
+          sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit
+          aspernatur aut odit aut fugit.
+        </p>
+        <CustomButton onClick={goToDash}>Back to Dashboard</CustomButton>
+      </div>
+    </div>
+  );
 }
 
-export default NotFoundPage;
+export default PrivacyAndSecurityPage;

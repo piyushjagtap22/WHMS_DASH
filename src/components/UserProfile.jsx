@@ -71,6 +71,7 @@ import {
 } from '@mui/material';
 
 const UserProfile = () => {
+  const [connected, setConnected] = useState(false);
   const classes = useStyles();
   return (
     <>
@@ -96,7 +97,7 @@ const UserProfile = () => {
           <Box className={classes.column}>
             <Typography className={classes.title}>Device ID</Typography>
             <Typography className={classes.value}>
-              W-HMS-X {user?.data?.deviceId}
+              {user?.data?.deviceId}
             </Typography>
           </Box>
         </Box>
@@ -155,7 +156,7 @@ const UserProfile = () => {
           <Box className={classes.column}>
             <Typography className={classes.title}>Device status</Typography>
             <Typography className={`${classes.value} ${classes.greenText}`}>
-              Active
+              {connected ? 'Active' : 'Disconnected'}
             </Typography>
           </Box>
         </Box>

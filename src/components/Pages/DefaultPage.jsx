@@ -32,6 +32,7 @@ const DefaultPage = (data) => {
 
   const [tabValue, setTabValue] = useState(0);
   const memoizedSetTabValue = useCallback((value) => {
+    'History clicked';
     setTabValue(value);
   }, []);
 

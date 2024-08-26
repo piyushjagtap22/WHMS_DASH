@@ -30,6 +30,7 @@ import {
   VisibilityOff,
   CheckCircle,
   Cancel,
+  ConstructionOutlined,
 } from '@mui/icons-material';
 import { setLoading } from '../../slices/loadingSlice.js';
 import {
@@ -96,7 +97,15 @@ const EmailRegister = () => {
       console.log('Account linking success', updatedUser);
     } catch (error) {
       console.log(error.message);
-      if (error.message === 'Firebase: Error (auth/requires-recent-login).') {
+
+      if (error.message === 'Firebase: Error (auth/email-already-in-use).') {
+        toast.error(
+          'This email is already in use with different account, please use another mail'
+        );
+        setLoading(false);
+      } else if (
+        error.message === 'Firebase: Error (auth/requires-recent-login).'
+      ) {
         toast.error('Session Timed out, Please login again,');
 
         setTimeout(() => {
@@ -105,12 +114,7 @@ const EmailRegister = () => {
         }, 3000);
       }
       // g error auth/email-already-in-use
-      else if (
-        error.message === 'Firebase: Error (auth/email-already-in-use).'
-      ) {
-        toast.error('Email already in use, please use another email.');
-        setLoading(false);
-      } else {
+      else {
         console.error('Account linking error', error.code, error.message);
       }
     }
@@ -141,15 +145,17 @@ const EmailRegister = () => {
         await linkEmailWithPhone(email, password);
 
         const user = auth.currentUser;
-
-        await sendEmailLink(user);
+        console.log(user.email);
+        if (user.email) {
+          await sendEmailLink(user);
+        }
 
         setLinkSend('sent');
 
         // Store email in localStorage for reference
         localStorage.setItem('email', email);
       } catch (error) {
-        toast.error(error.message);
+        console.log(error.message);
       } finally {
         dispatch(setLoading(false));
       }

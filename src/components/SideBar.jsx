@@ -118,7 +118,7 @@ const Sidebar = ({
                             sx={{ objectFit: 'cover' }}
                           />
 
-                          <Typography variant='h4'>WHMS</Typography>
+                          <Typography variant='h4'>W-HMS</Typography>
                         </FlexBetween>
                       </Box>
                       {!isNonMobile && (

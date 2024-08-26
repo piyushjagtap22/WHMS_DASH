@@ -10,6 +10,7 @@ import {
   Tabs,
   Typography,
 } from '@mui/material';
+import { Toaster, toast } from 'react-hot-toast';
 import { makeStyles } from '@mui/styles';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -85,7 +86,103 @@ const SidebarNew = ({
   HandleTabChange,
   setTabValue,
 }) => {
+  console.log('uuser', user);
+
+  const [connected, setConnected] = useState(false);
   const data2 = useSelector((state) => state.device.sensorData);
+  console.log('hhtt');
+  console.log(
+    data2?.heartRateObj?.[data2.heartRateObj.length - 1]?.timestamp.slice(
+      0,
+      19
+    ) ?? '-'
+  );
+
+  useEffect(() => {
+    const getCurrentUnixTime = () => Math.floor(new Date().getTime() / 1000);
+
+    const convertISTDateTimeToUnix = (istDateTime) => {
+      const [date, time] = istDateTime.split(' ');
+      const [year, month, day] = date.split('-');
+      const [hours, minutes, seconds] = time.split(':');
+
+      const istDate = new Date(
+        Date.UTC(year, month - 1, day, hours, minutes, seconds)
+      );
+
+      const utcDate = new Date(istDate.getTime() - 5.5 * 60 * 60 * 1000);
+
+      return Math.floor(utcDate.getTime() / 1000);
+    };
+
+    const getTimeDifference = (timestampStr) => {
+      const currentUnixTime = getCurrentUnixTime();
+      const deviceUnixTime = convertISTDateTimeToUnix(timestampStr);
+      return currentUnixTime - deviceUnixTime;
+    };
+
+    const checkConnectionStatus = () => {
+      const timestampStr =
+        data2?.heartRateObj?.[data2.heartRateObj.length - 1]?.timestamp ?? '';
+
+      if (timestampStr !== '') {
+        const timeDifference = getTimeDifference(timestampStr);
+        setConnected(timeDifference < 5 && timeDifference >= 0);
+      } else {
+        setConnected(false);
+      }
+    };
+
+    const checkDisconnectionStatus = () => {
+      console.log('i ran now');
+      const timestampStr =
+        data2?.heartRateObj?.[data2.heartRateObj.length - 1]?.timestamp ?? '';
+
+      if (timestampStr !== '') {
+        const timeDifference = getTimeDifference(timestampStr);
+        if (timeDifference >= 5) {
+          setConnected(false);
+        }
+      }
+    };
+
+    // Check connection status immediately
+    checkConnectionStatus();
+
+    // Set up the timeout to check disconnection status once after 5 seconds
+    const timeoutId = setTimeout(checkDisconnectionStatus, 5000);
+
+    // Cleanup interval and timeout on component unmount
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [data2]);
+
+  function formatDate(dateString) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    // Split the input date string into components
+    const [year, month, day] = dateString.split('-');
+
+    // Get the month name from the months array
+    const monthName = months[parseInt(month, 10) - 1];
+
+    // Return the formatted date string
+    return `${parseInt(day, 10)} ${monthName}, ${year}`;
+  }
   // console.log('bdy fig');
   // console.log(data2.heartRateObj[data2.heartRateObj.length - 1].value);
   // sensorData['Heart Rate'] = data2.heartRateObj[0];
@@ -96,14 +193,27 @@ const SidebarNew = ({
   const classes = useStyles();
 
   const AuthUser = useSelector((state) => state.auth.AuthUser);
+  const CurrentUserId = useSelector(
+    (state) => state.device.currentDeviceUserId
+  );
+  console.log(AuthUser);
   const [tabValueSidebar, setTabValueSidebar] = useState(0);
   const handleTabChange = (event, newValue) => {
-    console.log('change');
-    console.log(newValue);
-    setTabValueSidebar(newValue);
-    setTabValue(newValue);
+    event.preventDefault();
+    console.log('change in tab');
 
-    localStorage.setItem('tabhistory', newValue);
+    console.log(CurrentUserId);
+    console.log(AuthUser);
+    if (CurrentUserId == '"' || CurrentUserId == null) {
+      console.log('here111');
+      toast.error('No user and its history available for this device');
+    } else {
+      setTabValueSidebar(newValue);
+
+      setTabValue(newValue);
+
+      localStorage.setItem('tabhistory', newValue);
+    }
   };
 
   return !isSidebarOpen ? (
@@ -145,15 +255,9 @@ const SidebarNew = ({
             <Box className={classes.column}>
               <Typography className={classes.title}>Name</Typography>
               <Typography className={classes.value}>
-                {user?.data?.initialUserData?.name}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={classes.row}>
-            <Box className={classes.column}>
-              <Typography className={classes.title}>Device ID</Typography>
-              <Typography className={classes.value}>
-                W-HMS-X {user?.data?.deviceId}
+                {user?.data?.initialUserData?.name
+                  ? `${user?.data?.initialUserData?.name}`
+                  : '--'}
               </Typography>
             </Box>
           </Box>
@@ -161,11 +265,67 @@ const SidebarNew = ({
             <Box className={classes.column}>
               <Typography className={classes.title}>Phone number</Typography>
               <Typography className={classes.value}>
-                {user?.data?.initialUserData?.phone}
+                {user?.data?.initialUserData?.phone
+                  ? `${user?.data?.initialUserData?.phone}`
+                  : '--'}
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={classes.row}>
+            <Box className={classes.column}>
+              <Typography className={classes.title}>Email Id</Typography>
+              <Typography className={classes.value}>
+                {user?.data?.initialUserData?.email
+                  ? `${user?.data?.initialUserData?.email}`
+                  : '--'}
               </Typography>
             </Box>
           </Box>
         </Box>
+        <Divider className={classes.divider} />
+
+        <Box className={classes.section}>
+          <Box className={classes.row}>
+            <Box className={classes.column}>
+              <Typography className={classes.title}>Device ID</Typography>
+              <Typography className={classes.value}>
+                {user?.data?.deviceId}
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={classes.row}>
+            <Box className={classes.column}>
+              <Typography className={classes.title}>Device status</Typography>
+              <Typography className={`${classes.value} ${classes.greenText}`}>
+                {/* TODO */}
+                <span
+                  style={{
+                    color: connected
+                      ? 'rgba(124, 214, 171, 0.9)'
+                      : 'rgba(255, 36, 36, 0.9)',
+                  }}
+                >
+                  {connected ? 'Active' : 'Disconnected'}
+                </span>
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={classes.row}>
+            <Box className={classes.column}>
+              <Typography className={classes.title}>Device Admin</Typography>
+              <Typography className={classes.value}>
+                {AuthUser.displayName}
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={classes.row}>
+            <Box className={classes.column}>
+              <Typography className={classes.title}>Department</Typography>
+              <Typography className={classes.value}>Transmission</Typography>
+            </Box>
+          </Box>
+        </Box>
+
         <Divider className={classes.divider} />
         <Box className={classes.section}>
           <Box className={classes.row}>
@@ -181,13 +341,17 @@ const SidebarNew = ({
               <Typography className={classes.title}>DOB</Typography>
               <Typography className={classes.value}>
                 {' '}
-                {user?.data?.profileData?.dob.substring(2, 11)}
+                {user?.data?.profileData?.dob.substring(0, 11)
+                  ? formatDate(user?.data?.profileData?.dob.substring(0, 11))
+                  : '---'}
               </Typography>
             </Box>
             <Box className={classes.column}>
               <Typography className={classes.title}>Weight</Typography>
               <Typography className={classes.value}>
-                {user?.data?.profileData?.weight} Kgs
+                {user?.data?.profileData?.weight
+                  ? `${user.data.profileData.weight} Kgs`
+                  : '--'}
               </Typography>
             </Box>
           </Box>
@@ -195,42 +359,22 @@ const SidebarNew = ({
             <Box className={classes.column}>
               <Typography className={classes.title}>Height</Typography>
               <Typography className={classes.value}>
-                {user?.data?.profileData?.height} cm
+                {user?.data?.profileData?.height
+                  ? `${user.data.profileData.height} cm`
+                  : '--'}
               </Typography>
             </Box>
             <Box className={classes.column}>
               <Typography className={classes.title}>Gender</Typography>
               <Typography className={classes.value}>
-                {user?.data?.profileData?.gender}
+                {user?.data?.profileData?.gender
+                  ? `${user?.data?.profileData?.gender}`
+                  : '--'}
               </Typography>
             </Box>
           </Box>
         </Box>
-        <Divider className={classes.divider} />
-        <Box className={classes.section}>
-          <Box className={classes.row}>
-            <Box className={classes.column}>
-              <Typography className={classes.title}>Device status</Typography>
-              <Typography className={`${classes.value} ${classes.greenText}`}>
-                Active
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={classes.row}>
-            <Box className={classes.column}>
-              <Typography className={classes.title}>Admin</Typography>
-              <Typography className={classes.value}>
-                {AuthUser.displayName}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={classes.row}>
-            <Box className={classes.column}>
-              <Typography className={classes.title}>Department</Typography>
-              <Typography className={classes.value}>Transmission</Typography>
-            </Box>
-          </Box>
-        </Box>
+
         <Divider className={classes.divider} />
         <Box className={classes.section}>
           <Box className={classes.row}>
