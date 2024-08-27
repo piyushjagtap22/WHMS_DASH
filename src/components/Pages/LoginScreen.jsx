@@ -27,9 +27,6 @@ import { getMongoUser } from '../../slices/usersApiSlice';
 import Loader from '../Loader';
 import { setAuthState } from '../../slices/authSlice';
 
-const provider = new GoogleAuthProvider();
-const appleAuthProvider = new OAuthProvider('apple.com');
-
 function LoginScreen() {
   const loading = useSelector((state) => state.loading.loading);
   const dispatch = useDispatch();

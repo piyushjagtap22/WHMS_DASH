@@ -8,7 +8,6 @@ import {
   Container,
   Typography,
   TextField,
-  Button,
   IconButton,
   InputAdornment,
   Box,
@@ -30,33 +29,23 @@ import {
   VisibilityOff,
   CheckCircle,
   Cancel,
-  ConstructionOutlined,
 } from '@mui/icons-material';
 import { setLoading } from '../../slices/loadingSlice.js';
-import {
-  getMongoUser,
-  getMongoUserByEmail,
-} from '../../slices/usersApiSlice.js';
-
-import { logout } from '../../slices/authSlice.js';
+import { getMongoUser } from '../../slices/usersApiSlice.js';
 
 const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
 
 const EmailRegister = () => {
-  const isLoading = useSelector((state) => state.loading.loading);
-
   const [displayName, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const [linkSend, setLinkSend] = useState('load');
   const navigate = useNavigate();
-  const { emailid } = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordsMatch, setPasswordsMatch] = useState(false);
   const dispatch = useDispatch();
-  const AuthUser = useSelector((state) => state.auth.AuthUser);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -225,17 +214,6 @@ const EmailRegister = () => {
       console.log(error);
     } finally {
       dispatch(setLoading(false));
-    }
-  };
-
-  const checkAndSetMonogosUser = async () => {
-    try {
-      await getMongoUserByEmail(auth.currentUser.email).then((res) => {
-        const user = res.data.existingUser;
-        dispatch(setMongoUser(user));
-      });
-    } catch (error) {
-      console.error(error.message);
     }
   };
 

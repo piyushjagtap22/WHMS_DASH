@@ -16,7 +16,6 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import * as Realm from 'realm-web';
 import { getDeviceIds } from '../../src/slices/adminApiSlice';
-// const app = new Realm.App({ id: 'application-0-vdlpx' });
 const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
 import CustomButton from './Button.jsx';
 import { setCurrentDevice } from '../slices/deviceSlice.js';
@@ -34,7 +33,6 @@ const SensorPage = () => {
   const [user, setUser] = useState();
   const [rowdata, setData] = useState([]);
   var devices = [];
-  // setDeviceList((prevDeviceList) => [...prevDeviceList, newDevice]);
   const [events, setEvents] = useState([]);
   const handleClose = () => setOpen(false);
 
@@ -213,8 +211,6 @@ const SensorPage = () => {
                   change?.fullDocument.OxygenSaturationSensor;
                 updatedEvents[index].BloodPressureSensor =
                   change?.fullDocument.BloodPressureSensor;
-                // updatedEvents[index] = change.fullDocument;
-                //console.log('format kharab ni hone diya', updatedEvents[index]);
 
                 return updatedEvents;
               } else {
@@ -409,7 +405,6 @@ const SensorPage = () => {
                     <td
                       style={{
                         color: 'white',
-                        // borderRight: `1px solid ${theme.palette.secondary[400]}`,
                       }}
                     >
                       {e?.initialUserData?.name || '---'}

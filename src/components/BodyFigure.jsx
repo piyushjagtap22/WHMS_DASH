@@ -1,13 +1,5 @@
 import React, { useMemo } from 'react';
 import { Tooltip } from '@mui/material';
-import {
-  Air as AirIcon,
-  DirectionsRun as DirectionsRunIcon,
-  Favorite as FavoriteIcon,
-  Height,
-  Medication as MedicationIcon,
-  Thermostat as ThermostatIcon,
-} from '@mui/icons-material';
 import Body_Male from '../assets/Body_Male.png'; // Adjust the path as necessary
 import '../css/BodyFigure.css';
 import { Box, useMediaQuery } from '@mui/material';
@@ -27,9 +19,6 @@ const BodyFigure = React.memo(({ sensorData }) => {
 
   const data2 = useSelector((state) => state.device.sensorData);
   console.log('bdy fig');
-  // console.log(data2.heartRateObj[data2.heartRateObj.length - 1].value);
-  // sensorData['Heart Rate'] = data2.heartRateObj[0];
-  // console.log(sensorData['Heart Rate']);
   sensorData = {
     'Heart Rate':
       data2?.heartRateObj?.[data2.heartRateObj.length - 1]?.value ?? '-',
@@ -158,68 +147,3 @@ const BodyFigure = React.memo(({ sensorData }) => {
 });
 
 export default BodyFigure;
-
-// TODO, this will go in body figure
-// const heartRateTimeStampRef = useRef(heartRateTimeStamp);
-//   useEffect(() => {
-//     heartRateTimeStampRef.current = heartRateTimeStamp;
-//   }, [heartRateTimeStamp]);
-// useEffect(() => {
-//   const checkConnectionStatus = () => {
-//     console.log('Check connection status function running');
-//     if (heartRateTimeStampRef.current.length > 0) {
-//       const latestTimestamp =
-//         heartRateTimeStampRef.current[
-//           heartRateTimeStampRef.current.length - 1
-//         ];
-//       const latestTime = new Date(latestTimestamp);
-//       const currentTime = new Date();
-//       const timeDifference = (currentTime - latestTime) / 1000; // Difference in seconds
-
-//       setConnectionStatus(timeDifference <= 13);
-//     } else {
-//       setConnectionStatus(false);
-//     }
-//   //  TODO make this to update itself as per heartRateTimeStamp reading or something
-//   };
-
-//   checkConnectionStatus();
-//   const intervalId = setInterval(checkConnectionStatus, 1000);
-
-//   return () => clearInterval(intervalId);
-// }, []);
-// {isNonMediumScreens && tabValue === 0 && (
-//   <Box>
-//     <BodyFigure />
-
-//     <Tooltip
-//       title={`Connection Status: ${currentTime} and ${
-//         heartRateTimeStamp[heartRateTimeStamp.length - 1]
-//       }`}
-//       arrow
-//       placement='left-end'
-//       className={tooltipClass}
-//     >
-//       <div>
-//         <IconButton>
-//           <PowerIcon
-//             style={{
-//               color: connectionStatus
-//                 ? 'rgba(124, 214, 171, 0.9)'
-//                 : 'rgba(255, 36, 36, 0.9)',
-//             }}
-//           />
-//         </IconButton>
-//         <span
-//           style={{
-//             color: connectionStatus
-//               ? 'rgba(124, 214, 171, 0.9)'
-//               : 'rgba(255, 36, 36, 0.9)',
-//           }}
-//         >
-//           {connectionStatus ? 'Connected' : 'Disconnected'}
-//         </span>
-//       </div>
-//     </Tooltip>
-//   </Box>
-// )}

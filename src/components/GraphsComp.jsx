@@ -1,15 +1,13 @@
 import React from 'react';
 import { useState } from 'react';
-import { useMemo } from 'react';
-import ApexGraph from './Pages/ApexGraph';
+import ApexGraph from './ApexGraph';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { getSensorDB } from '../slices/adminApiSlice';
-import { Box, Grid, MenuItem, TextField, useMediaQuery } from '@mui/material';
+import { Box, useMediaQuery } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import * as Realm from 'realm-web';
-// const app = new Realm.App({ id: 'application-0-vdlpx' }); // for whmstestdb
 
 const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
 import { setSensorData } from '../slices/deviceSlice';
@@ -25,7 +23,6 @@ const GraphsComp = () => {
     mappings.forEach(({ sensor, setData, setTimeStamp }) => {
       if (data[sensor]) {
         const sensorValues = data[sensor].map((item) => item.value).slice(-20);
-        // const sensorValues = data[sensor].map((item) => item.value);
         const sensorTimestamps = data[sensor]
           .map((item) => item.timestamp)
           .slice(-20); // Slice Code TODO
@@ -34,8 +31,6 @@ const GraphsComp = () => {
         setTimeStamp(sensorTimestamps);
       }
       if (sensor === 'heartSensor') {
-        // console.log('Will dispatch, ', data[sensor]);
-        // dispatch(setSensorData(data[sensor]));
       }
     });
   };
@@ -46,13 +41,11 @@ const GraphsComp = () => {
   const [BreathRateSensorTimeStamp, setBreathRateSensorTimeStamp] = useState(
     []
   );
-  const memoizedUserData = useMemo(() => userData, [userData]);
 
   const [VentilatonSensorData, setVentilatonSensorData] = useState([]);
   const [VentilatonSensorTimeStamp, setVentilatonSensorTimeStamp] = useState(
     []
   );
-  const url = import.meta.env.VITE_REACT_API_URL;
   const [ActivitySensorData, setActivitySensorData] = useState([]);
   const [ActivitySensorTimeStamp, setActivitySensorTimeStamp] = useState([]);
 
@@ -187,8 +180,6 @@ const GraphsComp = () => {
             setEvents(response.data.deviceDocuments);
           }
         }
-
-        const user = await app.logIn(Realm.Credentials.anonymous());
 
         const mongodb = app.currentUser.mongoClient('mongodb-atlas');
 

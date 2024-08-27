@@ -18,20 +18,10 @@ import {
   useTheme,
 } from '@mui/material';
 import {
-  SettingsOutlined,
   ChevronLeft,
   ChevronRightOutlined,
   HomeOutlined,
-  ShoppingCartOutlined,
-  Groups2Outlined,
   ReceiptLongOutlined,
-  PublicOutlined,
-  PointOfSaleOutlined,
-  TodayOutlined,
-  CalendarMonthOutlined,
-  AdminPanelSettingsOutlined,
-  TrendingUpOutlined,
-  PieChartOutlined,
 } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -97,11 +87,6 @@ const Sidebar = ({
                 <Box width='100%'>
                   <Box m='1rem 2rem 2rem 3rem'>
                     <FlexBetween color={theme.palette.secondary.main}>
-                      {/* <Box display="flex" alignItems="center" gap="0.5rem">
-                <Typography variant="h4" fontWeight="bold">
-                  WHMS
-                </Typography>
-              </Box> */}
                       <Box>
                         <FlexBetween
                           textTransform='none'
@@ -503,7 +488,7 @@ const Sidebar = ({
                                       }}
                                       className='sidebarvalues'
                                     >
-                                      150 BPM
+                                      1500000 BPM
                                     </span>
                                   </p>
                                 </Box>
@@ -527,20 +512,6 @@ const Sidebar = ({
                           </TabPanel>
 
                           <TabPanel value='2'>Item Two</TabPanel>
-
-                          {/* <Breadcrumbs aria-label="breadcrumb">
-                            <Link underline="hover" color="inherit" href="/">
-                              MUI
-                            </Link>
-                            <Link
-                              underline="hover"
-                              color="inherit"
-                              href="/material-ui/getting-started/installation/"
-                            >
-                              Core
-                            </Link>
-                            <Typography color="text.primary">Breadcrumbs</Typography>
-                          </Breadcrumbs> */}
                         </TabContext>
                       </Box>
 

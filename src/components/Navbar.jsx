@@ -7,15 +7,15 @@ import { Link } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import profileImage from '../../assets/profile.png';
+import profileImage from '../assets/profile.png';
 import {
   setAuthState,
   setAuthUser,
   setMongoUser,
-} from '../../slices/authSlice';
-import { setLoading } from '../../slices/loadingSlice';
-import { setMode } from '../../slices/modeSlice.js';
-import FlexBetween from '../FlexBetween.jsx';
+} from '../slices/authSlice.js';
+import { setLoading } from '../slices/loadingSlice.js';
+import { setMode } from '../slices/modeSlice.js';
+import FlexBetween from './FlexBetween.jsx';
 
 import {
   AppBar,
@@ -30,9 +30,7 @@ import {
 } from '@mui/material';
 import { signOut } from 'firebase/auth';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { auth } from '../../firebase';
-import { logout } from '../../slices/authSlice.js';
-import { memo } from 'react';
+import { auth } from '../firebase.js';
 const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   useEffect(() => {
     console.log('Navbar is rerendering');
@@ -49,16 +47,6 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const MongoUser = useSelector((state) => state.auth.MongoUser);
   const navigate = useNavigate();
   const location = useLocation();
-  const userSignOut = () => {
-    signOut(auth)
-      .then(() => {
-        dispatch(logout(token));
-        console.log('Succesfully Signed Out');
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
 
   const delay = (milliseconds) =>
     new Promise((resolve) => {
@@ -154,9 +142,6 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
               <DarkModeOutlined sx={{ fontSize: '25px' }} />
             )}
           </IconButton>
-          {/* <IconButton>
-            <SettingsOutlined sx={{ fontSize: '25px' }} />
-          </IconButton> */}
 
           <FlexBetween>
             <Button

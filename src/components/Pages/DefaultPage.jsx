@@ -1,34 +1,25 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import '../../css/DefaultPage.css';
 import { useLocation } from 'react-router-dom';
-import { getDeviceIds } from '../../slices/adminApiSlice';
-import MapboxMap from '../MapboxMap';
+
 import { Box, useMediaQuery } from '@mui/material';
 import { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../Loader';
-import * as Realm from 'realm-web';
 import { Toaster } from 'react-hot-toast';
-import { setLocation } from '../../slices/deviceSlice';
 import SidebarNew from '../SideBarNew';
-import Navbar from './Navbar';
-
-// const app = new Realm.App({ id: 'application-0-vdlpx' });
-const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
+import Navbar from '../Navbar';
+const BodyFigure = lazy(() => import('../BodyFigure'));
+const MapboxMap = lazy(() => import('../MapboxMap'));
 
 import { useCallback } from 'react';
-import GraphsComp from '../GraphsComp';
-import HistoryTab from '../HistoryTab';
-import BodyFigure from '../BodyFigure';
+const GraphsComp = lazy(() => import('../GraphsComp'));
+
+const HistoryTab = lazy(() => import('../HistoryTab'));
 
 const DefaultPage = (data) => {
   console.log('Default page is rerendering');
   const loading = useSelector((state) => state.loading.loading);
-  const [latitude, setLatitude] = useState(23); // Initial latitude
-  const [longitude, setLongitude] = useState(77); // Initial longitude
-  const latitudeRef = useRef(latitude);
-  const longitudeRef = useRef(longitude);
-  const dispatch = useDispatch();
 
   const [tabValue, setTabValue] = useState(0);
   const memoizedSetTabValue = useCallback((value) => {
@@ -37,26 +28,8 @@ const DefaultPage = (data) => {
   }, []);
 
   const { state: userData } = useLocation();
-
   const memoizedUserData = useMemo(() => userData, [userData]);
-
-  const token = useSelector(
-    (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
-  );
-
-  // const [events, setEvents] = useState([]);
-
   const isNonMobile = useMediaQuery('(min-width: 600px)');
-
-  // const memoizedUserId = useMemo(
-  //   () => userData.currentUserId,
-  //   [userData.data.currentUserId]
-  // );
-
-  // const mapboxMapMemo = useMemo(() => {
-  //   return <MapboxMap />;
-  // }, []);
-
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
@@ -81,12 +54,21 @@ const DefaultPage = (data) => {
             <Box flexGrow={1} m='2rem 0rem'>
               {tabValue === 0 ? (
                 <>
-                  <MapboxMap />
-                  <GraphsComp />
-                  <BodyFigure />
+                  <Suspense fallback={<Loader />}>
+                    <MapboxMap />
+                  </Suspense>
+                  <Suspense fallback={<Loader />}>
+                    <GraphsComp />
+                  </Suspense>
+
+                  <Suspense fallback={<Loader />}>
+                    <BodyFigure />
+                  </Suspense>
                 </>
               ) : (
-                <HistoryTab />
+                <Suspense fallback={<Loader />}>
+                  <HistoryTab />
+                </Suspense>
               )}
             </Box>
           </Box>

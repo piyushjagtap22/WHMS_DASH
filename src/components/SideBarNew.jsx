@@ -1,24 +1,10 @@
 import { memo } from 'react';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import {
-  Avatar,
-  Box,
-  Divider,
-  Grid,
-  Paper,
-  Tab,
-  Tabs,
-  Typography,
-} from '@mui/material';
-import { Toaster, toast } from 'react-hot-toast';
+import { Avatar, Box, Divider, Tab, Tabs, Typography } from '@mui/material';
+import { toast } from 'react-hot-toast';
 import { makeStyles } from '@mui/styles';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setAuthState } from '../slices/authSlice';
 import SideBarNewHistoryTab from './SideBarNewHistoryTab';
-import UserProfile from './UserProfile';
 const drawerWidth = 280;
 
 const useStyles = makeStyles((theme) => ({
@@ -134,7 +120,6 @@ const SidebarNew = ({
     };
 
     const checkDisconnectionStatus = () => {
-      console.log('i ran now');
       const timestampStr =
         data2?.heartRateObj?.[data2.heartRateObj.length - 1]?.timestamp ?? '';
 
@@ -183,11 +168,6 @@ const SidebarNew = ({
     // Return the formatted date string
     return `${parseInt(day, 10)} ${monthName}, ${year}`;
   }
-  // console.log('bdy fig');
-  // console.log(data2.heartRateObj[data2.heartRateObj.length - 1].value);
-  // sensorData['Heart Rate'] = data2.heartRateObj[0];
-  // console.log(sensorData['Heart Rate']);
-
   console.log('Sidebarnew is getting rerendered');
 
   const classes = useStyles();
@@ -205,7 +185,6 @@ const SidebarNew = ({
     console.log(CurrentUserId);
     console.log(AuthUser);
     if (CurrentUserId == '"' || CurrentUserId == null) {
-      console.log('here111');
       toast.error('No user and its history available for this device');
     } else {
       setTabValueSidebar(newValue);

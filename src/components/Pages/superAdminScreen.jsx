@@ -1,5 +1,4 @@
 import React from 'react';
-// import { delay } from '@reduxjs/toolkit/dist/utils';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -18,20 +17,15 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  useMediaQuery,
   useTheme,
 } from '@mui/material';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import { auth } from '../../firebase.js';
-import { setAuthState } from '../../slices/authSlice';
-import { setLoading } from '../../slices/loadingSlice';
 import CustomButton from '../Button.jsx';
 import {
   addDeviceID,
@@ -40,20 +34,11 @@ import {
   enableAdmin,
   getAllAdmin,
 } from './../../slices/superAdminApiSlice';
-import Navbar from './Navbar.jsx';
+import Navbar from '../Navbar.jsx';
 
 const SuperAdminScreen = () => {
-  const delay = (milliseconds) =>
-    new Promise((resolve) => {
-      console.log('Delay called ', milliseconds);
-      setTimeout(resolve, milliseconds);
-    });
   const [users, setUsers] = useState([]);
-  const [expandedUsers, setExpandedUsers] = useState([]);
-  const [currentlyExpandedUser, setCurrentlyExpandedUser] = useState(null);
   const dispatch = useDispatch();
-  const [adminInfo, setAdminInfo] = useState();
-  const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
   const SUPERADMIN_URL = `${import.meta.env.VITE_REACT_API_URL}/api/superadmin`;
 
   const [buttonLoader, setButtonLoader] = useState(false);
@@ -67,46 +52,12 @@ const SuperAdminScreen = () => {
 
   // const token = '';
   const [document, setdocument] = useState(null);
-  const { userInfo } = useSelector((state) => state.superAdmin);
-  const [adminUsers, setAdminUsers] = useState([]); // State to store admin users
   // const [button, setButton] = useState('false');
   const [open, setOpen] = useState(false);
   const [selectedAdmin, setselectedAdmin] = useState('');
-  const [showUserIds, setShowUserIds] = useState({});
   const theme = useTheme();
   const [data, setData] = useState([]);
 
-  const handleLogout = async () => {
-    try {
-      dispatch(setLoading(true));
-      await delay(1000);
-      await signOut(auth);
-
-      // Listen for changes in authentication state
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          // User is successfully signed out, navigate to '/register'
-          dispatch(setAuthState('/register'));
-          dispatch(setAuthUser(null));
-          dispatch(setMongoUser(null));
-          // dispatch(setLoading(true));
-          console.log('Navigating to /register');
-
-          // Use navigate to trigger navigation
-          navigate('/register');
-
-          // Make sure this log is reached
-          console.log('Navigation completed');
-
-          unsubscribe(); // Unsubscribe to avoid further callbacks
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      dispatch(setLoading(false)); // Hide loader when operation completes
-    }
-  };
   useEffect(() => {
     // Fetch user data when the component mountsout
     const fetchData = async () => {
@@ -192,25 +143,6 @@ const SuperAdminScreen = () => {
     }
   };
 
-  const fetchAdminUsers = async (admin) => {
-    console.log(admin);
-  };
-
-  const expandUser = (user) => {
-    fetchAdminUsers(user);
-    setAdminInfo('True');
-    //if (expandedUsers.includes(user._id)) {
-    if (currentlyExpandedUser === user._id) {
-      setCurrentlyExpandedUser(null);
-      setExpandedUsers((prevExpandedUsers) =>
-        prevExpandedUsers.filter((userId) => userId !== user._id)
-      );
-    } else {
-      setCurrentlyExpandedUser(user._id);
-      setExpandedUsers((prevExpandedUsers) => [...prevExpandedUsers, user._id]);
-    }
-  };
-
   const enableAdminByID = async (userId) => {
     try {
       const response = await enableAdmin({ adminId: `${userId}` }, token);
@@ -248,34 +180,6 @@ const SuperAdminScreen = () => {
     } catch (error) {
       console.error(error);
       toast.error(error.message);
-    }
-  };
-
-  const handleInputChange = async (event) => {
-    event.preventDefault();
-    // Update the state with the current value of the text field
-    setTextFieldValue(event.target.value);
-  };
-
-  const handleShowUserIds = (adminId) => {
-    setShowUserIds((prevShowUserIds) => ({
-      ...prevShowUserIds,
-      [adminId]: !prevShowUserIds[adminId],
-    }));
-  };
-
-  const documentByID = async (userId) => {
-    alert(`clicked by ${userId}`);
-    console.log('enable Admin');
-    try {
-      if (response.status === 200) {
-        console.log(response); // Assuming the user data is in the response data
-        // setButton(!button);
-      } else {
-        // Handle any errors or show a message
-      }
-    } catch (error) {
-      console.log(error);
     }
   };
 

@@ -14,9 +14,9 @@ import {
 } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 // import PrivateRoute2 from './components/PrivateRoute2.jsx';
-import DashboardValidator from './components/DashboardValidator.jsx';
-import LoginValidator from './components/LoginValidator.jsx';
-import SuperAdminValidator from './components/SuperAdminValidator.jsx';
+import DashboardValidator from './components/Validators/DashboardValidator.jsx';
+import LoginValidator from './components/Validators/LoginValidator.jsx';
+import SuperAdminValidator from './components/Validators/SuperAdminValidator.jsx';
 
 import LoginScreen from './components/Pages/LoginScreen.jsx';
 // import ImageTesting from './components/Pages/ImageTesting.jsx';
@@ -25,18 +25,16 @@ import Dashboard from './components/Pages/Dashboard.jsx';
 import DefaultPage from './components/Pages/DefaultPage.jsx';
 import DocumentVerificationScreen from './components/Pages/DocumentVerificationScreen.jsx';
 import EmailRegister from './components/Pages/EmailRegister.jsx';
-import Layout from './components/Pages/Layout.jsx';
+import Layout from './components/Layout.jsx';
 import Register from './components/Pages/Register.jsx';
 import SuperAdminScreen from './components/Pages/superAdminScreen.jsx';
 import './index.css';
 import store, { persistor } from './store';
 import { themeSettings } from './theme';
 
-import EmailRegisterValidator from './components/EmailRegisterValidator.jsx';
-import RegisterValidator from './components/RegisterValidator.jsx';
-import VerifyValidator from './components/VerifyValidator.jsx';
-import TempPage from './components/Pages/TempPage.jsx';
-import DefaultPageValidator from './components/DefaultPageValidator.jsx';
+import EmailRegisterValidator from './components/Validators/EmailRegisterValidator.jsx';
+import RegisterValidator from './components/Validators/RegisterValidator.jsx';
+import VerifyValidator from './components/Validators/VerifyValidator.jsx';
 const theme = createTheme(themeSettings('dark'));
 
 const router = createBrowserRouter(
@@ -78,7 +76,6 @@ const router = createBrowserRouter(
         element={<LoginValidator component={LoginScreen} />}
       />
       <Route path='*' element={<NotFoundPage />} />
-      <Route path='/test' element={<TempPage />} />
     </Route>
   )
 );

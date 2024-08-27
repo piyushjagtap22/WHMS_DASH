@@ -3,16 +3,7 @@ import { useSelector } from 'react-redux';
 import { useState } from 'react';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useEffect } from 'react';
-import {
-  Avatar,
-  Box,
-  Divider,
-  Grid,
-  Paper,
-  Tab,
-  Tabs,
-  Typography,
-} from '@mui/material';
+import { Box, Divider, Grid, Paper, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 function formatTimeString(timeString) {
   const date = new Date(timeString.trim());
@@ -161,7 +152,6 @@ const SideBarNewHistoryTab = () => {
     if (data2) {
       console.log('Sensor data received:', data2.sensorData);
 
-      // const {
       const heartSensor =
         data2?.heartRateObj?.[data2.heartRateObj.length - 1]?.value ?? '-';
       const BreathRateSensor =
@@ -181,21 +171,6 @@ const SideBarNewHistoryTab = () => {
           ?.value ?? '-';
       const BloodPressureSensor =
         data2?.bpObj?.[data2.bpObj.length - 1]?.value ?? '-';
-
-      console.log(
-        'someData',
-        heartSensor,
-        BreathRateSensor,
-        VentilatonSensor,
-        TidalVolumeSensor,
-        ActivitySensor,
-        CadenceSensor,
-        'this',
-        TemperatureSensor,
-        OxygenSaturationSensor,
-        BloodPressureSensor
-      );
-      // const} = xSensorData;
 
       // Update state with the sensor data
       setSensorData({

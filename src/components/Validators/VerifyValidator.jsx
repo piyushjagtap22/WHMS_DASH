@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getMongoUser } from '../slices/usersApiSlice';
-import { setMongoUser } from '../slices/authSlice';
+import { useDispatch } from 'react-redux';
+import { getMongoUser } from '../../slices/usersApiSlice';
+import { setMongoUser } from '../../slices/authSlice';
 import { Navigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Loader from './Loader';
-import DocumentVerificationScreen from './Pages/DocumentVerificationScreen';
+import DocumentVerificationScreen from '../Pages/DocumentVerificationScreen';
 
 const VerifyValidator = ({ auth: { AuthState, AuthUser, MongoUser } }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -67,10 +66,6 @@ const VerifyValidator = ({ auth: { AuthState, AuthUser, MongoUser } }) => {
       setMongoUserSet(true);
     }
   }, [MongoUser]);
-
-  // if (isLoading || !mongoUserSet) {
-  //   return <Loader />;
-  // }
 
   if (AuthState === '/verify') {
     return <DocumentVerificationScreen mongoUser={MongoUser} />;

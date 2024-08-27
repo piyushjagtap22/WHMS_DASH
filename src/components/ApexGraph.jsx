@@ -1,4 +1,3 @@
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 import React, { useMemo, useCallback } from 'react';
 import ReactApexChart from 'react-apexcharts';
@@ -181,7 +180,6 @@ const ApexGraph = React.memo((props) => {
   }
   const { timestamp: labels, data, name, unit } = props;
   const theme = useTheme();
-  const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
 
   const calculateAverage = useCallback((lastValues) => {
     console.log('calculate average running');

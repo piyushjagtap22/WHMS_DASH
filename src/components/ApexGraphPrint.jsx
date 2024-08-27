@@ -1,12 +1,11 @@
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import { Box, useMediaQuery, useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import React, { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
-import PrayogikLogo from '../../assets/PrayogikLogo.png';
+import PrayogikLogo from '../assets/PrayogikLogo.png';
 
 const ApexGraphPrint = React.forwardRef((props, ref) => {
   const theme = useTheme();
-  const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
 
   const calculateAverage = (lastValues) => {
     return (

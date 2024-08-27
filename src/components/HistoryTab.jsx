@@ -3,13 +3,13 @@ import { useState } from 'react';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import CustomButton from './Button';
-import ApexGraphPrint from './Pages/ApexGraphPrint';
 import { useReactToPrint } from 'react-to-print';
 import { useSelector } from 'react-redux';
 import { useRef } from 'react';
 import axios from 'axios';
+import ApexGraphPrint from '../components/ApexGraphPrint';
 import { Toaster, toast } from 'react-hot-toast';
-import { Box, Grid, MenuItem, TextField, useMediaQuery } from '@mui/material';
+import { Grid, MenuItem, TextField } from '@mui/material';
 const url = import.meta.env.VITE_REACT_API_URL;
 const sensorDataMappings = [
   {

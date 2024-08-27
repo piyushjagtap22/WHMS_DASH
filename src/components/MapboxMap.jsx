@@ -4,7 +4,7 @@ import axios from 'axios';
 import CustomButton from './Button';
 import { getLoc } from '../slices/adminApiSlice';
 import mapboxgl from 'mapbox-gl';
-import { Toaster, toast } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import { Box, useMediaQuery } from '@mui/material';
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoicGl5dXNoMjIiLCJhIjoiY2x1ZWM2cWtlMXFhZjJrcW40OHA0a2h0eiJ9.GtGi0PHDryu8IT04ueU7Pw';

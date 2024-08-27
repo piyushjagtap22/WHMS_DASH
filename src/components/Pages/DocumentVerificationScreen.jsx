@@ -3,17 +3,15 @@ import {
   setAuthUser,
   setMongoUser,
 } from '../../slices/authSlice';
-import { setLoading } from '../../slices/loadingSlice';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../firebase.js';
 import Loader from '../Loader.jsx';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
   Box,
   CircularProgress,
-  Button,
   Container,
   TextField,
   Typography,
@@ -22,9 +20,7 @@ import {
 import { Toaster, toast } from 'react-hot-toast';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useDispatch, useSelector } from 'react-redux';
-import { initializeMongoUser } from '../../slices/authSlice';
 import CustomButton from '../Button.jsx';
-import store from '../../store';
 const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
 
 const DocumentVerificationScreen = (props) => {
@@ -32,16 +28,13 @@ const DocumentVerificationScreen = (props) => {
   const [file, setFile] = useState(null);
   const [orgName, setOrgName] = useState(''); // State for organization name
   const [deptName, setDeptName] = useState(''); // State for department name
-  const fileInputRef = useRef(null);
 
   const [buttonLoader, setButtonLoader] = useState(false);
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
-  const authUser = useSelector((state) => state.auth.AuthUser);
   const mongoUser = useSelector((state) => state.auth.MongoUser);
   const [docUploadedSuccess, setDocUploadedSuccess] = useState(false);
-  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [docUploaded, setDocUploaded] = useState('load');

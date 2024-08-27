@@ -1,6 +1,5 @@
 import React from 'react';
 import { makeStyles } from '@mui/styles';
-import { useContext } from 'react';
 const useStyles = makeStyles((theme) => ({
   sidebar: {
     width: drawerWidth,
