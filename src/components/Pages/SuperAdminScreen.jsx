@@ -221,6 +221,7 @@ const SuperAdminScreen = () => {
           handleCustomDialogOpen={handleCustomDialogOpen}
           handleOpen={handleOpen}
           key={row?._id}
+          addDevice={addDevice}
         />
       )),
     [users, handleCustomDialogOpen, handleOpen]

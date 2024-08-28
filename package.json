@@ -17,7 +17,7 @@
     "@material-ui/lab": "^4.0.0-alpha.61",
     "@mui/icons-material": "^5.14.13",
     "@mui/lab": "^5.0.0-alpha.155",
-    "@mui/material": "^5.16.1",
+    "@mui/material": "^5.0.0",
     "@mui/styles": "^5.15.20",
     "@mui/x-data-grid": "^6.20.1",
     "@mui/x-date-pickers": "^7.10.0",
