@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 
 const SuperAdminRows = React.memo(
-  ({ row, handleCustomDialogOpen, handleOpen }) => {
+  ({ row, handleCustomDialogOpen, handleOpen, addDevice }) => {
     const [textFieldValue, setTextFieldValue] = useState('');
     const [updatedRow, setUpdatedRow] = useState(row);
     const [open, setOpen] = useState(false);
