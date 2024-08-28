@@ -33,8 +33,9 @@ import {
   disableAdmin,
   enableAdmin,
   getAllAdmin,
-} from './../../slices/superAdminApiSlice';
+} from '../../slices/superAdminApiSlice.js';
 import Navbar from '../Navbar.jsx';
+import SuperAdminRows from '../SuperAdminRows.jsx';
 
 const SuperAdminScreen = () => {
   const [users, setUsers] = useState([]);
@@ -50,16 +51,13 @@ const SuperAdminScreen = () => {
   const [customDialogAction, setCustomDialogAction] = useState(null);
   const [customDialogUserId, setCustomDialogUserId] = useState(null);
 
-  // const token = '';
   const [document, setdocument] = useState(null);
-  // const [button, setButton] = useState('false');
   const [open, setOpen] = useState(false);
   const [selectedAdmin, setselectedAdmin] = useState('');
   const theme = useTheme();
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    // Fetch user data when the component mountsout
     const fetchData = async () => {
       try {
         console.log('in fetchdata');
@@ -68,31 +66,22 @@ const SuperAdminScreen = () => {
         if (response.status === 200) {
           setUsers(response.data.admins);
         } else {
-          // Handle any errors or show a message
         }
-      } catch (error) {
-        // Handle any network or API request errors
-      }
+      } catch (error) {}
     };
     fetchData();
   }, [dispatch, token, document]);
+  const [callbackRow, setCallBackRow] = useState(null);
+  const handleCustomDialogOpen = (action, userId, callback) => {
+    console.log('cbCall', action, userId);
 
-  const handleCustomDialogOpen = (action, userId) => {
-    setCustomDialogAction(action);
     setCustomDialogUserId(userId);
+    setCustomDialogAction(action);
     setCustomDialogOpen(true);
+    setCallBackRow(() => callback); // Set the callback function here
   };
 
   const handleCustomDialogClose = () => {
-    setCustomDialogOpen(false);
-  };
-
-  const handleCustomDialogConfirm = () => {
-    if (customDialogAction === 'enable') {
-      enableAdminByID(customDialogUserId);
-    } else if (customDialogAction === 'disable') {
-      disableAdminByID(customDialogUserId);
-    }
     setCustomDialogOpen(false);
   };
 
@@ -121,10 +110,10 @@ const SuperAdminScreen = () => {
   const handleClose = () => setOpen(false);
 
   const approveDoc = async (userId) => {
-    // alert('clicked on' + userId);
     try {
       setButtonLoader(true);
       console.log('alert continues');
+      console.log(userId);
       const response = await approveDocById({ adminID: `${userId}` }, token);
 
       if (response.status === 200) {
@@ -145,6 +134,7 @@ const SuperAdminScreen = () => {
 
   const enableAdminByID = async (userId) => {
     try {
+      console.log('enable', userId);
       const response = await enableAdmin({ adminId: `${userId}` }, token);
       if (response.status === 200) {
         // setButton(!button);
@@ -155,6 +145,7 @@ const SuperAdminScreen = () => {
   };
 
   const disableAdminByID = async (userId) => {
+    console.log('disable', userId);
     try {
       const response = await disableAdmin({ adminId: `${userId}` }, token);
       if (response.status === 200) {
@@ -182,21 +173,43 @@ const SuperAdminScreen = () => {
       toast.error(error.message);
     }
   };
+  const handleCustomDialogConfirm = async () => {
+    console.log('adminId', customDialogUserId);
+    if (customDialogAction === 'enable') {
+      await enableAdminByID(customDialogUserId);
+    } else if (customDialogAction === 'disable') {
+      await disableAdminByID(customDialogUserId);
+    }
+    setCustomDialogOpen(false);
+    if (callbackRow) {
+      callbackRow(); // Call the callback function if it exists
+    }
+  };
 
   function Row({ row }) {
     const [textFieldValue, setTextFieldValue] = useState('');
     const [updatedRow, setUpdatedRow] = useState(row);
     const [open, setOpen] = useState(false);
-    console.log(row);
+    const [adminStatus, setAdminStatus] = useState(
+      row?.adminDetails[0]?.accountEnabled
+    );
+
+    const handleClick = () => {
+      handleCustomDialogOpen(adminStatus ? 'disable' : 'enable', row._id);
+    };
+    useEffect(() => {
+      // Update `updatedRow` state when `row` prop changes
+      setUpdatedRow(row);
+    }, [row]);
+
     return (
       <React.Fragment>
-        <Toaster toastOptions={{ duration: 4000 }} />
         <TableRow>
           <TableCell>{row.name}</TableCell>
           <TableCell>{row.email}</TableCell>
           <TableCell>{row._id}</TableCell>
           <TableCell>
-            {row?.roles[0] == 'admin' ? (
+            {row?.roles[0] === 'admin' ? (
               <>
                 <a
                   href='#'
@@ -228,30 +241,16 @@ const SuperAdminScreen = () => {
           <TableCell
             sx={{
               width: '10%',
-              color: row.roles[0] == 'admin' ? 'green' : 'red',
+              color: row.roles[0] === 'admin' ? 'green' : 'red',
             }}
           >
-            {row?.adminDetails[0]?.accountEnabled ? (
-              <>
-                <a
-                  href='#'
-                  style={{ color: '#7CD6AB' }}
-                  onClick={() => handleCustomDialogOpen('disable', row._id)}
-                >
-                  Enabled
-                </a>
-              </>
-            ) : (
-              <>
-                <a
-                  href='#'
-                  style={{ color: '#FF553C' }}
-                  onClick={() => handleCustomDialogOpen('enable', row._id)}
-                >
-                  Disabled
-                </a>
-              </>
-            )}
+            <a
+              href='#'
+              style={{ color: adminStatus ? '#7CD6AB' : '#FF553C' }}
+              onClick={handleClick}
+            >
+              {adminStatus ? 'Enabled' : 'Disabled'}
+            </a>
           </TableCell>
           <TableCell>
             View Devices
@@ -302,76 +301,67 @@ const SuperAdminScreen = () => {
                         </TableCell>
                       </TableRow>
                     ))}
-
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 2,
-                        padding: '16px',
-                      }}
-                    >
-                      <TextField
-                        label='Add Device id'
-                        variant='outlined'
-                        size='small'
-                        // onClick={(e) => e.stopPropagation()} // Stop event propagation here
-                        onChange={(e) => setTextFieldValue(e.target.value)}
-                        value={textFieldValue}
-                        InputProps={{
-                          onClick: (e) => e.stopPropagation(), // Also stop propagation on InputProps
-                        }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: 'grey',
-                            },
-                            '&:hover fieldset': {
-                              borderColor: '#7CD6AB',
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: '#7CD6AB',
-                            },
-                          },
-                          '& .MuiInputLabel-root': {
-                            color: 'grey',
-                          },
-                          '&:hover .MuiInputLabel-root': {
-                            color: '#7CD6AB',
-                          },
-                          '& .Mui-focused .MuiInputLabel-root': {
-                            color: '#7CD6AB',
-                          },
-                        }}
-                      />
-
-                      <Button
-                        sx={{
-                          background: '#7CD6AB',
-                          color: '#121318',
-                          textTransform: 'none',
-                        }}
-                        onClick={() =>
-                          addDevice(row._id, textFieldValue, () => {
-                            setTextFieldValue('');
-                            setUpdatedRow({
-                              ...updatedRow,
-                              adminDetails: [
-                                {
-                                  ...updatedRow.adminDetails[0],
-                                  deviceIds: [
-                                    ...updatedRow.adminDetails[0].deviceIds,
-                                    textFieldValue,
-                                  ],
+                    <TableRow>
+                      <TableCell colSpan={7}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 2,
+                            padding: '16px',
+                          }}
+                        >
+                          <TextField
+                            label='Add Device id'
+                            variant='outlined'
+                            size='small'
+                            onChange={(e) => setTextFieldValue(e.target.value)}
+                            value={textFieldValue}
+                            InputProps={{
+                              onClick: (e) => e.stopPropagation(),
+                            }}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                '& fieldset': {
+                                  borderColor: 'grey',
                                 },
-                              ],
-                            });
-                          })
-                        }
-                      >
-                        Add Device
-                      </Button>
-                    </Box>
+                                '&:hover fieldset': {
+                                  borderColor: '#7CD6AB',
+                                },
+                                '&.Mui-focused fieldset': {
+                                  borderColor: '#7CD6AB',
+                                },
+                              },
+                              '& .MuiInputLabel-root': {
+                                color: 'grey',
+                              },
+                              '&:hover .MuiInputLabel-root': {
+                                color: '#7CD6AB',
+                              },
+                              '& .Mui-focused .MuiInputLabel-root': {
+                                color: '#7CD6AB',
+                              },
+                            }}
+                          />
+                          <Button
+                            sx={{
+                              background: '#7CD6AB',
+                              color: '#121318',
+                              textTransform: 'none',
+                            }}
+                            onClick={() => {
+                              addDevice(row._id, textFieldValue, () => {
+                                setTextFieldValue('');
+                                // Updated Row state should be managed outside
+                                // Use callback to update it when needed
+                              });
+                            }}
+                          >
+                            Add Device
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               </Box>
@@ -385,6 +375,8 @@ const SuperAdminScreen = () => {
   console.log('in superadmin');
   return (
     <>
+      {' '}
+      <Toaster toastOptions={{ duration: 4000 }} />
       <Box flexGrow={1}>
         <Navbar user={data || {}} />
       </Box>
@@ -414,21 +406,20 @@ const SuperAdminScreen = () => {
             paddingBottom: '20px',
           }}
         >
-          <CustomButton variant='contained' onClick={handleCustomDialogClose}>
-            Cancel
-          </CustomButton>
           <CustomButton
             onClick={handleCustomDialogConfirm}
-            variant='outlined'
+            variant='contained'
             autoFocus
           >
             Confirm
+          </CustomButton>
+          <CustomButton variant='outlined' onClick={handleCustomDialogClose}>
+            Cancel
           </CustomButton>
         </DialogActions>
       </Dialog>
       <TableContainer
         sx={{ padding: '32px 32px 32px 32px', backgroundColor: '#121318' }}
-        // component={Paper}
       >
         <Table
           sx={{ backgroundColor: '#121318', padding: '16px' }}
@@ -524,10 +515,14 @@ const SuperAdminScreen = () => {
               </CustomButton>
             </DialogActions>
           </Dialog>
-
           <TableBody>
             {users.map((row) => (
-              <Row key={row._id} row={row} />
+              <SuperAdminRows
+                row={row}
+                handleCustomDialogOpen={handleCustomDialogOpen}
+                handleOpen={handleOpen}
+                key={row?._id}
+              />
             ))}
           </TableBody>
         </Table>

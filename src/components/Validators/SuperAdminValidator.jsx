@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import SuperAdminScreen from '../Pages/superAdminScreen';
+import SuperAdminScreen from '../Pages/SuperAdminScreen';
 const DashboardValidator = ({
   component: Component,
   auth: { isAuthenticated, loading },

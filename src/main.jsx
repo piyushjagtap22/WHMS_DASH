@@ -27,7 +27,7 @@ import DocumentVerificationScreen from './components/Pages/DocumentVerificationS
 import EmailRegister from './components/Pages/EmailRegister.jsx';
 import Layout from './components/Layout.jsx';
 import Register from './components/Pages/Register.jsx';
-import SuperAdminScreen from './components/Pages/superAdminScreen.jsx';
+import SuperAdminScreen from './components/Pages/SuperAdminScreen.jsx';
 import './index.css';
 import store, { persistor } from './store';
 import { themeSettings } from './theme';
