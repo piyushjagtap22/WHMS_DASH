@@ -5,7 +5,7 @@ import {
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import profileImage from '../assets/profile.png';
 import {
@@ -31,60 +31,59 @@ import {
 import { signOut } from 'firebase/auth';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase.js';
+
 const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
-  useEffect(() => {
-    console.log('Navbar is rerendering');
-  });
   const dispatch = useDispatch();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
   const isOpen = Boolean(anchorEl);
-  const handleClick = (event) => setAnchorEl(event.currentTarget);
-  const handleClose = () => setAnchorEl(null);
+
+  const handleClick = useCallback((event) => {
+    setAnchorEl(event.currentTarget);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setAnchorEl(null);
+  }, []);
+
   const [name, setName] = useState('');
   const token = useSelector((state) => state.auth.token);
   const AuthUser = useSelector((state) => state.auth.AuthUser);
   const MongoUser = useSelector((state) => state.auth.MongoUser);
   const navigate = useNavigate();
   const location = useLocation();
-
-  const delay = (milliseconds) =>
-    new Promise((resolve) => {
-      console.log('Delay called ', milliseconds);
-      setTimeout(resolve, milliseconds);
-    });
   const deviceID = useSelector((state) => state.device.currentDevice);
-  const handleLogout = async () => {
+
+  const delay = useCallback(
+    (milliseconds) =>
+      new Promise((resolve) => setTimeout(resolve, milliseconds)),
+    []
+  );
+
+  const handleLogout = useCallback(async () => {
     try {
       dispatch(setLoading(true));
       await delay(1000);
       await signOut(auth);
       console.log('in');
-      // Listen for changes in authentication state
+
       const unsubscribe = onAuthStateChanged(auth, (user) => {
         if (!user) {
-          // User is successfully signed out, navigate to '/register'
           dispatch(setAuthState('/register'));
           dispatch(setAuthUser(null));
           dispatch(setMongoUser(null));
           console.log('here');
-          // dispatch(setLoading(true));
-          console.log('Navigating to /register');
-
-          // Use navigate to trigger navigation
           navigate('/register');
-          // Make sure this log is reached
           console.log('Navigation completed');
-
-          unsubscribe(); // Unsubscribe to avoid further callbacks
+          unsubscribe();
         }
       });
     } catch (error) {
       console.log(error);
     } finally {
-      dispatch(setLoading(false)); // Hide loader when operation completes
+      dispatch(setLoading(false));
     }
-  };
+  }, [dispatch, delay, navigate]);
 
   useEffect(() => {
     if (AuthUser && AuthUser.displayName) {
@@ -92,6 +91,23 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
     }
     console.log(MongoUser);
   }, [AuthUser, MongoUser]);
+
+  const navbarTitle = useMemo(() => {
+    return location.pathname === '/Default' ? (
+      <>
+        <Link
+          to='/dashboard'
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          Dashboard
+        </Link>
+        {` /${deviceID}`}
+      </>
+    ) : (
+      location.pathname.substring(1).toUpperCase()
+    );
+  }, [location.pathname, deviceID]);
+
   return (
     <AppBar
       sx={{
@@ -101,34 +117,17 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
         borderBottom: `1px solid ${theme.palette.secondary[400]}`,
       }}
     >
-      <Toolbar
-        sx={{ justifyContent: 'space-between' }}
-        style={{ borderBottom: 'red' }}
-      >
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
         {/* LEFT SIDE */}
         <FlexBetween>
-          {location.pathname !== '/superadmin' ? (
+          {location.pathname !== '/superadmin' && (
             <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
               {/* <MenuIcon /> */}
             </IconButton>
-          ) : (
-            ''
           )}
           <FlexBetween borderRadius='9px' gap='4rem' p='0.1rem 1.5rem'>
             <Typography fontSize='14px' fontWeight='bold'>
-              {location.pathname === '/Default' ? (
-                <>
-                  <Link
-                    to='/dashboard'
-                    style={{ textDecoration: 'none', color: 'inherit' }}
-                  >
-                    Dashboard
-                  </Link>
-                  {` /${deviceID}`}
-                </>
-              ) : (
-                location.pathname.substring(1).toUpperCase()
-              )}
+              {navbarTitle}
             </Typography>
           </FlexBetween>
         </FlexBetween>
@@ -169,7 +168,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
                   fontSize='0.85rem'
                   sx={{ color: theme.palette.secondary[100] }}
                 >
-                  {/* {user.name} */}
+                  Hello {name.charAt(0).toUpperCase() + name.slice(1)}
                 </Typography>
                 <Typography
                   fontSize='0.75rem'
