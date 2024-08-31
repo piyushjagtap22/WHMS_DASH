@@ -284,6 +284,7 @@ const SidebarNew = ({
                       : 'rgba(255, 36, 36, 0.9)',
                   }}
                 >
+                  
                   {connected ? 'Active' : 'Disconnected'}
                 </span>
               </Typography>
@@ -299,10 +300,15 @@ const SidebarNew = ({
           </Box>
           <Box className={classes.row}>
             <Box className={classes.column}>
-              <Typography className={classes.title}>Department</Typography>
-              <Typography className={classes.value}>Transmission</Typography>
+              <Typography className={classes.title}>Organisation</Typography>
+              <Typography className={classes.value}>{user?.data?.initialUserData?.orgName}</Typography>
             </Box>
-          </Box>
+            <Box className={classes.column}>
+              <Typography className={classes.title}>Department</Typography>
+              <Typography className={classes.value}>{user?.data?.initialUserData?.deptName}</Typography>
+            </Box>
+      
+            </Box>
         </Box>
 
         <Divider className={classes.divider} />
