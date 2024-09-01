@@ -76,7 +76,10 @@ const SidebarNew = ({
 
   const [connected, setConnected] = useState(false);
   const data2 = useSelector((state) => state.device.sensorData);
+  const MongoUser = useSelector((state) => state.auth.MongoUser);
   console.log('hhtt');
+  console.log(MongoUser);
+
   console.log(
     data2?.heartRateObj?.[data2.heartRateObj.length - 1]?.timestamp.slice(
       0,
@@ -173,6 +176,7 @@ const SidebarNew = ({
   const classes = useStyles();
 
   const AuthUser = useSelector((state) => state.auth.AuthUser);
+  console.log('AU,', AuthUser);
   const CurrentUserId = useSelector(
     (state) => state.device.currentDeviceUserId
   );
@@ -284,7 +288,6 @@ const SidebarNew = ({
                       : 'rgba(255, 36, 36, 0.9)',
                   }}
                 >
-                  
                   {connected ? 'Active' : 'Disconnected'}
                 </span>
               </Typography>
@@ -301,14 +304,17 @@ const SidebarNew = ({
           <Box className={classes.row}>
             <Box className={classes.column}>
               <Typography className={classes.title}>Organisation</Typography>
-              <Typography className={classes.value}>{user?.data?.initialUserData?.orgName}</Typography>
+              <Typography className={classes.value}>
+                {MongoUser?.orgName}
+              </Typography>
             </Box>
             <Box className={classes.column}>
               <Typography className={classes.title}>Department</Typography>
-              <Typography className={classes.value}>{user?.data?.initialUserData?.deptName}</Typography>
+              <Typography className={classes.value}>
+                {MongoUser?.deptName}
+              </Typography>
             </Box>
-      
-            </Box>
+          </Box>
         </Box>
 
         <Divider className={classes.divider} />
