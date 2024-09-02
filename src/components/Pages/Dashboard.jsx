@@ -159,13 +159,12 @@ const Dashboard = () => {
   return (
     <>
       <Toaster toastOptions={{ duration: 4000 }} />
-      <Suspense fallback={<Loader />}>
-        <Box m='1.5rem 2.5rem'>
-          <FlexBetween></FlexBetween>
-
+      <Box m='1.5rem 2.5rem'>
+        <Suspense fallback={<div>Loading...</div>}>
+          <FlexBetween />
           <SensorPage />
-        </Box>
-      </Suspense>
+        </Suspense>
+      </Box>
     </>
   );
 };
