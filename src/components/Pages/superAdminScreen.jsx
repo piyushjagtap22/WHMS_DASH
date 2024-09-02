@@ -27,8 +27,11 @@ import {
 } from '../../slices/superAdminApiSlice.js';
 import Navbar from '../Navbar.jsx';
 import SuperAdminRows from '../SuperAdminRows.jsx';
-
+import { useLayoutEffect } from 'react';
 const SuperAdminScreen = () => {
+  useLayoutEffect(() => {
+    toast.dismiss(); // Dismiss any previous toasts
+  }, []);
   const [users, setUsers] = useState([]);
   const [buttonLoader, setButtonLoader] = useState(false);
   const [customDialogOpen, setCustomDialogOpen] = useState(false);
@@ -56,6 +59,7 @@ const SuperAdminScreen = () => {
         setUsers(response.data.admins);
       }
     } catch (error) {
+      toast.error('Error fetching admin data:');
       console.error('Error fetching admin data:', error);
     }
   }, [token]);
@@ -131,12 +135,20 @@ const SuperAdminScreen = () => {
   const enableAdminByID = useCallback(
     async (userId) => {
       try {
+        var result = 0;
         const response = await enableAdmin({ adminId: `${userId}` }, token);
         if (response.status === 200) {
           // Handle success case if needed
+          result = 1;
+          toast.success('Admin Enabled');
         }
       } catch (error) {
+        if (error.message === 'Network Error') {
+          toast.error('Internal Server Error');
+        }
         console.error('Error enabling admin:', error);
+      } finally {
+        return result;
       }
     },
     [token]
@@ -145,12 +157,20 @@ const SuperAdminScreen = () => {
   const disableAdminByID = useCallback(
     async (userId) => {
       try {
+        var result = 0;
         const response = await disableAdmin({ adminId: `${userId}` }, token);
         if (response.status === 200) {
           // Handle success case if needed
+          toast.success('Admin disabled');
+          result = 1;
         }
       } catch (error) {
+        if (error.message === 'Network Error') {
+          toast.error('Internal Server Error');
+        }
         console.error('Error disabling admin:', error);
+      } finally {
+        return result;
       }
     },
     [token]
@@ -171,20 +191,21 @@ const SuperAdminScreen = () => {
         }
       } catch (error) {
         console.error('Error adding device:', error);
-        toast.error(error.message);
+        toast.error('Internal Server Error');
       }
     },
     [token]
   );
 
   const handleCustomDialogConfirm = useCallback(async () => {
+    var result;
     if (customDialogAction === 'enable') {
-      await enableAdminByID(customDialogUserId);
+      result = await enableAdminByID(customDialogUserId);
     } else if (customDialogAction === 'disable') {
-      await disableAdminByID(customDialogUserId);
+      result = await disableAdminByID(customDialogUserId);
     }
     setCustomDialogOpen(false);
-    if (callbackRow) {
+    if (callbackRow && result) {
       callbackRow();
     }
   }, [

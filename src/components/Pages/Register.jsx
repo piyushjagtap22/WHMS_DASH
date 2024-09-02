@@ -10,8 +10,9 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { signOut } from 'firebase/auth';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/material.css';
@@ -22,6 +23,7 @@ import { auth } from '../../firebase.js';
 import {
   setAuthState,
   setAuthUser,
+  setErrorMessage,
   setMongoUser,
   setToken,
 } from '../../slices/authSlice.js';
@@ -31,8 +33,22 @@ import CustomButton from '../Button.jsx';
 import Loader from '../Loader';
 
 const Register = () => {
-  const loading = useSelector((state) => state.loading.loading);
   const dispatch = useDispatch();
+  const loading = useSelector((state) => state.loading.loading);
+  const errorMessage = useSelector((state) => state.auth.ErrorMessage);
+  // console.log(errorMessage);
+  useLayoutEffect(() => {
+    toast.dismiss(); // Dismiss any previous toasts
+  }, []);
+  useEffect(() => {
+    console.log('errorM', errorMessage);
+    if (errorMessage) {
+      console.log('errorM', errorMessage);
+      toast.error(errorMessage);
+      dispatch(setErrorMessage(null)); // Clear the error message after displaying the toast
+    }
+  }, []);
+
   const navigate = useNavigate();
   const [otp, setOtp] = useState('');
   const [confirmOtp, setConfirmOtp] = useState('');
@@ -66,8 +82,7 @@ const Register = () => {
   const onSignup = async (e) => {
     e.preventDefault();
     setButtonLoader(true);
-    setErrors('');
-
+    // setErrors('');
     if (phoneNumber === '' || phoneNumber.length !== 12) {
       setButtonLoader(false);
       return toast.error(
@@ -80,13 +95,14 @@ const Register = () => {
     }
 
     try {
+      console.log(formatPhone);
       const response = await recaptchaVerifier(formatPhone);
+      console.log('called');
       setConfirmOtp(response);
       toast.success('OTP sent successfully!');
       setShowOtpScreen(true);
     } catch (err) {
-      setErrors(err.message);
-      toast.error('Please retry again');
+      toast.error('Error Sending OTP,Please retry again');
     } finally {
       setButtonLoader(false);
     }
@@ -100,15 +116,17 @@ const Register = () => {
     } else {
       try {
         setButtonLoader(true);
+        console.log('-1');
         const result = await confirmOtp.confirm(otp);
 
         // toast.success('Success');
-        dispatch(setLoading(true));
+        console.log('0');
+
         const user = auth.currentUser;
 
         localStorage.setItem('accessToken', result._tokenResponse.idToken);
         setToken(result._tokenResponse.idToken);
-
+        console.log('1');
         dispatch(
           setAuthUser({
             email: user.email,
@@ -125,13 +143,15 @@ const Register = () => {
             displayName: user.displayName,
           })
         );
-
+        console.log('2');
+        dispatch(setLoading(true));
         const mongoUser = await getMongoUser(user.stsTokenManager.accessToken);
-        console.log(mongoUser);
+
+        console.log('muser', mongoUser);
         dispatch(setMongoUser(mongoUser.data.initialUserSchema));
         console.log(mongoUser);
         console.log(mongoUser.status === 204 && !mongoUser.data);
-
+        console.log('3');
         if (mongoUser.status === 204 && !mongoUser.data) {
           dispatch(setAuthState('/emailregister'));
           navigate('/emailregister');
@@ -145,15 +165,34 @@ const Register = () => {
           dispatch(setAuthState('/dashboard'));
           navigate('/dashboard');
         } else {
+          console.log('4');
           dispatch(setAuthState('/verify'));
           navigate('/verify');
         }
+        console.log('5');
       } catch (err) {
-        toast.error(
+        console.log(err);
+        if (err.code == 'ERR_NETWORK') {
+          await signOut(auth);
+          console.log('no network');
+          dispatch(setAuthState('/register'));
+          dispatch(setErrorMessage('Internal server error'));
+          dispatch(setAuthUser(null));
+          dispatch(setMongoUser(null));
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          // Reset states to show register screen again
+          setShowOtpScreen(false); // Hide OTP screen
+          setOtp(''); // Clear OTP input
+          setTermsChecked(false); // Uncheck terms and conditions
+
+          dispatch(setLoading(false));
+          navigate('/register'); // Navigate back to register screen
+        } else if (
           err.message === 'Firebase: Error (auth/invalid-verification-code).'
-            ? 'Invalid OTP'
-            : 'An error occurred, please try again later'
-        );
+        ) {
+          toast.error('Invalid OTP');
+        }
       } finally {
         setButtonLoader(false);
         dispatch(setLoading(false));
@@ -173,7 +212,7 @@ const Register = () => {
       newErrors.terms = 'You must agree to the terms and conditions';
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+      // setErrors(newErrors);
       return;
     }
   };
@@ -286,7 +325,7 @@ const Register = () => {
                   style={styles.terms}
                   checked={termsChecked}
                   onChange={() => setTermsChecked(!termsChecked)}
-                  error={errors.terms}
+                  // error={errors.terms}
                 />
               )}
 

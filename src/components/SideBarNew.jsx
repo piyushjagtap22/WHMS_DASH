@@ -188,7 +188,8 @@ const SidebarNew = ({
 
     console.log(CurrentUserId);
     console.log(AuthUser);
-    if (CurrentUserId == '"' || CurrentUserId == null) {
+    if (CurrentUserId == '"' || CurrentUserId == null || CurrentUserId === '') {
+      console.log('ININ');
       toast.error('No user and its history available for this device');
     } else {
       setTabValueSidebar(newValue);

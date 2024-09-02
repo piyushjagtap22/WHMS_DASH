@@ -1,7 +1,7 @@
 import Loader from '../Loader.jsx';
 import { Navigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { setAuthUser } from '../../slices/authSlice.js';
 import { signOut } from 'firebase/auth';
 import {
@@ -34,8 +34,21 @@ import { setLoading } from '../../slices/loadingSlice.js';
 import { getMongoUser } from '../../slices/usersApiSlice.js';
 
 const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
-
+import { setErrorMessage } from '../../slices/authSlice.js';
 const EmailRegister = () => {
+  const errorMessage = useSelector((state) => state.auth.ErrorMessage);
+  useLayoutEffect(() => {
+    toast.dismiss(); // Dismiss any lingering toasts when the page loads
+  }, []);
+  useEffect(() => {
+    console.log('errorM', errorMessage);
+    if (errorMessage == 'Firebase: Error (auth/email-already-in-use).') {
+      toast.error('This email is already in use');
+      // Clear the error message after displaying the toast
+    }
+
+    dispatch(setErrorMessage(null));
+  }, []);
   const [displayName, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -85,13 +98,13 @@ const EmailRegister = () => {
       const updatedUser = auth.currentUser;
       console.log('Account linking success', updatedUser);
     } catch (error) {
+      setLoading(false);
       console.log(error.message);
 
       if (error.message === 'Firebase: Error (auth/email-already-in-use).') {
-        toast.error(
-          'This email is already in use with different account, please use another mail'
+        dispatch(
+          setErrorMessage('Firebase: Error (auth/email-already-in-use).')
         );
-        setLoading(false);
       } else if (
         error.message === 'Firebase: Error (auth/requires-recent-login).'
       ) {
@@ -114,17 +127,19 @@ const EmailRegister = () => {
       .then(() => {
         setLinkSend('sent');
       })
-      .catch((err) => {
-        toast.error(err.message);
-      });
+      .catch((err) => {});
   };
 
   const handleLogin = async (e) => {
     dispatch(setLoading(true));
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     e.preventDefault();
     if (displayName === '' || email === '' || password === '') {
       toast.error('Please Fill up the details');
+      dispatch(setLoading(false));
+    } else if (!emailPattern.test(email)) {
+      toast.error('Please enter a valid email address');
       dispatch(setLoading(false));
     } else if (!passwordsMatch) {
       toast.error("Passwords don't match");
@@ -145,6 +160,7 @@ const EmailRegister = () => {
         localStorage.setItem('email', email);
       } catch (error) {
         console.log(error.message);
+        toast.error(error.message);
       } finally {
         dispatch(setLoading(false));
       }

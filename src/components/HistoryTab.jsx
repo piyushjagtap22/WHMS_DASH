@@ -81,9 +81,9 @@ const HistoryTab = () => {
   const [graphByDateTimeStamp, setGraphByDateTimeStamp] = useState([]);
   async function getGraphData(iid, startTimeStamp, endTimeStamp) {
     const getGraphUrl = `${url}/api/admin/getGraphData`;
-    console.log('id of user', userData.currentUserId);
+    console.log('id of user', userData?.currentUserId);
     const payload = {
-      id: userData.currentUserId,
+      id: userData?.currentUserId,
       sensorType: sensorType,
       startTimeStamp: startTimeStamp,
       endTimeStamp: endTimeStamp,
@@ -210,9 +210,9 @@ const HistoryTab = () => {
         >
           <div style={{ padding: '20px', width: '100%' }}>
             <ApexGraphPrint
-              name={userData.initialUserData.name}
-              email={userData.initialUserData.email}
-              phone={userData.initialUserData.phone}
+              name={userData?.initialUserData?.name}
+              email={userData?.initialUserData?.email}
+              phone={userData?.initialUserData?.phone}
               data={graphByDateData}
               timestamp={graphByDateTimeStamp}
               max={90}

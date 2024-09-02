@@ -7,7 +7,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../firebase.js';
 import Loader from '../Loader.jsx';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import axios from 'axios';
 import {
   Box,
@@ -25,9 +25,13 @@ const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
 
 const DocumentVerificationScreen = (props) => {
   console.log(props.mongoUser);
+  useLayoutEffect(() => {
+    toast.dismiss(); // Dismiss any lingering toasts when the page loads
+  }, []);
   const [file, setFile] = useState(null);
   const [orgName, setOrgName] = useState(''); // State for organization name
   const [deptName, setDeptName] = useState(''); // State for department name
+  const [fileName, setFileName] = useState('Choose'); // State for department name
 
   const [buttonLoader, setButtonLoader] = useState(false);
   const token = useSelector(
@@ -71,6 +75,7 @@ const DocumentVerificationScreen = (props) => {
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
+    setFileName(event.target.files[0].name);
   };
 
   const handleUpload = async () => {
@@ -80,13 +85,20 @@ const DocumentVerificationScreen = (props) => {
         toast.error('Please fill in all required fields');
         return;
       }
-
-      setButtonLoader(true);
       const formData = new FormData();
       formData.append('file', file);
       formData.append('orgName', orgName); // Include orgName in FormData
       formData.append('deptName', deptName); // Include deptName in FormData
+      console.log('file.name', file?.name);
+      if (file?.name == null || file?.name == '') {
+        console.log('here doc');
+        toast.error('Please attach document');
+        return;
+      }
+      setButtonLoader(true);
 
+      console.log(file?.name);
+      // throw err;
       const response = await axios.post(
         `${ENDPOINT}/api/profile/uploadDocument`,
         formData,
@@ -103,8 +115,9 @@ const DocumentVerificationScreen = (props) => {
         setDocUploaded('yes');
       }
     } catch (error) {
-      console.log(error.response);
-      if (error.response.status === 400) {
+      if (error.message == 'Network Error') {
+        toast.error('Internal server error');
+      } else if (error.response.status === 400) {
         toast.error('Please attach document');
       }
     } finally {
@@ -250,7 +263,7 @@ const DocumentVerificationScreen = (props) => {
                       }}
                       onChange={handleFileChange}
                     />
-                    choose
+                    {fileName}
                   </label>
                 </div>
                 <Typography

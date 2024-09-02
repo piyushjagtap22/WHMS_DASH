@@ -309,10 +309,11 @@ const ApexGraph = React.memo((props) => {
             fontWeight: 400,
             cssClass: 'apexcharts-xaxis-label',
           },
-          rotate: 0,
+          rotate: -90,
+          offsetY: 10,
         },
         categories: labels,
-        tickAmount: 10,
+        tickAmount: 20,
         title: {
           text: 'Time',
         },

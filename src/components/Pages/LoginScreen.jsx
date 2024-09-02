@@ -19,14 +19,14 @@ import React, { useEffect, useState } from 'react';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { Toaster, toast } from 'react-hot-toast';
 import { auth } from '../../firebase';
 import { setAuthUser, setMongoUser, setToken } from '../../slices/authSlice';
 import { setLoading } from '../../slices/loadingSlice';
 import { getMongoUser } from '../../slices/usersApiSlice';
 import Loader from '../Loader';
 import { setAuthState } from '../../slices/authSlice';
-
+import { useLayoutEffect } from 'react';
 function LoginScreen() {
   const loading = useSelector((state) => state.loading.loading);
   const dispatch = useDispatch();
@@ -39,7 +39,9 @@ function LoginScreen() {
   const [loginErrorMessage, setLoginErrorMessage] = useState(null);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
-
+  useLayoutEffect(() => {
+    toast.dismiss(); // Dismiss any previous toasts
+  }, []);
   const handleResetPassword = () => {
     sendPasswordResetEmail(auth, email)
       .then(() => {
@@ -145,7 +147,7 @@ function LoginScreen() {
       }
     } catch (err) {
       console.error('Login Error:', err);
-      setLoginErrorMessage('Invalid Credentials');
+      toast.error('Invalid Credentials');
     } finally {
       dispatch(setLoading(false));
     }
@@ -157,6 +159,7 @@ function LoginScreen() {
 
   return (
     <>
+      <Toaster toastOptions={{ duration: 4000 }} />
       {loading ? (
         <Loader />
       ) : (

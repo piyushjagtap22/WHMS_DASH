@@ -1,9 +1,13 @@
 // PrivacyAndSecurityPage.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { useLayoutEffect } from 'react';
 import CustomButton from '../Button';
+import { Toaster, toast } from 'react-hot-toast';
 function PrivacyAndSecurityPage() {
+  useLayoutEffect(() => {
+    toast.dismiss(); // Dismiss any previous toasts
+  }, []);
   const navigate = useNavigate();
   const goToDash = () => {
     navigate('/dashboard');

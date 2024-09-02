@@ -13,7 +13,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-
+import { Toaster, toast } from 'react-hot-toast';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -23,12 +23,16 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+import { useLayoutEffect } from 'react';
 
 const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
 import { useDispatch, useSelector } from 'react-redux';
 
 const SensorPage = lazy(() => import('../sensorPage'));
 const Dashboard = () => {
+  useLayoutEffect(() => {
+    toast.dismiss(); // Dismiss any previous toasts
+  }, []);
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.superAdmin);
   const [realTimeData, setRealTimeData] = useState([]);
@@ -154,6 +158,7 @@ const Dashboard = () => {
 
   return (
     <>
+      <Toaster toastOptions={{ duration: 4000 }} />
       <Suspense fallback={<Loader />}>
         <Box m='1.5rem 2.5rem'>
           <FlexBetween></FlexBetween>
