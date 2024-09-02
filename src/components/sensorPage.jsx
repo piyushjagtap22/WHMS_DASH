@@ -244,10 +244,10 @@ const SensorPage = () => {
           justifyContent: 'center',
           alignItems: 'center',
           height: '100vh',
+          color: '#7CD6AB',
         }}
       >
-        <CircularProgress size={24} />
-        <span style={{ marginLeft: '10px' }}>Loading SensorPage...</span>
+        <CircularProgress color='inherit' />
       </div>
     );
   }
@@ -265,7 +265,6 @@ const SensorPage = () => {
           }}
         >
           <CircularProgress color='inherit' />
-          {/* <span style={{ marginLeft: '10px' }}>Loading SensorPage...</span> */}
         </div>
       }
     >
