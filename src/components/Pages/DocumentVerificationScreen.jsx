@@ -158,16 +158,15 @@ const DocumentVerificationScreen = (props) => {
               Document Uploaded Succesfully !
             </Typography>
             <Typography
-              variant='subtitle2'
+              variant='subtitle3'
               style={{ margin: '15px 0', padding: '0px 0px' }}
             >
               Verification in Progress ..... Wait till admin verifies your doc
             </Typography>
             <CustomButton
+              variant='outlined'
               onClick={handleLogout}
               style={{
-                backgroundColor: '#7CD6AB',
-                color: '#121318',
                 margin: '20px 0',
                 padding: '0.8rem',
               }}
@@ -239,8 +238,8 @@ const DocumentVerificationScreen = (props) => {
                     style={{ fontSize: '3rem', color: '#7CD6AB' }}
                   />
                   <Typography
-                    m='10px'
-                    variant='body2'
+                    m="10px"
+                    variant="body2"
                     style={{ color: 'grey' }}
                   >
                     Click or drag file to this area to upload
@@ -251,11 +250,16 @@ const DocumentVerificationScreen = (props) => {
                       border: '1px solid #7cd6ab',
                       borderRadius: '4px',
                       color: '#7cd6ab',
+                      display: 'block', // Ensures label takes full width
+                      maxWidth: '100%', // Keeps the label within parent div
+                      overflow: 'hidden', // Hides overflowed content
+                      textOverflow: 'ellipsis', // Adds ellipsis to overflowed text
+                      whiteSpace: 'nowrap', // Prevents text wrapping
                     }}
                   >
                     <input
-                      type='file'
-                      accept='.jpg, .jpeg, .png, .pdf'
+                      type="file"
+                      accept=".jpg, .jpeg, .png, .pdf"
                       style={{
                         display: 'none',
                         background: '#7CD6AB',
@@ -267,14 +271,14 @@ const DocumentVerificationScreen = (props) => {
                   </label>
                 </div>
                 <Typography
-                  variant='body2'
+                  variant="body2"
                   style={{ color: 'grey', marginBottom: '40px' }}
                 >
                   Formats accepted are jpg, jpeg, png, and PDF
                 </Typography>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <CustomButton
-                    variant='outlined'
+                    variant="outlined"
                     style={{
                       color: '#7CD6AB',
                       borderColor: '#7CD6AB',
@@ -305,6 +309,7 @@ const DocumentVerificationScreen = (props) => {
                   </CustomButton>
                 </div>
               </div>
+
               <div
                 style={{
                   display: 'flex',
@@ -313,13 +318,12 @@ const DocumentVerificationScreen = (props) => {
                 }}
               >
                 <CustomButton
+                  variant='outlined'
                   onClick={handleLogout}
                   style={{
-                    backgroundColor: '#7CD6AB',
-                    color: '#121318',
                     margin: '10px 0',
                     padding: '0.8rem',
-                    width: '100%', // Ensure button takes full width
+                    width: '100%',
                   }}
                 >
                   Not You, Sign in With Different Account

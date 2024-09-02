@@ -320,6 +320,7 @@ const EmailRegister = () => {
                   backgroundColor: '#7CD6AB',
                   color: '#121318',
                   padding: '0.8rem',
+                  width: '100%',
                 }}
                 fullWidth
                 onClick={() => sendEmailLink(auth.currentUser)}
@@ -327,13 +328,12 @@ const EmailRegister = () => {
                 Resend Link
               </CustomButton>
               <CustomButton
+              variant='outlined'
                 onClick={handleLogout}
                 style={{
-                  backgroundColor: '#7CD6AB',
-                  color: '#121318',
                   padding: '0.8rem',
+                  width: '100%',
                 }}
-                fullWidth
               >
                 Not You, Sign in With Different Account
               </CustomButton>
@@ -454,8 +454,6 @@ const EmailRegister = () => {
                 variant='outlined'
                 onClick={handleLogout}
                 style={{
-                  backgroundColor: '#7CD6AB',
-                  color: '#121318',
                   padding: '0.8rem',
                   width: '100%',
                 }}
