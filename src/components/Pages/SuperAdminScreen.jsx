@@ -13,6 +13,7 @@ import {
   TableRow,
   useTheme,
 } from '@mui/material';
+import Loader from '../Loader.jsx';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Toaster, toast } from 'react-hot-toast';
@@ -79,6 +80,8 @@ const SuperAdminScreen = () => {
     setCustomDialogOpen(false);
   }, []);
 
+  const [docText, setDocText] = useState('Fetching Document...');
+
   const handleOpen = useCallback(
     async (userId) => {
       setOpen(true);
@@ -97,8 +100,16 @@ const SuperAdminScreen = () => {
         });
 
         const blob = await response.blob();
-        const imageUrl = URL.createObjectURL(blob);
-        setDocument(imageUrl);
+        console.log(response);
+        if (response.status === 200) {
+          const imageUrl = URL.createObjectURL(blob);
+
+          setDocument(imageUrl);
+        } else if (response.status === 404) {
+          setDocText('Document not found');
+        } else {
+          setDocText('Error Fetching Document');
+        }
       } catch (error) {
         console.error('Error fetching image:', error);
       }
@@ -108,6 +119,9 @@ const SuperAdminScreen = () => {
 
   const handleClose = useCallback(() => {
     setOpen(false);
+    setDocument(null);
+
+    setDocText('Fetching documents...');
   }, []);
 
   const approveDoc = useCallback(
@@ -328,7 +342,7 @@ const SuperAdminScreen = () => {
               >
                 Review the documents for the selected admin.
               </DialogContentText>
-              {document && (
+              {document ? (
                 <img
                   src={document}
                   alt='Document'
@@ -341,6 +355,8 @@ const SuperAdminScreen = () => {
                     borderRadius: '12px',
                   }}
                 />
+              ) : (
+                <div>{docText}</div>
               )}
             </DialogContent>
             <DialogActions
@@ -362,7 +378,7 @@ const SuperAdminScreen = () => {
                     <CircularProgress size={21} />
                   </Box>
                 ) : (
-                  'Approve Documents'
+                  'Approve Document'
                 )}
               </CustomButton>
               <CustomButton onClick={handleClose} variant='outlined'>
