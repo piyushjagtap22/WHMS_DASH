@@ -108,10 +108,15 @@ const SuperAdminScreen = () => {
         } else if (response.status === 404) {
           setDocText('Document not found');
         } else {
+          toast.error('Error Fetching Document');
           setDocText('Error Fetching Document');
         }
       } catch (error) {
         console.error('Error fetching image:', error);
+        if (error.message === 'Failed to fetch') {
+          toast.error('Error Fetching Document');
+          setDocText('Error Fetching Document');
+        }
       }
     },
     [SUPERADMIN_URL, token]
