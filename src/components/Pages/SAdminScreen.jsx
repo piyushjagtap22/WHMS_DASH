@@ -13,6 +13,7 @@ import {
   TableRow,
   useTheme,
 } from '@mui/material';
+import TickMark from '../../assets/roundTick.svg';
 import Loader from '../Loader.jsx';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -38,7 +39,7 @@ const SAdminScreen = () => {
   const [customDialogOpen, setCustomDialogOpen] = useState(false);
   const [customDialogAction, setCustomDialogAction] = useState(null);
   const [customDialogUserId, setCustomDialogUserId] = useState(null);
-  const [document, setDocument] = useState(null);
+  const [adminDocument, setDocument] = useState(null);
   const [open, setOpen] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState('');
   const [callbackRow, setCallbackRow] = useState(null);
@@ -51,6 +52,26 @@ const SAdminScreen = () => {
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
   const SUPERADMIN_URL = `${import.meta.env.VITE_REACT_API_URL}/api/superadmin`;
+  const [documentUrl, setDocumentUrl] = useState(null); // Rename document to documentUrl
+  const handleDownload = useCallback(() => {
+    if (adminDocument && documentUrl) {
+      const link = document.createElement('a');
+      link.href = adminDocument;
+
+      // Use the original filename or default to 'document'
+      const fileExtension = documentUrl.split('.').pop();
+      const isValidExtension = ['jpg', 'jpeg', 'png', 'pdf'].includes(
+        fileExtension
+      );
+
+      const fileName = isValidExtension
+        ? documentUrl
+        : `document.${fileExtension}`;
+
+      link.download = fileName; // Use the correct file name here
+      link.click();
+    }
+  }, [adminDocument, documentUrl]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -81,7 +102,7 @@ const SAdminScreen = () => {
   }, []);
 
   const [docText, setDocText] = useState('');
-
+  const [typeOfContent, setTypeOfContent] = useState('');
   const handleOpen = useCallback(
     async (userId) => {
       setDocText('Fetching document...');
@@ -102,12 +123,40 @@ const SAdminScreen = () => {
         });
 
         const blob = await response.blob();
-        console.log(response);
         if (response.status === 200) {
-          const imageUrl = URL.createObjectURL(blob);
-          setDocText('');
+          const contentType = response.headers.get('Content-Type');
+          await setTypeOfContent(contentType);
+          const objectUrl = URL.createObjectURL(blob);
 
-          setDocument(imageUrl);
+          // Extract the filename from the Content-Disposition header
+          const contentDisposition = response.headers.get(
+            'Content-Disposition'
+          );
+          let fileName = 'document'; // Default name
+          if (contentDisposition && contentDisposition.includes('filename=')) {
+            fileName = contentDisposition
+              .split('filename=')[1]
+              .split(';')[0]
+              .replace(/"/g, '');
+          } else {
+            // Fallback to using the content type to determine file extension
+            const extension = contentType.split('/')[1];
+            fileName = `document.${extension}`;
+          }
+
+          setDocumentUrl(fileName); // Save the file name for later download
+
+          // Check if the file is an image (jpg or png)
+          if (contentType === 'image/jpeg' || contentType === 'image/png') {
+            setDocument(objectUrl); // Save the URL for displaying the image
+            setDocText(''); // Clear the text
+          } else if (contentType === 'application/pdf') {
+            setDocument(objectUrl); // Use the object URL for PDF download
+            setDocText(`File: ${fileName}`);
+          } else {
+            setDocument(null); // Don't display it as an image
+            setDocText(`File: ${fileName}`); // Show file name instead
+          }
         } else if (response.status === 404) {
           setDocText('Document not found');
         } else {
@@ -131,6 +180,7 @@ const SAdminScreen = () => {
     setDocument(null);
 
     setDocText('');
+    setTypeOfContent('');
   }, []);
   const approveDoc = useCallback(
     async (userId) => {
@@ -273,6 +323,8 @@ const SAdminScreen = () => {
       )),
     [users, handleCustomDialogOpen, handleOpen]
   );
+
+  console.log(documentUrl);
   return (
     <>
       <Toaster toastOptions={{ duration: 4000 }} />
@@ -349,15 +401,34 @@ const SAdminScreen = () => {
             >
               <DialogContentText
                 id='dialog-description'
-                sx={{ mb: 2, textAlign: 'center' }}
+                sx={{
+                  mb: 2,
+                  textAlign: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
               >
-                {docApproved
-                  ? 'Document Approved'
-                  : 'Review the documents for the selected admin.'}
+                {docApproved ? (
+                  <>
+                    <div>
+                      <p style={{ marginRight: '8px', display: 'inline' }}>
+                        Document Approved
+                      </p>
+                      <TickMark />
+                    </div>
+                  </>
+                ) : (
+                  'Review the documents for the selected admin.'
+                )}
               </DialogContentText>
-              {document ? (
+
+              {/* Render the content based on file type */}
+              {typeOfContent === 'application/pdf' ? (
+                <div>{`File: ${documentUrl}`}</div>
+              ) : adminDocument ? (
                 <img
-                  src={document}
+                  src={adminDocument}
                   alt='Document'
                   style={{
                     maxWidth: '100%',
@@ -371,7 +442,18 @@ const SAdminScreen = () => {
               ) : (
                 <div>{docText}</div>
               )}
+
+              {documentUrl && (
+                <CustomButton
+                  onClick={handleDownload}
+                  variant='contained'
+                  sx={{ mt: 2 }}
+                >
+                  Download Document
+                </CustomButton>
+              )}
             </DialogContent>
+
             <DialogActions
               sx={{
                 display: 'flex',
@@ -385,14 +467,16 @@ const SAdminScreen = () => {
                 <CustomButton
                   onClick={() => approveDoc(selectedAdmin)}
                   variant='contained'
-                  disabled={docText === 'Fetching document...' && !document}
+                  disabled={
+                    docText === 'Fetching document...' && !adminDocument
+                  }
                   style={
-                    docText === 'Fetching document...' && !document
+                    docText === 'Fetching document...' && !adminDocument
                       ? styles.disabledButton
                       : styles.submitButton
                   }
                 >
-                  {docText === 'Fetching document...' && !document ? (
+                  {docText === 'Fetching document...' && !adminDocument ? (
                     <Box sx={{ display: 'flex' }}>
                       <CircularProgress size={21} />
                     </Box>
