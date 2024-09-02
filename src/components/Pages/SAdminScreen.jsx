@@ -29,7 +29,7 @@ import {
 import Navbar from '../Navbar.jsx';
 import SuperAdminRows from '../SuperAdminRows.jsx';
 import { useLayoutEffect } from 'react';
-const SuperAdminScreen = () => {
+const SAdminScreen = () => {
   useLayoutEffect(() => {
     toast.dismiss(); // Dismiss any previous toasts
   }, []);
@@ -399,4 +399,4 @@ const SuperAdminScreen = () => {
   );
 };
 
-export default SuperAdminScreen;
+export default SAdminScreen;

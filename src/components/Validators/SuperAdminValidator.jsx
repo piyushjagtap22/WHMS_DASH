@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import SuperAdminScreen from '../Pages/SuperAdminScreen';
+import SAdminScreen from '../Pages/SAdminScreen.jsx';
 const DashboardValidator = ({
   component: Component,
   auth: { isAuthenticated, loading },
@@ -13,7 +13,7 @@ const DashboardValidator = ({
   console.log(AuthState);
   if (AuthState === '/superadmin') {
     console.log('here');
-    return <SuperAdminScreen />;
+    return <SAdminScreen />;
   } else {
     return <Navigate to={AuthState} />;
   }

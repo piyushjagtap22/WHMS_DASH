@@ -27,7 +27,7 @@ import DocumentVerificationScreen from './components/Pages/DocumentVerificationS
 import EmailRegister from './components/Pages/EmailRegister.jsx';
 import Layout from './components/Layout.jsx';
 import Register from './components/Pages/Register.jsx';
-import SuperAdminScreen from './components/Pages/SuperAdminScreen.jsx';
+import SAdminScreen from './components/Pages/SAdminScreen.jsx';
 import './index.css';
 import store, { persistor } from './store';
 import { themeSettings } from './theme';
@@ -65,7 +65,7 @@ const router = createBrowserRouter(
       </Route>
       <Route
         path='/superadmin'
-        element={<SuperAdminValidator component={SuperAdminScreen} />}
+        element={<SuperAdminValidator component={SAdminScreen} />}
       />
       <Route
         path='/emailregister'
