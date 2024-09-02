@@ -279,7 +279,7 @@ const ApexGraph = React.memo((props) => {
             return name === 'Tidal Volume' ? val.toFixed(2) : val.toFixed(0);
           },
           style: {
-            colors: 'rgba(255,255,255,0.4)',
+            colors: 'rgba(255,255,255)',
             fontSize: '16px',
             fontFamily: 'Helvetica, Arial, sans-serif',
             fontWeight: 400,
@@ -288,6 +288,9 @@ const ApexGraph = React.memo((props) => {
         },
         title: {
           text: `${getUnitByName(name)}`,
+          style: {
+            color: '#ffffff',
+          },
         },
         tickAmount: 4,
       },
@@ -303,7 +306,7 @@ const ApexGraph = React.memo((props) => {
             });
           },
           style: {
-            colors: 'rgba(255,255,255,0.4)',
+            colors: 'rgba(255,255,255)',
             fontSize: '12px',
             fontFamily: 'Helvetica, Arial, sans-serif',
             fontWeight: 400,
@@ -316,10 +319,14 @@ const ApexGraph = React.memo((props) => {
         tickAmount: 20,
         title: {
           text: 'Time',
+          style: {
+            color: '#ffffff', // Set the title color to white
+            fontSize: '14px',
+          },
         },
       },
       grid: {
-        borderColor: '#FFFFFF44',
+        borderColor: '#FFFFFF',
         strokeDashArray: 0,
       },
       tooltip: {

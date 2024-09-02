@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 
 const SuperAdminRows = React.memo(
-  ({ row, handleCustomDialogOpen, handleOpen, addDevice }) => {
+  ({ row, handleCustomDialogOpen, handleOpen, addDevice, isDocApproved }) => {
     const [textFieldValue, setTextFieldValue] = useState('');
     const [updatedRow, setUpdatedRow] = useState(row);
     const [open, setOpen] = useState(false);
@@ -52,7 +52,7 @@ const SuperAdminRows = React.memo(
         }));
       });
     }, [row?._id, textFieldValue]);
-
+    console.log('row', row);
     if (!row) return null;
 
     return (
@@ -72,7 +72,17 @@ const SuperAdminRows = React.memo(
                 >
                   See documents
                 </a>
-                <IconButton onClick={() => handleOpen(row?._id)}>
+                <IconButton
+                  onClick={() => {
+                    handleOpen(row?._id);
+                    isDocApproved(
+                      row?.doc_verified != null &&
+                        row?.doc_verified != undefined
+                        ? row?.doc_verified
+                        : false
+                    );
+                  }}
+                >
                   <VisibilityIcon />
                 </IconButton>
               </>

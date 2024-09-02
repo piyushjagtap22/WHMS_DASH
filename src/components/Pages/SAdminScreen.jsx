@@ -80,12 +80,14 @@ const SAdminScreen = () => {
     setCustomDialogOpen(false);
   }, []);
 
-  const [docText, setDocText] = useState('Fetching Document...');
+  const [docText, setDocText] = useState('');
 
   const handleOpen = useCallback(
     async (userId) => {
+      setDocText('Fetching document...');
       setOpen(true);
       setSelectedAdmin(userId);
+
       const apiUrl = `${SUPERADMIN_URL}/getDocById`;
       const authToken = `Bearer ${token}`;
 
@@ -103,6 +105,7 @@ const SAdminScreen = () => {
         console.log(response);
         if (response.status === 200) {
           const imageUrl = URL.createObjectURL(blob);
+          setDocText('');
 
           setDocument(imageUrl);
         } else if (response.status === 404) {
@@ -127,9 +130,8 @@ const SAdminScreen = () => {
 
     setDocument(null);
 
-    setDocText('Fetching document...');
+    setDocText('');
   }, []);
-
   const approveDoc = useCallback(
     async (userId) => {
       try {
@@ -235,7 +237,10 @@ const SAdminScreen = () => {
     enableAdminByID,
     disableAdminByID,
   ]);
-
+  const [docApproved, setDocApproved] = useState(false);
+  const isDocApproved = (bool) => {
+    setDocApproved(bool);
+  };
   const tableHeadCells = useMemo(
     () => (
       <>
@@ -253,7 +258,7 @@ const SAdminScreen = () => {
     ),
     [theme.palette.grey]
   );
-
+  console.log('docApproved', docApproved);
   const tableBodyRows = useMemo(
     () =>
       users.map((row) => (
@@ -263,11 +268,11 @@ const SAdminScreen = () => {
           handleOpen={handleOpen}
           key={row?._id}
           addDevice={addDevice}
+          isDocApproved={isDocApproved}
         />
       )),
     [users, handleCustomDialogOpen, handleOpen]
   );
-
   return (
     <>
       <Toaster toastOptions={{ duration: 4000 }} />
@@ -346,7 +351,9 @@ const SAdminScreen = () => {
                 id='dialog-description'
                 sx={{ mb: 2, textAlign: 'center' }}
               >
-                Review the documents for the selected admin.
+                {docApproved
+                  ? 'Document Approved'
+                  : 'Review the documents for the selected admin.'}
               </DialogContentText>
               {document ? (
                 <img
@@ -374,19 +381,50 @@ const SAdminScreen = () => {
                 paddingBottom: '20px',
               }}
             >
-              <CustomButton
-                onClick={() => approveDoc(selectedAdmin)}
+              {!docApproved && (
+                <CustomButton
+                  onClick={() => approveDoc(selectedAdmin)}
+                  variant='contained'
+                  disabled={docText === 'Fetching document...' && !document}
+                  style={
+                    docText === 'Fetching document...' && !document
+                      ? styles.disabledButton
+                      : styles.submitButton
+                  }
+                >
+                  {docText === 'Fetching document...' && !document ? (
+                    <Box sx={{ display: 'flex' }}>
+                      <CircularProgress size={21} />
+                    </Box>
+                  ) : (
+                    'Approve Document'
+                  )}
+                </CustomButton>
+              )}
+
+              {/* <CustomButton
+                type='submit'
+                style={
+                  !phoneNumber || !termsChecked || (showOtpScreen && !otp)
+                    ? styles.disabledButton
+                    : styles.submitButton
+                }
                 variant='contained'
-                disabled={buttonLoader}
+                width='100%'
+                // fullWidth
+                onClick={showOtpScreen ? onOtpVerify : onSignup}
+                disabled={buttonLoader || !termsChecked}
               >
                 {buttonLoader ? (
                   <Box sx={{ display: 'flex' }}>
-                    <CircularProgress size={21} />
+                    <CircularProgress size={22} />
                   </Box>
+                ) : showOtpScreen ? (
+                  'Verify OTP'
                 ) : (
-                  'Approve Document'
+                  'Send OTP'
                 )}
-              </CustomButton>
+              </CustomButton> */}
               <CustomButton onClick={handleClose} variant='outlined'>
                 Cancel
               </CustomButton>
@@ -398,5 +436,80 @@ const SAdminScreen = () => {
     </>
   );
 };
-
+const styles = {
+  wrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
+    backgroundColor: '#121318',
+  },
+  container: {
+    textAlign: 'center',
+    padding: '50px',
+    color: 'white',
+    borderRadius: '1rem',
+  },
+  title: {
+    color: '#7CD6AB',
+  },
+  subtitle: {
+    margin: '15px 0',
+    padding: '0px 120px',
+    color: '#75777B',
+  },
+  form: {
+    width: '70%',
+    margin: 'auto',
+    textAlign: 'left',
+  },
+  label: {
+    margin: '8px 0',
+    color: '#75777B',
+  },
+  phoneInput: {
+    width: '100%',
+    height: '40px',
+    border: '1px solid #75777B',
+    borderRadius: '5px',
+    paddingLeft: '60px', // Adjust padding to ensure the flag doesn't overlap the text
+    backgroundColor: '#121318',
+    color: 'white',
+  },
+  phoneInputContainer: {
+    width: '100%',
+  },
+  phoneButton: {
+    backgroundColor: '#121318',
+    color: 'white',
+  },
+  phoneDropdown: {
+    backgroundColor: '#121318',
+  },
+  textField: {
+    margin: '20px 0',
+    width: '22rem',
+  },
+  checkbox: {
+    color: '#7CD6AB',
+  },
+  terms: {
+    paddingTop: '10px',
+  },
+  submitButton: {
+    backgroundColor: '#7CD6AB',
+    color: '#121318',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
+    color: '#121318',
+  },
+  loginLink: {
+    color: '#7CD6AB',
+    textAlign: 'left',
+    variant: 'outlined',
+    width: '100%',
+    display: 'block',
+  },
+};
 export default SAdminScreen;

@@ -280,6 +280,10 @@ const DocumentVerificationScreen = (props) => {
                       borderColor: '#7CD6AB',
                       margin: '0 10px',
                     }}
+                    onClick={() => {
+                      setFile(null);
+                      setFileName('Choose');
+                    }}
                   >
                     Cancel
                   </CustomButton>

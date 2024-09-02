@@ -423,54 +423,67 @@ const SensorPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {events.map((e, i) => (
-                    <tr
-                      style={{
-                        cursor: 'pointer',
-                        borderBottom: `1px solid ${theme.palette.secondary[300]}`,
-                        color: theme.palette.secondary.main,
-                      }}
-                      key={i}
-                      onClick={() => handleRowClick(e)}
-                    >
-                      <td
+                  {events.length > 0 ? (
+                    events.map((e, i) => (
+                      <tr
                         style={{
-                          color: 'white',
+                          cursor: 'pointer',
+                          borderBottom: `1px solid ${theme.palette.secondary[300]}`,
+                          color: theme.palette.secondary.main,
                         }}
+                        key={i}
+                        onClick={() => handleRowClick(e)}
                       >
-                        {e?.deviceId}
-                      </td>
+                        <td
+                          style={{
+                            color: 'white',
+                          }}
+                        >
+                          {e?.deviceId}
+                        </td>
+                        <td
+                          style={{
+                            color: 'white',
+                          }}
+                        >
+                          {e?.initialUserData?.name || '---'}
+                        </td>
+                        <td
+                          style={{
+                            ...getCellStyle('heartRate', e?.heartSensor),
+                          }}
+                        >
+                          {e?.heartSensor || '---'} bpm
+                        </td>
+                        <td
+                          style={{
+                            ...getCellStyle('spo2', e?.OxygenSaturationSensor),
+                          }}
+                        >
+                          {e?.OxygenSaturationSensor || '---'} %
+                        </td>
+                        <td
+                          style={{
+                            ...getCellStyle(
+                              'bloodPressure',
+                              e?.BloodPressureSensor
+                            ),
+                          }}
+                        >
+                          {e?.BloodPressureSensor || '---'} mmhg
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
                       <td
-                        style={{
-                          color: 'white',
-                        }}
+                        colSpan='5'
+                        style={{ textAlign: 'center', color: 'white' }}
                       >
-                        {e?.initialUserData?.name || '---'}
-                      </td>
-                      <td
-                        style={{ ...getCellStyle('heartRate', e?.heartSensor) }}
-                      >
-                        {e?.heartSensor || '---'} bpm
-                      </td>
-                      <td
-                        style={{
-                          ...getCellStyle('spo2', e?.OxygenSaturationSensor),
-                        }}
-                      >
-                        {e?.OxygenSaturationSensor || '---'} %
-                      </td>
-                      <td
-                        style={{
-                          ...getCellStyle(
-                            'bloodPressure',
-                            e?.BloodPressureSensor
-                          ),
-                        }}
-                      >
-                        {e?.BloodPressureSensor || '---'} mmhg
+                        No Devices found
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>

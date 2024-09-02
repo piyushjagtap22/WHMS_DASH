@@ -371,7 +371,7 @@ const SidebarNew = ({
         <Box className={classes.section}>
           <Box className={classes.row}>
             <Box className={classes.column}>
-              <Typography className={classes.title}>Problems</Typography>
+              <Typography className={classes.title}>Medical History</Typography>
               <Typography className={classes.value}>
                 Hypertension, High blood Pressure
               </Typography>
@@ -385,16 +385,6 @@ const SidebarNew = ({
             <Box className={classes.column}>
               <Typography className={classes.title}>Insured</Typography>
               <Typography className={classes.value}>Yes</Typography>
-            </Box>
-          </Box>
-          <Box className={classes.row}>
-            <Box className={classes.column}>
-              <Typography className={classes.title}>Max heart rate</Typography>
-              <Typography className={classes.value}>150 BPM</Typography>
-            </Box>
-            <Box className={classes.column}>
-              <Typography className={classes.title}>Min heart rate</Typography>
-              <Typography className={classes.value}>60 BPM</Typography>
             </Box>
           </Box>
         </Box>
