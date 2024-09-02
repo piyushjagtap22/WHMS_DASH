@@ -124,9 +124,10 @@ const SuperAdminScreen = () => {
 
   const handleClose = useCallback(() => {
     setOpen(false);
+
     setDocument(null);
 
-    setDocText('Fetching documents...');
+    setDocText('Fetching document...');
   }, []);
 
   const approveDoc = useCallback(
