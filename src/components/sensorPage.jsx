@@ -10,6 +10,9 @@ import {
   setCurrentDeviceUserId,
   setCurrentDeviceData,
 } from '../slices/deviceSlice.js';
+import { Suspense } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+
 import React, { useEffect, useState } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { useSelector } from 'react-redux';
@@ -22,6 +25,8 @@ import { setCurrentDevice } from '../slices/deviceSlice.js';
 import { useDispatch } from 'react-redux';
 
 const SensorPage = () => {
+  const [loading, setLoading] = useState(true); // Add this line to manage loading state
+
   const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -157,7 +162,10 @@ const SensorPage = () => {
     console.log('In sensor page');
     const login = async () => {
       try {
-        if (setEvents.length <= 1) {
+        setLoading(true); // Set loading to true when starting async process
+
+        if (events.length <= 1) {
+          // Use events.length instead of setEvents.length
           console.log('setevents 0');
 
           const response = await getDeviceIds(token);
@@ -168,8 +176,10 @@ const SensorPage = () => {
             const deviceSet = new Set(response.data.devices.flat());
             const deviceList = [...deviceSet];
             devices = deviceList;
+            setLoading(false); // Set loading to false after async process completes
           }
         }
+
         const user = await app.logIn(Realm.Credentials.anonymous());
         setUser(user);
         const mongodb = app.currentUser.mongoClient('mongodb-atlas');
@@ -185,26 +195,22 @@ const SensorPage = () => {
             },
           },
         ];
+
         events.forEach((update) => handleRealTimeUpdate(update));
 
         const changeStream = collection.watch(pipeline);
         for await (const change of changeStream) {
-          console.log('this is change sensorPage');
-
-          //console.log('list of devices--> --> Inside', devices);
+          console.log('Change detected:', change);
 
           if (devices.includes(change?.fullDocument?.deviceId)) {
-            console.log('if sensorpage');
-            //console.log('has this value proccing to other things');
+            console.log('Device included, updating events');
             setEvents((prevEvents) => {
               const index = prevEvents.findIndex(
                 (e) => e._id.toString() === change.documentKey._id.toString()
               );
 
-              // If the document is found, update the specific cell content
               if (index !== -1) {
                 const updatedEvents = [...prevEvents];
-                //console.log('first', updatedEvents[index]);
                 updatedEvents[index].heartSensor =
                   change?.fullDocument.heartSensor;
                 updatedEvents[index].OxygenSaturationSensor =
@@ -217,228 +223,262 @@ const SensorPage = () => {
                 return [...prevEvents, change.fullDocument];
               }
             });
-          } else {
-            //console.log('Data is Not Relevant');
           }
         }
+        setLoading(false); // Set loading to false after async process completes
       } catch (error) {
         console.error('Error:', error);
+      } finally {
+        setLoading(false); // Set loading to false after async process completes
       }
     };
 
     login();
   }, []);
 
-  return (
-    <div className='App'>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby='dialog-title'
-        aria-describedby='dialog-description'
-        PaperProps={{ style: { borderRadius: 12, background: '#191c23' } }}
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
       >
-        <DialogTitle
-          id='dialog-title'
-          sx={{ fontWeight: 'bold', textAlign: 'center' }}
-        >
-          Please Confirm
-        </DialogTitle>
-        <DialogContent
-          sx={{
+        <CircularProgress size={24} />
+        <span style={{ marginLeft: '10px' }}>Loading SensorPage...</span>
+      </div>
+    );
+  }
+
+  return (
+    <Suspense
+      fallback={
+        <div
+          style={{
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <DialogContentText
-            id='dialog-description'
-            sx={{ textAlign: 'center' }}
-          >
-            Do you want to navigate to user details page
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
             justifyContent: 'center',
-            gap: 1,
-            paddingBottom: '20px',
+            alignItems: 'center',
+            height: '100vh',
+            color: '#7CD6AB',
           }}
         >
-          <CustomButton
-            onClick={async () => {
-              dispatch(setCurrentDevice(rowdata.deviceId));
-              dispatch(setCurrentDeviceUserId(rowdata.currentUserId));
-              await dispatch(setCurrentDeviceData(rowdata));
-              console.log('rowdata', rowdata);
-              if (rowdata?.ActivitySensor === '') {
-                toast.error('No Data found for the device');
-                handleClose();
-              } else {
-                navigate(`/Default`, {
-                  state: {
-                    data: rowdata,
-                  },
-                }); // Pass the row data as a prop
-              }
-            }}
-            variant='contained'
-            disabled={buttonLoader}
+          <CircularProgress color='inherit' />
+          {/* <span style={{ marginLeft: '10px' }}>Loading SensorPage...</span> */}
+        </div>
+      }
+    >
+      <div className='App'>
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          aria-labelledby='dialog-title'
+          aria-describedby='dialog-description'
+          PaperProps={{ style: { borderRadius: 12, background: '#191c23' } }}
+        >
+          <DialogTitle
+            id='dialog-title'
+            sx={{ fontWeight: 'bold', textAlign: 'center' }}
           >
-            {buttonLoader ? (
-              <Box sx={{ display: 'flex' }}>
-                <CircularProgress size={21} />
-              </Box>
-            ) : (
-              'Yes'
-            )}
-          </CustomButton>
-          <CustomButton onClick={handleClose} variant='outlined'>
-            Cancel
-          </CustomButton>
-        </DialogActions>
-      </Dialog>
-      <Toaster toastOptions={{ duration: 4000 }} />
-      {!!user && (
-        <div className='App-header'>
-          <div>
-            <table
-              style={{
-                width: '100%',
-                height: '100%',
-                backgroundColor: theme.palette.secondary[300],
-                borderRadius: '16px',
-                borderCollapse: 'collapse',
-              }}
+            Please Confirm
+          </DialogTitle>
+          <DialogContent
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <DialogContentText
+              id='dialog-description'
+              sx={{ textAlign: 'center' }}
             >
-              <thead>
-                <tr
-                  style={{
-                    backgroundColor: theme.palette.secondary[300],
-                    borderRadius: '5px',
-                    border: 'none',
-                  }}
-                >
-                  <td colSpan='5' style={{ borderRadius: '10px' }}>
-                    <input
-                      type='text'
-                      value={searchTerm}
-                      onChange={handleSearchChange}
-                      onKeyDown={handleKeyDown}
-                      placeholder='Search'
-                      style={{
-                        backgroundColor: theme.palette.secondary[400],
-                        color: theme.palette.secondary.main,
-                        border: '1px solid grey',
-                        borderRadius: '10px',
-                        padding: '0px 5px',
-                        fontSize: '15px',
-                        float: 'right',
-                        lineHeight: '30px',
-                        margin: '20px',
-                      }}
-                    />
-                  </td>
-                </tr>
-                <tr
-                  style={{
-                    borderBottom: `1px solid ${theme.palette.secondary[400]}`,
-                  }}
-                >
-                  <td
-                    style={{
-                      color: 'grey',
-                    }}
-                  >
-                    Device Id
-                  </td>
-                  <td
-                    style={{
-                      color: 'grey',
-                    }}
-                  >
-                    User Name
-                  </td>
-                  <td
-                    style={{
-                      color: 'grey',
-                    }}
-                  >
-                    Heart Rate
-                  </td>
-                  <td
-                    style={{
-                      color: 'grey',
-                    }}
-                  >
-                    SP02
-                  </td>
-                  <td
-                    style={{
-                      color: 'grey',
-                    }}
-                  >
-                    BP
-                  </td>
-                </tr>
-              </thead>
-              <tbody>
-                {events.map((e, i) => (
+              Do you want to navigate to user details page
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 1,
+              paddingBottom: '20px',
+            }}
+          >
+            <CustomButton
+              onClick={async () => {
+                dispatch(setCurrentDevice(rowdata.deviceId));
+                dispatch(setCurrentDeviceUserId(rowdata.currentUserId));
+                await dispatch(setCurrentDeviceData(rowdata));
+                console.log('rowdata', rowdata);
+                if (rowdata?.ActivitySensor === '') {
+                  toast.error('No Data found for the device');
+                  handleClose();
+                } else {
+                  navigate(`/Default`, {
+                    state: {
+                      data: rowdata,
+                    },
+                  }); // Pass the row data as a prop
+                }
+              }}
+              variant='contained'
+              disabled={buttonLoader}
+            >
+              {buttonLoader ? (
+                <Box sx={{ display: 'flex' }}>
+                  <CircularProgress size={21} />
+                </Box>
+              ) : (
+                'Yes'
+              )}
+            </CustomButton>
+            <CustomButton onClick={handleClose} variant='outlined'>
+              Cancel
+            </CustomButton>
+          </DialogActions>
+        </Dialog>
+        <Toaster toastOptions={{ duration: 4000 }} />
+        {!!user && (
+          <div className='App-header'>
+            <div>
+              <table
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: theme.palette.secondary[300],
+                  borderRadius: '16px',
+                  borderCollapse: 'collapse',
+                }}
+              >
+                <thead>
                   <tr
                     style={{
-                      cursor: 'pointer',
-                      borderBottom: `1px solid ${theme.palette.secondary[300]}`,
-                      color: theme.palette.secondary.main,
+                      backgroundColor: theme.palette.secondary[300],
+                      borderRadius: '5px',
+                      border: 'none',
                     }}
-                    key={i}
-                    onClick={() => handleRowClick(e)}
+                  >
+                    <td colSpan='5' style={{ borderRadius: '10px' }}>
+                      <input
+                        type='text'
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        onKeyDown={handleKeyDown}
+                        placeholder='Search'
+                        style={{
+                          backgroundColor: theme.palette.secondary[400],
+                          color: theme.palette.secondary.main,
+                          border: '1px solid grey',
+                          borderRadius: '10px',
+                          padding: '0px 5px',
+                          fontSize: '15px',
+                          float: 'right',
+                          lineHeight: '30px',
+                          margin: '20px',
+                        }}
+                      />
+                    </td>
+                  </tr>
+                  <tr
+                    style={{
+                      borderBottom: `1px solid ${theme.palette.secondary[400]}`,
+                    }}
                   >
                     <td
                       style={{
-                        color: 'white',
+                        color: 'grey',
                       }}
                     >
-                      {e?.deviceId}
+                      Device Id
                     </td>
                     <td
                       style={{
-                        color: 'white',
+                        color: 'grey',
                       }}
                     >
-                      {e?.initialUserData?.name || '---'}
-                    </td>
-                    <td
-                      style={{ ...getCellStyle('heartRate', e?.heartSensor) }}
-                    >
-                      {e?.heartSensor || '---'} bpm
+                      User Name
                     </td>
                     <td
                       style={{
-                        ...getCellStyle('spo2', e?.OxygenSaturationSensor),
+                        color: 'grey',
                       }}
                     >
-                      {e?.OxygenSaturationSensor || '---'} %
+                      Heart Rate
                     </td>
                     <td
                       style={{
-                        ...getCellStyle(
-                          'bloodPressure',
-                          e?.BloodPressureSensor
-                        ),
+                        color: 'grey',
                       }}
                     >
-                      {e?.BloodPressureSensor || '---'} mmhg
+                      SP02
+                    </td>
+                    <td
+                      style={{
+                        color: 'grey',
+                      }}
+                    >
+                      BP
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {events.map((e, i) => (
+                    <tr
+                      style={{
+                        cursor: 'pointer',
+                        borderBottom: `1px solid ${theme.palette.secondary[300]}`,
+                        color: theme.palette.secondary.main,
+                      }}
+                      key={i}
+                      onClick={() => handleRowClick(e)}
+                    >
+                      <td
+                        style={{
+                          color: 'white',
+                        }}
+                      >
+                        {e?.deviceId}
+                      </td>
+                      <td
+                        style={{
+                          color: 'white',
+                        }}
+                      >
+                        {e?.initialUserData?.name || '---'}
+                      </td>
+                      <td
+                        style={{ ...getCellStyle('heartRate', e?.heartSensor) }}
+                      >
+                        {e?.heartSensor || '---'} bpm
+                      </td>
+                      <td
+                        style={{
+                          ...getCellStyle('spo2', e?.OxygenSaturationSensor),
+                        }}
+                      >
+                        {e?.OxygenSaturationSensor || '---'} %
+                      </td>
+                      <td
+                        style={{
+                          ...getCellStyle(
+                            'bloodPressure',
+                            e?.BloodPressureSensor
+                          ),
+                        }}
+                      >
+                        {e?.BloodPressureSensor || '---'} mmhg
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </Suspense>
   );
 };
 
