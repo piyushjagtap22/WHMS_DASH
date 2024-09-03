@@ -115,13 +115,9 @@ const SuperAdminRows = React.memo(
               {adminStatus ? 'Enabled' : 'Disabled'}
             </a>
           </TableCell>
-          <TableCell>
+          <TableCell onClick={() => setOpen((prev) => !prev)}>
             View Devices
-            <IconButton
-              aria-label='expand row'
-              size='small'
-              onClick={() => setOpen((prev) => !prev)}
-            >
+            <IconButton aria-label='expand row' size='small'>
               {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </IconButton>
           </TableCell>

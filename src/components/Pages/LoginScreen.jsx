@@ -9,6 +9,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import CustomButton from '../Button';
 import {
   GoogleAuthProvider,
   OAuthProvider,
@@ -46,11 +47,12 @@ function LoginScreen() {
     sendPasswordResetEmail(auth, email)
       .then(() => {
         toast.success('Password reset email sent. Check your inbox.');
-        setMessage('Password reset email sent. Check your inbox.');
         setError(null);
       })
       .catch((error) => {
-        setError(error.message);
+        if (error.message === 'Firebase: Error (auth/user-not-found).') {
+          toast.error('User not found');
+        }
         setMessage(null);
       });
   };
@@ -152,6 +154,18 @@ function LoginScreen() {
       dispatch(setLoading(false));
     }
   };
+  const [isValidMail, setIsValidMail] = useState(false);
+  const validateEmail = (email) => {
+    // Regular expression to check for valid email format
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+
+    // Check if the email matches the regex pattern
+    if (emailRegex.test(email)) {
+      setIsValidMail(true); // If valid, set isValidMail to true
+    } else {
+      setIsValidMail(false); // If invalid, set isValidMail to false
+    }
+  };
 
   useEffect(() => {
     setIsFormValid(email.trim() !== '' && password.trim() !== '');
@@ -181,7 +195,10 @@ function LoginScreen() {
                   type='email'
                   placeholder='Johndoe@gmail.com'
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    validateEmail(e.target.value);
+                  }}
                   style={styles.textField}
                 />
               </div>
@@ -218,11 +235,6 @@ function LoginScreen() {
                 Forgot Password?
               </Typography>
 
-              {loginErrorMessage && (
-                <Typography style={styles.errorText}>
-                  {loginErrorMessage}
-                </Typography>
-              )}
               <Modal
                 open={open}
                 onClose={handleToggleModal}
@@ -236,33 +248,59 @@ function LoginScreen() {
                     type='email'
                     placeholder='johndoe@gmail.com'
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      validateEmail(e.target.value);
+                    }}
                     fullWidth
                     style={styles.modalTextField}
                   />
-                  <Button
+
+                  <CustomButton
+                    type='submit'
                     variant='contained'
                     color='primary'
                     onClick={handleResetPassword}
-                    style={styles.modalButton}
+                    style={
+                      isValidMail ? styles.submitButton : styles.disabledButton
+                    }
                   >
                     Send Link
-                  </Button>
-                  {error && (
-                    <Typography style={styles.errorText}>{error}</Typography>
-                  )}
-                  {message && (
-                    <Typography style={styles.successText}>
-                      {message}
-                    </Typography>
-                  )}
+                  </CustomButton>
+                  {/* <CustomButton
+                    type='submit'
+                    style={
+                      !phoneNumber || !termsChecked || (showOtpScreen && !otp)
+                        ? styles.disabledButton
+                        : styles.submitButton
+                    }
+                    variant='contained'
+                    width='100%'
+                    // fullWidth
+                    onClick={showOtpScreen ? onOtpVerify : onSignup}
+                    disabled={buttonLoader || !termsChecked}
+                  >
+                    {buttonLoader ? (
+                      <Box sx={{ display: 'flex' }}>
+                        <CircularProgress size={22} />
+                      </Box>
+                    ) : showOtpScreen ? (
+                      'Verify OTP'
+                    ) : (
+                      'Send OTP'
+                    )}
+                  </CustomButton> */}
                 </Box>
               </Modal>
               <Button
                 type='submit'
                 fullWidth
-                style={styles.submitButton}
-                disabled={!isFormValid}
+                style={
+                  !isFormValid || !isValidMail
+                    ? styles.disabledButton
+                    : styles.submitButton
+                }
+                disabled={!isFormValid || !isValidMail}
               >
                 Login
               </Button>
@@ -399,6 +437,22 @@ const styles = {
     display: 'block',
     // paddingLeft: '80px',
     //     paddingTop: '12px',
+  },
+  submitButton: {
+    backgroundColor: '#7CD6AB',
+    color: '#121318',
+    marginTop: '101px',
+    marginBottom: '30px',
+    padding: '0.8rem',
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
+    color: '#121318',
+    marginTop: '101px',
+    marginBottom: '30px',
+    padding: '0.8rem',
+    fontWeight: 'bold',
   },
 };
 

@@ -134,13 +134,13 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
 
         {/* RIGHT SIDE */}
         <FlexBetween gap='1.5rem'>
-          <IconButton onClick={() => dispatch(setMode())}>
+          {/* <IconButton onClick={() => dispatch(setMode())}>
             {theme.palette.mode === 'dark' ? (
               <LightModeOutlined sx={{ fontSize: '25px' }} />
             ) : (
               <DarkModeOutlined sx={{ fontSize: '25px' }} />
             )}
-          </IconButton>
+          </IconButton> */}
 
           <FlexBetween>
             <Button
@@ -153,7 +153,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
                 gap: '1rem',
               }}
             >
-              <Box
+              {/* <Box
                 component='img'
                 alt='profile'
                 src={profileImage}
@@ -161,7 +161,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
                 width='32px'
                 borderRadius='50%'
                 sx={{ objectFit: 'cover' }}
-              />
+              /> */}
               <Box textAlign='left'>
                 <Typography
                   fontWeight='bold'

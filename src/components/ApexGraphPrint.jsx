@@ -2,7 +2,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { Box, useTheme } from '@mui/material';
 import React, { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
-import PrayogikLogo from '../assets/PrayogikLogo.png';
+import PrayogikFullLogo from '../assets/PrayogikFullLogo.png';
 
 const ApexGraphPrint = React.forwardRef((props, ref) => {
   const theme = useTheme();
@@ -270,8 +270,9 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
         </Box>
       </main>
       <footer className='print-footer' style={footerStyle}>
-        <img src={PrayogikLogo} height='80rem' alt='Prayogik Logo' />
         <h1>Prodyogik Solutions</h1>
+        <img src={PrayogikFullLogo} height='80rem' alt='Prayogik Logo' />
+
         <p>Address Line 1, Address Line 2, City, Country</p>
 
         <p>Company Name - All Rights Reserved</p>
