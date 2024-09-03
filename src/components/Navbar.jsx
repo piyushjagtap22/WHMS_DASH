@@ -1,32 +1,28 @@
 import {
-  ArrowDropDownOutlined,
-  DarkModeOutlined,
-  LightModeOutlined,
+  ArrowBack,
+  ArrowDropDownOutlined
 } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import profileImage from '../assets/profile.png';
+import { Link } from 'react-router-dom';
 import {
   setAuthState,
   setAuthUser,
   setMongoUser,
 } from '../slices/authSlice.js';
 import { setLoading } from '../slices/loadingSlice.js';
-import { setMode } from '../slices/modeSlice.js';
 import FlexBetween from './FlexBetween.jsx';
 
 import {
   AppBar,
   Box,
   Button,
-  IconButton,
   Menu,
   MenuItem,
   Toolbar,
   Typography,
-  useTheme,
+  useTheme
 } from '@mui/material';
 import { signOut } from 'firebase/auth';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -95,16 +91,24 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const navbarTitle = useMemo(() => {
     return location.pathname === '/Default' ? (
       <>
+       <Link
+          to='/dashboard'
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+         <ArrowBack
+                sx={{ color: theme.palette.secondary[800], fontSize: '25px', marginRight: '20px' }}
+
+              /></Link>
         <Link
           to='/dashboard'
           style={{ textDecoration: 'none', color: 'inherit' }}
         >
-          Dashboard
         </Link>
-        {` /${deviceID}`}
+        {/* <span style={{ margin: '0 8px' }}> &gt; </span> */}
+        {deviceID}
       </>
     ) : (
-      location.pathname.substring(1).toUpperCase()
+      location.pathname.substring(1).toUpperCase().split('/').join(' > ')
     );
   }, [location.pathname, deviceID]);
 
@@ -120,11 +124,11 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         {/* LEFT SIDE */}
         <FlexBetween>
-          {location.pathname !== '/superadmin' && (
+          {/* {location.pathname !== '/superadmin' && (
             <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-              {/* <MenuIcon /> */}
+             
             </IconButton>
-          )}
+          )} */}
           <FlexBetween borderRadius='9px' gap='4rem' p='0.1rem 1.5rem'>
             <Typography fontSize='14px' fontWeight='bold'>
               {navbarTitle}

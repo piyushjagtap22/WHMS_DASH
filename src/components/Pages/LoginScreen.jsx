@@ -224,12 +224,11 @@ function LoginScreen() {
                   }}
                 />
               </div>
-              <Typography
+              <Button
                 onClick={handleToggleModal}
-                style={styles.forgotButton}
-              >
+                style={styles.forgotButton}>
                 Forgot Password?
-              </Typography>
+              </Button>
 
               <Dialog
                 open={open}
@@ -372,11 +371,15 @@ const styles = {
   },
   forgotButton: {
     color: '#7CD6AB',
-    marginTop: '10px',
-    width: '100%',
+    margin: '10px 0px',
+    padding: '0px',
+    textTransform: 'capitalize'
+    
+    // width: '100%',
   },
   forgotText: {
-    margin: '8px 0',
+  
+    margin: '0px 8px',
     color: '#7CD6AB',
   },
   errorText: {
