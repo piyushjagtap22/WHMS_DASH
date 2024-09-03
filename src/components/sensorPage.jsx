@@ -40,8 +40,12 @@ const SensorPage = () => {
   const [events, setEvents] = useState([]);
   const handleClose = () => setOpen(false);
 
-  const handleRowClick = (data) => {
-    setOpen(true);
+  // const handleRowClick = (data) => {
+  //   setOpen(true);
+  //   setData(data);
+  // };
+
+  const willSetData = (data) => {
     setData(data);
   };
   // Function to handle real-time updates
@@ -254,7 +258,7 @@ const SensorPage = () => {
       }
     >
       <div className='App'>
-        <Dialog
+        {/* <Dialog
           open={open}
           onClose={handleClose}
           aria-labelledby='dialog-title'
@@ -322,7 +326,7 @@ const SensorPage = () => {
               Cancel
             </CustomButton>
           </DialogActions>
-        </Dialog>
+        </Dialog> */}
         <Toaster toastOptions={{ duration: 4000 }} />
         {!!user && (
           <div className='App-header'>
@@ -416,7 +420,26 @@ const SensorPage = () => {
                           color: theme.palette.secondary.main,
                         }}
                         key={i}
-                        onClick={() => handleRowClick(e)}
+                        // onClick={() => handleRowClick(e)}
+                        onClick={async () => {
+                          console.log('trying hard');
+                          willSetData(e);
+
+                          dispatch(setCurrentDevice(e?.deviceId));
+                          dispatch(setCurrentDeviceUserId(e?.currentUserId));
+                          await dispatch(setCurrentDeviceData(e));
+                          console.log('rowdata', e);
+                          if (e?.ActivitySensor === '') {
+                            toast.error('No Data found for the device');
+                            handleClose();
+                          } else {
+                            navigate(`/Default`, {
+                              state: {
+                                data: e,
+                              },
+                            }); // Pass the row data as a prop
+                          }
+                        }}
                       >
                         <td
                           style={{

@@ -130,7 +130,6 @@ const HistoryTab = () => {
       const endUnix = convertDateToUnix(endDate);
 
       const data = await getGraphData(userId, startUnix, endUnix);
-      console.log("shiv" + data);
       if (data && data.length > 0) {
         const values = data.map((item) => item.value);
         const timestamp = data.map((item) => item.timestamp.slice(11, 19));
