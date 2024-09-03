@@ -74,7 +74,7 @@ const HistoryTab = () => {
     const sensorMapping = sensorDataMappings.find(
       (mapping) => mapping.sensor === sensor
     );
-    return sensorMapping ? sensorMapping.name : 'Please select sensor';
+    return sensorMapping ? sensorMapping.name : '';
   };
   const componentRef = useRef();
   const [graphByDateData, setGraphByDateData] = useState([]);
@@ -109,6 +109,7 @@ const HistoryTab = () => {
   const [startDate, setStartDate] = useState(null); // Use null instead of undefined
   const [endDate, setEndDate] = useState(null); // Use null instead of undefined
   const [sensorType, setSensorType] = useState('');
+  const [HistoryTabText, setHistoryTabText] = useState('');
   const userId = useSelector((state) => state.device.currentUserId);
   const userData = useSelector((state) => state.device.currentDeviceData);
   console.log('received data history tab ', userData);
@@ -130,6 +131,7 @@ const HistoryTab = () => {
       const endUnix = convertDateToUnix(endDate);
 
       const data = await getGraphData(userId, startUnix, endUnix);
+      console.log("shiv" + graphByDateData);
       if (data && data.length > 0) {
         const values = data.map((item) => item.value);
         const timestamp = data.map((item) => item.timestamp.slice(11, 19));
@@ -138,6 +140,8 @@ const HistoryTab = () => {
         setGraphByDateTimeStamp(timestamp);
       } else {
         toast.error('No data points found');
+        setGraphByDateData([]);
+        setGraphByDateTimeStamp([]);
       }
     } catch (error) {
       toast.error('Error fetching data. Please check dates.');
@@ -219,17 +223,16 @@ const HistoryTab = () => {
               ref={componentRef}
               startDate={startDate}
               endDate={endDate}
-              sensorType={getSensorName(sensorType)}
+              sensorType={getSensorName(sensorType)}        
             />
             <div
               style={{
-                display: 'flex',
-                gap: '10px',
+               paddingLeft : '10px',
+                gap: '50px',
                 marginTop: '20px',
-                justifyContent: 'center',
               }}
             >
-              <CustomButton onClick={handlePrint}>Print this out!</CustomButton>
+              {graphByDateData.length !== 0 ? <CustomButton onClick={handlePrint}>Print this out!</CustomButton> : ''}
             </div>
           </div>
         </Grid>

@@ -153,10 +153,11 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
           fontWeight: 400,
           cssClass: 'apexcharts-xaxis-label',
         },
-        rotate: 0,
+        rotate: -90,
+        offsetY : 10,
       },
       categories: labels,
-      tickAmount: 5,
+      tickAmount: 20,
     },
     tooltip: {
       shared: false,
@@ -224,19 +225,8 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
   };
 
   return (
-    <div ref={ref} style={containerStyle}>
-      <style>
-        {`
-          @media print {
-            @page {
-              size: A4;
-            }
-            .print-header, .print-footer {
-              text-align: center;
-            }
-          }
-        `}
-      </style>
+    <div>
+      {data.length !== 0 ? <><div ref={ref} style={containerStyle}>
       <header className='print-header' style={headerStyle}>
         W-HMS Health Report
         <p>Patient Details:</p>
@@ -277,6 +267,7 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
 
         <p>Company Name - All Rights Reserved</p>
       </footer>
+    </div></> : <><p style={{paddingLeft : '15px'}}>{(startDate === null || endDate === null || sensorType === '' ) ? 'Dates and sensor not selected' : ''}</p></>}
     </div>
   );
 });
