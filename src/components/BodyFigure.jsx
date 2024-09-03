@@ -1,19 +1,18 @@
+import { Box, Tooltip, useMediaQuery } from '@mui/material';
 import React, { useMemo } from 'react';
-import { Tooltip } from '@mui/material';
-import Body_Male from '../assets/Body_Male.png'; // Adjust the path as necessary
-import '../css/BodyFigure.css';
-import { Box, useMediaQuery } from '@mui/material';
+import { useSelector } from 'react-redux';
 import ActivityIcon from '../../src/assets/SensorIcons/Activity.svg';
 import BloodPressureIcon from '../../src/assets/SensorIcons/BloodPressure.svg';
 import BreathingRateIcon from '../../src/assets/SensorIcons/BreathingRate.svg';
+import CadenceIcon from '../../src/assets/SensorIcons/Cadence.svg';
 import HeartRateIcon from '../../src/assets/SensorIcons/HeartRate.svg';
 import MinVentilationIcon from '../../src/assets/SensorIcons/Min.Ventilation.svg';
 import SPO2Icon from '../../src/assets/SensorIcons/SPO2.svg';
 import StepsIcon from '../../src/assets/SensorIcons/Steps.svg';
 import TemperatureIcon from '../../src/assets/SensorIcons/Temperature.svg';
 import TidalVolumeIcon from '../../src/assets/SensorIcons/TidalVolume.svg';
-import CadenceIcon from '../../src/assets/SensorIcons/Cadence.svg';
-import { useSelector } from 'react-redux';
+import Body_Male from '../assets/Body_Male.png'; // Adjust the path as necessary
+import '../css/BodyFigure.css';
 const BodyFigure = React.memo(({ sensorData }) => {
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
 
@@ -120,9 +119,19 @@ const BodyFigure = React.memo(({ sensorData }) => {
             {sensors.map((sensor) => (
               <Tooltip
                 key={sensor.id}
-                title={`${sensor.type}: ${sensorData[sensor.type] || '-'}`}
+                title={
+                  <span style={{ color: '#fff', fontSize: '15px' }}>
+                    {`${sensor.type}: ${sensorData[sensor.type] || '-'}`}
+                  </span>
+                }
                 arrow
                 placement='top'
+                sx={{
+                  background: '#ffffff',
+                  backgroundColor: '#ffffff',
+                  color: '#fff', // Set text color to black for better contrast
+                  fontSize: '15px',
+                }}
               >
                 <div
                   className='sensor-icon'

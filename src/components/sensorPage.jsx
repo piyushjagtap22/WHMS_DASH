@@ -6,23 +6,22 @@ import {
   DialogTitle,
   useTheme,
 } from '@mui/material';
-import {
-  setCurrentDeviceUserId,
-  setCurrentDeviceData,
-} from '../slices/deviceSlice.js';
-import { Suspense } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
+import { Suspense } from 'react';
+import {
+  setCurrentDeviceData,
+  setCurrentDeviceUserId,
+} from '../slices/deviceSlice.js';
 
 import React, { useEffect, useState } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import * as Realm from 'realm-web';
 import { getDeviceIds } from '../../src/slices/adminApiSlice';
-const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
-import CustomButton from './Button.jsx';
 import { setCurrentDevice } from '../slices/deviceSlice.js';
-import { useDispatch } from 'react-redux';
+import CustomButton from './Button.jsx';
+const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
 
 const SensorPage = () => {
   const [loading, setLoading] = useState(true); // Add this line to manage loading state
@@ -77,29 +76,15 @@ const SensorPage = () => {
     const searchTerm = eve.target.value;
     setSearchTerm(searchTerm);
 
-    console.log('in sensor page');
-    console.log(searchTerm);
-
-    const filteredData = events.filter((row) => {
+    const filteredData = initialTable.filter((row) => {
       const name = row?.initialUserData?.name?.toUpperCase() || '';
       const deviceId = row?.deviceId?.toUpperCase() || '';
       const searchText = searchTerm.toUpperCase();
 
-      console.log(name);
-      console.log(deviceId);
-
       return name.includes(searchText) || deviceId.includes(searchText);
     });
 
-    console.log(filteredData);
     setEvents(filteredData);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Backspace') {
-      setSearchTerm('');
-      setEvents(initialTable);
-    }
   };
 
   const getCellStyle = (sensorType, stringValue) => {
@@ -364,7 +349,6 @@ const SensorPage = () => {
                         type='text'
                         value={searchTerm}
                         onChange={handleSearchChange}
-                        onKeyDown={handleKeyDown}
                         placeholder='Search'
                         style={{
                           backgroundColor: theme.palette.secondary[400],
