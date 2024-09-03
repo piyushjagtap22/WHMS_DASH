@@ -216,19 +216,17 @@ const MapboxMap = () => {
       }}
     >
       <span>Location: {address}</span>
-      
-    </p>
-<ContentCopyIcon
+      <ContentCopyIcon
     onClick={copyLocation}
     style={{ cursor: 'pointer' }}
   />
+    </p>
+
                   </>
                 )}
                 <CustomButton onClick={handleButtonClick}>
                   Open in Maps
                 </CustomButton>
-
-                
               </div>
             </>
           ) : (
