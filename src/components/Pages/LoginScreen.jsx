@@ -3,31 +3,27 @@ import {
   Box,
   Button,
   Container,
+  Dialog,
   IconButton,
   InputAdornment,
-  Modal,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
-import CustomButton from '../Button';
 import {
-  GoogleAuthProvider,
-  OAuthProvider,
   sendPasswordResetEmail,
-  signInWithEmailAndPassword,
+  signInWithEmailAndPassword
 } from 'firebase/auth';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { Toaster, toast } from 'react-hot-toast';
 import { auth } from '../../firebase';
-import { setAuthUser, setMongoUser, setToken } from '../../slices/authSlice';
+import { setAuthState, setAuthUser, setMongoUser, setToken } from '../../slices/authSlice';
 import { setLoading } from '../../slices/loadingSlice';
 import { getMongoUser } from '../../slices/usersApiSlice';
+import CustomButton from '../Button';
 import Loader from '../Loader';
-import { setAuthState } from '../../slices/authSlice';
-import { useLayoutEffect } from 'react';
 function LoginScreen() {
   const loading = useSelector((state) => state.loading.loading);
   const dispatch = useDispatch();
@@ -235,7 +231,7 @@ function LoginScreen() {
                 Forgot Password?
               </Typography>
 
-              <Modal
+              <Dialog
                 open={open}
                 onClose={handleToggleModal}
                 style={styles.modal}
@@ -260,9 +256,10 @@ function LoginScreen() {
                     type='submit'
                     variant='contained'
                     color='primary'
+                    width='100%'
                     onClick={handleResetPassword}
                     style={
-                      isValidMail ? styles.submitButton : styles.disabledButton
+                      isValidMail ? styles.dialogSubmitButton : styles.dialogDisabledButton
                     }
                   >
                     Send Link
@@ -291,7 +288,7 @@ function LoginScreen() {
                     )}
                   </CustomButton> */}
                 </Box>
-              </Modal>
+              </Dialog>
               <Button
                 type='submit'
                 fullWidth
@@ -414,7 +411,7 @@ const styles = {
     border: '1px solid #75777B',
     borderRadius: '5px',
     outline: 'white',
-    height: '52px',
+    // height: '52px',
   },
   modalButton: {
     marginTop: '15px',
@@ -454,6 +451,25 @@ const styles = {
     padding: '0.8rem',
     fontWeight: 'bold',
   },
+  dialogSubmitButton: {
+    backgroundColor: '#7CD6AB',
+    color: '#121318',
+    marginTop: '20px',
+    marginBottom: '20px',
+    padding: '0.8rem',
+    fontWeight: 'bold',
+    borderRadius: '4px'
+  },
+  dialogDisabledButton: {
+    backgroundColor: '#ccc',
+    color: '#121318',
+    marginTop: '20px',
+    marginBottom: '20px',
+    padding: '0.8rem',
+    fontWeight: 'bold',
+    borderRadius: '4px'
+  }
+
 };
 
 export default LoginScreen;
