@@ -182,6 +182,8 @@ const SAdminScreen = () => {
     setDocText('');
     setTypeOfContent('');
   }, []);
+
+  console.log('users', users);
   const approveDoc = useCallback(
     async (userId) => {
       try {
@@ -190,6 +192,11 @@ const SAdminScreen = () => {
 
         if (response.status === 200) {
           toast.success('Document Approved');
+          setUsers((prevUsers) =>
+            prevUsers.map((user) =>
+              user._id === userId ? { ...user, doc_verified: true } : user
+            )
+          );
         } else {
           toast.error('Something went wrong, Please try again later');
         }
@@ -443,15 +450,18 @@ const SAdminScreen = () => {
                 <div>{docText}</div>
               )}
 
-              {documentUrl && (
-                <CustomButton
-                  onClick={handleDownload}
-                  variant='contained'
-                  sx={{ mt: 2 }}
-                >
-                  Download Document
-                </CustomButton>
-              )}
+              {documentUrl &&
+                docText !== 'Fetching document...' &&
+                docText !== 'Document not found' && (
+                  <CustomButton
+                    onClick={handleDownload}
+                    variant='contained'
+                    sx={{ mt: 2 }}
+                    hidden={false}
+                  >
+                    Download Document
+                  </CustomButton>
+                )}
             </DialogContent>
 
             <DialogActions
@@ -485,30 +495,6 @@ const SAdminScreen = () => {
                   )}
                 </CustomButton>
               )}
-
-              {/* <CustomButton
-                type='submit'
-                style={
-                  !phoneNumber || !termsChecked || (showOtpScreen && !otp)
-                    ? styles.disabledButton
-                    : styles.submitButton
-                }
-                variant='contained'
-                width='100%'
-                // fullWidth
-                onClick={showOtpScreen ? onOtpVerify : onSignup}
-                disabled={buttonLoader || !termsChecked}
-              >
-                {buttonLoader ? (
-                  <Box sx={{ display: 'flex' }}>
-                    <CircularProgress size={22} />
-                  </Box>
-                ) : showOtpScreen ? (
-                  'Verify OTP'
-                ) : (
-                  'Send OTP'
-                )}
-              </CustomButton> */}
               <CustomButton onClick={handleClose} variant='outlined'>
                 Cancel
               </CustomButton>

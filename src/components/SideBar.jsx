@@ -26,7 +26,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import FlexBetween from './FlexBetween';
-import profileImage from '../assets/profile.png';
+import profileImage from '../assets/PrayogikLogo.png';
 
 const navItems = [
   {
