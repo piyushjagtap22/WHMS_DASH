@@ -177,10 +177,11 @@ const SAdminScreen = () => {
   const handleClose = useCallback(() => {
     setOpen(false);
 
-    setDocument(null);
-
-    setDocText('');
-    setTypeOfContent('');
+    setTimeout(() => {
+      setDocument(null);
+      setDocText('');
+      setTypeOfContent('');
+    }, 500);
   }, []);
 
   console.log('users', users);
@@ -473,7 +474,7 @@ const SAdminScreen = () => {
                 paddingBottom: '20px',
               }}
             >
-              {!docApproved && (
+              {!docApproved && docText !== 'Document not found' && (
                 <CustomButton
                   onClick={() => approveDoc(selectedAdmin)}
                   variant='contained'
