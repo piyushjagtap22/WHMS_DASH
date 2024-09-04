@@ -268,12 +268,12 @@ const Register = () => {
           // .react-tel-input .selected-flag:hover, .react-tel-input .selected-flag:focus { 
           //   background-color: black; 
           // }
-          // .react-tel-input .country-list .country{ 
-          //   padding: 15px 15px 15px 15px;
-          //   background-color: black; 
-          //   width: 300px; 
+          .react-tel-input .country-list .country{ 
+            padding: 7px 40px;
+            background-color: black; 
+            width: 300px; 
             
-          // }
+          }
           
           // .react-tel-input .country-list .country.highlight { 
           //   background-color: #7CD6AB; 
@@ -412,10 +412,12 @@ const styles = {
   },
   phoneDropdown: {
     backgroundColor: '#121318',
+    
   },
   textField: {
     margin: '20px 0',
     width: '22rem',
+
   },
   checkbox: {
     color: '#7CD6AB',
