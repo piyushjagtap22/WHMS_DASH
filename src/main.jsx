@@ -75,7 +75,7 @@ const router = createBrowserRouter(
         path='/login'
         element={<LoginValidator component={LoginScreen} />}
       />
-      <Route path='*' element={<NotFoundPage />} />
+      <Route path='*' element={<RegisterValidator component={Register} />} />
     </Route>
   )
 );

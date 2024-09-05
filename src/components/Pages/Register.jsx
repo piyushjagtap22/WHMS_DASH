@@ -148,7 +148,7 @@ const Register = () => {
         const mongoUser = await getMongoUser(user.stsTokenManager.accessToken);
 
         console.log('muser', mongoUser);
-        dispatch(setMongoUser(mongoUser.data.initialUserSchema));
+        dispatch(setMongoUser(mongoUser.data.InitialUserSchema));
         console.log(mongoUser);
         console.log(mongoUser.status === 204 && !mongoUser.data);
         console.log('3');
@@ -412,12 +412,10 @@ const styles = {
   },
   phoneDropdown: {
     backgroundColor: '#121318',
-    
   },
   textField: {
     margin: '20px 0',
     width: '22rem',
-
   },
   checkbox: {
     color: '#7CD6AB',
