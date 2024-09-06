@@ -35,6 +35,7 @@ import { themeSettings } from './theme';
 import EmailRegisterValidator from './components/Validators/EmailRegisterValidator.jsx';
 import RegisterValidator from './components/Validators/RegisterValidator.jsx';
 import VerifyValidator from './components/Validators/VerifyValidator.jsx';
+import LandingPage from './components/Pages/LandingPage.jsx';
 const theme = createTheme(themeSettings('dark'));
 
 const router = createBrowserRouter(
@@ -75,6 +76,7 @@ const router = createBrowserRouter(
         path='/login'
         element={<LoginValidator component={LoginScreen} />}
       />
+      <Route path='/landing' element = {<LandingPage/>}/>
       <Route path='*' element={<RegisterValidator component={Register} />} />
     </Route>
   )
