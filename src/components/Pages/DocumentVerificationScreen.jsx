@@ -255,6 +255,7 @@ const DocumentVerificationScreen = (props) => {
                       overflow: 'hidden', // Hides overflowed content
                       textOverflow: 'ellipsis', // Adds ellipsis to overflowed text
                       whiteSpace: 'nowrap', // Prevents text wrapping
+                      cursor: 'pointer'
                     }}
                   >
                     <input
@@ -264,8 +265,10 @@ const DocumentVerificationScreen = (props) => {
                         display: 'none',
                         background: '#7CD6AB',
                         color: '#121318',
+                        cursor: 'pointer'
                       }}
                       onChange={handleFileChange}
+                      
                     />
                     {fileName}
                   </label>
