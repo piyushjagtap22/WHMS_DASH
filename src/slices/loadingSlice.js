@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     loading: true,
-    tabValue : 0,
+    tabValue: 0,
 };
 
 export const loadingSlice = createSlice({

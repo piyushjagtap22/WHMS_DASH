@@ -7,7 +7,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../firebase.js';
 import Loader from '../Loader.jsx';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import {
   Box,
@@ -77,6 +77,8 @@ const DocumentVerificationScreen = (props) => {
     setFile(event.target.files[0]);
     setFileName(event.target.files[0].name);
   };
+
+  const fileInputRef = useRef(null);
 
   const handleUpload = async () => {
     try {
@@ -233,55 +235,43 @@ const DocumentVerificationScreen = (props) => {
                     marginBottom: '25px',
                     cursor: 'pointer',
                   }}
+                  onClick={() => fileInputRef.current.click()}
                 >
                   <CloudUploadIcon
                     style={{ fontSize: '3rem', color: '#7CD6AB' }}
                   />
                   <Typography
-                    m="10px"
-                    variant="body2"
+                    m='10px'
+                    variant='body2'
                     style={{ color: 'grey' }}
                   >
                     Click or drag file to this area to upload
                   </Typography>
-                  <label
+                  <input
+                    ref={fileInputRef}
+                    type='file'
+                    accept='.jpg, .jpeg, .png, .pdf'
+                    style={{ display: 'none' }}
+                    onChange={handleFileChange}
+                  />
+                  <Typography
                     style={{
                       padding: '5px 15px',
                       border: '1px solid #7cd6ab',
                       borderRadius: '4px',
                       color: '#7cd6ab',
-                      display: 'block', // Ensures label takes full width
-                      maxWidth: '100%', // Keeps the label within parent div
-                      overflow: 'hidden', // Hides overflowed content
-                      textOverflow: 'ellipsis', // Adds ellipsis to overflowed text
-                      whiteSpace: 'nowrap', // Prevents text wrapping
-                      cursor: 'pointer'
+                      maxWidth: '100%',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
                     }}
                   >
-                    <input
-                      type="file"
-                      accept=".jpg, .jpeg, .png, .pdf"
-                      style={{
-                        display: 'none',
-                        background: '#7CD6AB',
-                        color: '#121318',
-                        cursor: 'pointer'
-                      }}
-                      onChange={handleFileChange}
-                      
-                    />
                     {fileName}
-                  </label>
+                  </Typography>
                 </div>
-                <Typography
-                  variant="body2"
-                  style={{ color: 'grey', marginBottom: '40px' }}
-                >
-                  Formats accepted are jpg, jpeg, png, and PDF
-                </Typography>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <CustomButton
-                    variant="outlined"
+                    variant='outlined'
                     style={{
                       color: '#7CD6AB',
                       borderColor: '#7CD6AB',

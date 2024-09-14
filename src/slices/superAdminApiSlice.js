@@ -49,7 +49,7 @@ console.log("superadmin" + SUPERADMIN_URL);
 
 export const addDeviceID = (data, token) => {
     console.log("slice running")
-    console.log('check the data',data)
+    console.log('check the data', data)
     // pass token as an argument to this function
     return axios.post(`${SUPERADMIN_URL}/addDeviceIdToAdmin`, data, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -64,10 +64,10 @@ export const removeAdmin = (data, token) => {
 }
 
 export const enableAdmin = (data, token) => {
-console.log("slice riunning");
-return axios.post(`${SUPERADMIN_URL}/enableAdmin`, data, {
-    headers: { 'Authorization': `Bearer ${token}` }
-});
+    console.log("slice riunning");
+    return axios.post(`${SUPERADMIN_URL}/enableAdmin`, data, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
 }
 
 export const disableAdmin = (data, token) => {
@@ -78,8 +78,8 @@ export const disableAdmin = (data, token) => {
 }
 
 
-export const approveDocById = (data,token) => {
-    console.log("Approve doc by id running",data);
+export const approveDocById = (data, token) => {
+    console.log("Approve doc by id running", data);
     return axios.post(`${SUPERADMIN_URL}/approveAdminDocById`, data, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -88,7 +88,7 @@ export const approveDocById = (data,token) => {
 // export const docById = (data, token) => {
 //     console.log("slice riunning doc by Id");
 //     console.log("datatatatata",data)
-    
+
 //     return axios.post(`${SUPERADMIN_URL}/getDocById`, data, {
 //         'Content-Type': 'application/json',
 //         headers: { 'Authorization': `Bearer ${token}` }
@@ -97,7 +97,7 @@ export const approveDocById = (data,token) => {
 // }
 
 // export const docById = async (data,token) =>{
-    
+
 //     const apiUrl = 'http://localhost:3000/api/superadmin/getDocById';
 //     const authToken =
 //       `Bearer ${token}`;
@@ -114,7 +114,7 @@ export const approveDocById = (data,token) => {
 //       .then((blob) => {
 //         var imageUrl = "";
 //         return imageUrl = URL.createObjectURL(blob);
-        
+
 //       })
 //       .catch((error) => console.error('Error fetching image:', error));
 //     }

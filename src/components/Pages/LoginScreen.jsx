@@ -7,11 +7,11 @@ import {
   IconButton,
   InputAdornment,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import {
   sendPasswordResetEmail,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
 } from 'firebase/auth';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
@@ -19,7 +19,12 @@ import { FaEnvelope, FaLock } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../../firebase';
-import { setAuthState, setAuthUser, setMongoUser, setToken } from '../../slices/authSlice';
+import {
+  setAuthState,
+  setAuthUser,
+  setMongoUser,
+  setToken,
+} from '../../slices/authSlice';
 import { setLoading } from '../../slices/loadingSlice';
 import { getMongoUser } from '../../slices/usersApiSlice';
 import CustomButton from '../Button';
@@ -224,9 +229,7 @@ function LoginScreen() {
                   }}
                 />
               </div>
-              <Button
-                onClick={handleToggleModal}
-                style={styles.forgotButton}>
+              <Button onClick={handleToggleModal} style={styles.forgotButton}>
                 Forgot Password?
               </Button>
 
@@ -258,7 +261,9 @@ function LoginScreen() {
                     width='100%'
                     onClick={handleResetPassword}
                     style={
-                      isValidMail ? styles.dialogSubmitButton : styles.dialogDisabledButton
+                      isValidMail
+                        ? styles.dialogSubmitButton
+                        : styles.dialogDisabledButton
                     }
                   >
                     Send Link
@@ -373,12 +378,11 @@ const styles = {
     color: '#7CD6AB',
     margin: '10px 0px',
     padding: '0px',
-    textTransform: 'capitalize'
-    
+    textTransform: 'capitalize',
+
     // width: '100%',
   },
   forgotText: {
-  
     margin: '0px 8px',
     color: '#7CD6AB',
   },
@@ -461,7 +465,7 @@ const styles = {
     marginBottom: '20px',
     padding: '0.8rem',
     fontWeight: 'bold',
-    borderRadius: '4px'
+    borderRadius: '4px',
   },
   dialogDisabledButton: {
     backgroundColor: '#ccc',
@@ -470,9 +474,8 @@ const styles = {
     marginBottom: '20px',
     padding: '0.8rem',
     fontWeight: 'bold',
-    borderRadius: '4px'
-  }
-
+    borderRadius: '4px',
+  },
 };
 
 export default LoginScreen;

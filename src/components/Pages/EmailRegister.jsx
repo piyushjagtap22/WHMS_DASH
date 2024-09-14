@@ -328,7 +328,7 @@ const EmailRegister = () => {
                 Resend Link
               </CustomButton>
               <CustomButton
-              variant='outlined'
+                variant='outlined'
                 onClick={handleLogout}
                 style={{
                   padding: '0.8rem',

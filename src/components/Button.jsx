@@ -2,16 +2,15 @@ import { Button } from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-const CustomButton = ({ 
-  variant = 'contained', 
-  color = '#7CD6AB', 
-  borderRadius = '8px', 
-  width = 'auto', 
-  children, 
-  style, 
-  ...props 
+const CustomButton = ({
+  variant = 'contained',
+  color = '#7CD6AB',
+  borderRadius = '8px',
+  width = 'auto',
+  children,
+  style,
+  ...props
 }) => {
-
   const getButtonStyles = () => {
     const baseStyle = {
       padding: '0.5rem 2rem',
@@ -23,7 +22,7 @@ const CustomButton = ({
       width: width,
       cursor: 'pointer',
       outline: 'none',
-      disabled: 'true'
+      disabled: 'true',
     };
 
     if (variant === 'contained') {
@@ -81,10 +80,7 @@ const CustomButton = ({
   const buttonStyles = getButtonStyles();
 
   return (
-    <Button
-      style={{ ...buttonStyles, ...style }}
-      {...props}
-    >
+    <Button style={{ ...buttonStyles, ...style }} {...props}>
       {children}
     </Button>
   );
