@@ -49,13 +49,13 @@ const BodyFigure = React.memo(({ sensorData }) => {
         id: 2,
         type: 'Activity',
         icon: <ActivityIcon fontSize='small' />,
-        position: { top: '63%', left: '39%' },
+        position: { top: '63%', left: '37%' },
       },
       {
         id: 3,
         type: 'Blood Pressure',
         icon: <BloodPressureIcon fontSize='small' />,
-        position: { top: '45%', left: '74%' },
+        position: { top: '45%', left: '78%' },
       },
       {
         id: 4,
@@ -80,7 +80,7 @@ const BodyFigure = React.memo(({ sensorData }) => {
         id: 6,
         type: 'Temperature',
         icon: <TemperatureIcon fontSize='small' />,
-        position: { top: '14%', left: '43%' },
+        position: { top: '39%', left: '55%' },
       },
       {
         id: 7,
@@ -92,7 +92,7 @@ const BodyFigure = React.memo(({ sensorData }) => {
         id: 8,
         type: 'Steps',
         icon: <StepsIcon fontSize='small' />,
-        position: { top: '90%', left: '32%' },
+        position: { top: '90%', left: '26%' },
       },
       {
         id: 9,
@@ -104,7 +104,7 @@ const BodyFigure = React.memo(({ sensorData }) => {
         id: 10,
         type: 'Cadence',
         icon: <CadenceIcon fontSize='small' style={{ height: '1.5rem' }} />,
-        position: { top: '90%', left: '68%' },
+        position: { top: '90%', left: '74%' },
       },
     ],
     []
