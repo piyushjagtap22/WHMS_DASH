@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
-import NotFoundPage from './components/Pages/NotFoundPage.jsx';
+import PrivacyAndSecurityPage from './components/Pages/PrivacyAndSecurityPage.jsx';
 
 import { PersistGate } from 'redux-persist/integration/react';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -76,6 +76,7 @@ const router = createBrowserRouter(
         element={<LoginValidator component={LoginScreen} />}
       />
       <Route path='*' element={<RegisterValidator component={Register} />} />
+      <Route path='/privacypolicy' element={<PrivacyAndSecurityPage />} />
     </Route>
   )
 );
