@@ -1,7 +1,7 @@
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 import React, { useMemo, useCallback } from 'react';
 import ReactApexChart from 'react-apexcharts';
-
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 // Define the sensor data mappings outside the component
 const sensorDataMappings = [
   {
@@ -172,14 +172,15 @@ const sensorDataMappings = [
 ];
 
 const ApexGraph = React.memo((props) => {
+  const { timestamp: labels, data, name, unit } = props;
+  const theme = useTheme();
   function getUnitByName(sensorName) {
     const sensor = sensorDataMappings.find(
       (mapping) => mapping.name === sensorName
     );
     return sensor ? sensor.unit : undefined;
   }
-  const { timestamp: labels, data, name, unit } = props;
-  const theme = useTheme();
+  const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
 
   const calculateAverage = useCallback((lastValues) => {
     console.log('calculate average running');
