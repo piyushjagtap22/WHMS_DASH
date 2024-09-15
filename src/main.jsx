@@ -31,12 +31,12 @@ import SAdminScreen from './components/Pages/SAdminScreen.jsx';
 import './index.css';
 import store, { persistor } from './store';
 import { themeSettings } from './theme';
-
+import PrivacyPolicyValidator from './components/Validators/PrivacyPolicyValidator.jsx';
 import EmailRegisterValidator from './components/Validators/EmailRegisterValidator.jsx';
 import RegisterValidator from './components/Validators/RegisterValidator.jsx';
 import VerifyValidator from './components/Validators/VerifyValidator.jsx';
 const theme = createTheme(themeSettings('dark'));
-
+import DefaultPageValidator from './components/Validators/DefaultPageValidator.jsx';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
@@ -50,13 +50,11 @@ const router = createBrowserRouter(
         path='/verify'
         element={<VerifyValidator component={DocumentVerificationScreen} />}
       />
-      <Route path='/Default' element={<DefaultPage />} />
-      {/* <Route path='' element={<Layout />}>
-        <Route
-          path='/Default'
-          element={<DefaultPageValidator component={DefaultPage} />}
-        />
-      </Route> */}
+      <Route
+        path='/Default'
+        element={<DefaultPageValidator component={DefaultPage} />}
+      />
+      {/* </Route> */}
       <Route path='' element={<Layout />}>
         <Route
           path='/dashboard'
@@ -76,7 +74,11 @@ const router = createBrowserRouter(
         element={<LoginValidator component={LoginScreen} />}
       />
       <Route path='*' element={<RegisterValidator component={Register} />} />
-      <Route path='/privacypolicy' element={<PrivacyAndSecurityPage />} />
+      PrivacyPolicyValidator
+      <Route
+        path='/login'
+        element={<PrivacyPolicyValidator component={PrivacyAndSecurityPage} />}
+      />
     </Route>
   )
 );
