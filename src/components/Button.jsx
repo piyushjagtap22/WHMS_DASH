@@ -2,16 +2,15 @@ import { Button } from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-const CustomButton = ({ 
-  variant = 'contained', 
-  color = '#7CD6AB', 
-  borderRadius = '8px', 
-  width = 'auto', 
-  children, 
-  style, 
-  ...props 
+const CustomButton = ({
+  variant = 'contained',
+  color = '#7CD6AB',
+  borderRadius = '8px',
+  width = 'auto',
+  children,
+  style,
+  ...props
 }) => {
-
   const getButtonStyles = () => {
     const baseStyle = {
       padding: '0.5rem 2rem',
@@ -23,7 +22,7 @@ const CustomButton = ({
       width: width,
       cursor: 'pointer',
       outline: 'none',
-      disabled: 'true'
+      disabled: 'true',
     };
 
     if (variant === 'contained') {
@@ -34,13 +33,13 @@ const CustomButton = ({
         border: `1px solid ${color}`,
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         '&:hover': {
-          backgroundColor: '#5AAE8A',
+          backgroundColor: '#f3f2f1',
         },
         '&:focus': {
-          backgroundColor: '#68C69B',
+          backgroundColor: '#f3f2f1',
         },
         '&:active': {
-          backgroundColor: '#4A9676',
+          backgroundColor: '#f3f2f1',
         },
       };
     } else if (variant === 'outlined') {
@@ -50,13 +49,13 @@ const CustomButton = ({
         color: color,
         border: `1px solid ${color}`,
         '&:hover': {
-          backgroundColor: 'rgba(124, 214, 171, 0.1)',
+          backgroundColor: '#f3f2f1',
         },
         '&:focus': {
-          backgroundColor: 'rgba(124, 214, 171, 0.2)',
+          backgroundColor: '#f3f2f1',
         },
         '&:active': {
-          backgroundColor: 'rgba(124, 214, 171, 0.3)',
+          backgroundColor: '#f3f2f1',
         },
       };
     } else if (variant === 'text') {
@@ -66,13 +65,13 @@ const CustomButton = ({
         color: color,
         border: 'none',
         '&:hover': {
-          backgroundColor: 'rgba(124, 214, 171, 0.1)',
+          backgroundColor: '#f3f2f1',
         },
         '&:focus': {
-          backgroundColor: 'rgba(124, 214, 171, 0.2)',
+          backgroundColor: '#f3f2f1',
         },
         '&:active': {
-          backgroundColor: 'rgba(124, 214, 171, 0.3)',
+          backgroundColor: '#f3f2f1',
         },
       };
     }
@@ -81,10 +80,7 @@ const CustomButton = ({
   const buttonStyles = getButtonStyles();
 
   return (
-    <Button
-      style={{ ...buttonStyles, ...style }}
-      {...props}
-    >
+    <Button style={{ ...buttonStyles, ...style }} {...props}>
       {children}
     </Button>
   );

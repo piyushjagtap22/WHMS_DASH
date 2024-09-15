@@ -7,11 +7,13 @@ import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { createMongoUser } from "./usersApiSlice";
 import axios from "axios";
+import { signOut } from "firebase/auth";
 const initialState = {
   token: null,
   AuthUser: null,
   MongoUser: null,
   AuthState: "/register",
+  ErrorMessage: null
 };
 
 const authSlice = createSlice({
@@ -76,6 +78,10 @@ const authSlice = createSlice({
     setAuthState: (state, action) => {
       state.AuthState = action.payload;
       console.log(action.payload + " setAuthState called");
+    },
+    setErrorMessage: (state, action) => {
+      state.ErrorMessage = action.payload;
+      console.log(action.payload + " setErrorMessage called");
     }
   },
 });
@@ -88,6 +94,7 @@ export const {
   setAuthUser,
   setMongoUser,
   setAuthState,
+  setErrorMessage,
 } = authSlice.actions;
 
 const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
@@ -128,6 +135,7 @@ export const initializeAuthUser = () => async (dispatch) => {
                 // Handle the error case
                 console.error(`Error: ${newMgu.status} - ${newMgu.statusText}`);
               }
+
 
             }
             if (mgu.status === 200) {
@@ -190,6 +198,20 @@ export const initializeAuthUser = () => async (dispatch) => {
     });
   } catch (err) {
     console.error(err);
+    console.log(err.code)
+
+    // if (err.code === "ERR_NETWORK") {
+    //   await signOut(auth);
+    //   console.log("no network")
+    //   dispatch(setAuthState('/register'));
+    //   await dispatch(setErrorMessage('Interval Server Error, please try again later'));
+    //   dispatch(setAuthUser(null));
+    //   dispatch(setMongoUser(null));
+    //   localStorage.removeItem("accessToken");
+    //   localStorage.removeItem("refreshToken");
+    //   console.log('here');
+    //   console.log('Navigation completed');
+    // }
   }
 
   console.log("in initialize Auth User");

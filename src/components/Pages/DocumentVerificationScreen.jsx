@@ -3,17 +3,15 @@ import {
   setAuthUser,
   setMongoUser,
 } from '../../slices/authSlice';
-import { setLoading } from '../../slices/loadingSlice';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../firebase.js';
 import Loader from '../Loader.jsx';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import {
   Box,
   CircularProgress,
-  Button,
   Container,
   TextField,
   Typography,
@@ -22,26 +20,25 @@ import {
 import { Toaster, toast } from 'react-hot-toast';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useDispatch, useSelector } from 'react-redux';
-import { initializeMongoUser } from '../../slices/authSlice';
 import CustomButton from '../Button.jsx';
-import store from '../../store';
 const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
 
 const DocumentVerificationScreen = (props) => {
   console.log(props.mongoUser);
+  useLayoutEffect(() => {
+    toast.dismiss(); // Dismiss any lingering toasts when the page loads
+  }, []);
   const [file, setFile] = useState(null);
   const [orgName, setOrgName] = useState(''); // State for organization name
   const [deptName, setDeptName] = useState(''); // State for department name
-  const fileInputRef = useRef(null);
+  const [fileName, setFileName] = useState('Choose'); // State for department name
 
   const [buttonLoader, setButtonLoader] = useState(false);
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
-  const authUser = useSelector((state) => state.auth.AuthUser);
   const mongoUser = useSelector((state) => state.auth.MongoUser);
   const [docUploadedSuccess, setDocUploadedSuccess] = useState(false);
-  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [docUploaded, setDocUploaded] = useState('load');
@@ -78,7 +75,10 @@ const DocumentVerificationScreen = (props) => {
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
+    setFileName(event.target.files[0].name);
   };
+
+  const fileInputRef = useRef(null);
 
   const handleUpload = async () => {
     try {
@@ -87,13 +87,20 @@ const DocumentVerificationScreen = (props) => {
         toast.error('Please fill in all required fields');
         return;
       }
-
-      setButtonLoader(true);
       const formData = new FormData();
       formData.append('file', file);
       formData.append('orgName', orgName); // Include orgName in FormData
       formData.append('deptName', deptName); // Include deptName in FormData
+      console.log('file.name', file?.name);
+      if (file?.name == null || file?.name == '') {
+        console.log('here doc');
+        toast.error('Please attach document');
+        return;
+      }
+      setButtonLoader(true);
 
+      console.log(file?.name);
+      // throw err;
       const response = await axios.post(
         `${ENDPOINT}/api/profile/uploadDocument`,
         formData,
@@ -110,8 +117,9 @@ const DocumentVerificationScreen = (props) => {
         setDocUploaded('yes');
       }
     } catch (error) {
-      console.log(error.response);
-      if (error.response.status === 400) {
+      if (error.message == 'Network Error') {
+        toast.error('Internal server error');
+      } else if (error.response.status === 400) {
         toast.error('Please attach document');
       }
     } finally {
@@ -152,16 +160,15 @@ const DocumentVerificationScreen = (props) => {
               Document Uploaded Succesfully !
             </Typography>
             <Typography
-              variant='subtitle2'
+              variant='subtitle3'
               style={{ margin: '15px 0', padding: '0px 0px' }}
             >
               Verification in Progress ..... Wait till admin verifies your doc
             </Typography>
             <CustomButton
+              variant='outlined'
               onClick={handleLogout}
               style={{
-                backgroundColor: '#7CD6AB',
-                color: '#121318',
                 margin: '20px 0',
                 padding: '0.8rem',
               }}
@@ -228,6 +235,7 @@ const DocumentVerificationScreen = (props) => {
                     marginBottom: '25px',
                     cursor: 'pointer',
                   }}
+                  onClick={() => fileInputRef.current.click()}
                 >
                   <CloudUploadIcon
                     style={{ fontSize: '3rem', color: '#7CD6AB' }}
@@ -239,33 +247,28 @@ const DocumentVerificationScreen = (props) => {
                   >
                     Click or drag file to this area to upload
                   </Typography>
-                  <label
+                  <input
+                    ref={fileInputRef}
+                    type='file'
+                    accept='.jpg, .jpeg, .png, .pdf'
+                    style={{ display: 'none' }}
+                    onChange={handleFileChange}
+                  />
+                  <Typography
                     style={{
                       padding: '5px 15px',
                       border: '1px solid #7cd6ab',
                       borderRadius: '4px',
                       color: '#7cd6ab',
+                      maxWidth: '100%',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
                     }}
                   >
-                    <input
-                      type='file'
-                      accept='.jpg, .jpeg, .png, .pdf'
-                      style={{
-                        display: 'none',
-                        background: '#7CD6AB',
-                        color: '#121318',
-                      }}
-                      onChange={handleFileChange}
-                    />
-                    choose
-                  </label>
+                    {fileName}
+                  </Typography>
                 </div>
-                <Typography
-                  variant='body2'
-                  style={{ color: 'grey', marginBottom: '40px' }}
-                >
-                  Formats accepted are jpg, jpeg, png, and PDF
-                </Typography>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <CustomButton
                     variant='outlined'
@@ -273,6 +276,10 @@ const DocumentVerificationScreen = (props) => {
                       color: '#7CD6AB',
                       borderColor: '#7CD6AB',
                       margin: '0 10px',
+                    }}
+                    onClick={() => {
+                      setFile(null);
+                      setFileName('Choose');
                     }}
                   >
                     Cancel
@@ -295,6 +302,7 @@ const DocumentVerificationScreen = (props) => {
                   </CustomButton>
                 </div>
               </div>
+
               <div
                 style={{
                   display: 'flex',
@@ -303,13 +311,12 @@ const DocumentVerificationScreen = (props) => {
                 }}
               >
                 <CustomButton
+                  variant='outlined'
                   onClick={handleLogout}
                   style={{
-                    backgroundColor: '#7CD6AB',
-                    color: '#121318',
                     margin: '10px 0',
                     padding: '0.8rem',
-                    width: '100%', // Ensure button takes full width
+                    width: '100%',
                   }}
                 >
                   Not You, Sign in With Different Account

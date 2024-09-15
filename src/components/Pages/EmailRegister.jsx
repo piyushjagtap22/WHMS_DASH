@@ -1,14 +1,13 @@
 import Loader from '../Loader.jsx';
 import { Navigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { setAuthUser } from '../../slices/authSlice.js';
 import { signOut } from 'firebase/auth';
 import {
   Container,
   Typography,
   TextField,
-  Button,
   IconButton,
   InputAdornment,
   Box,
@@ -32,30 +31,34 @@ import {
   Cancel,
 } from '@mui/icons-material';
 import { setLoading } from '../../slices/loadingSlice.js';
-import {
-  getMongoUser,
-  getMongoUserByEmail,
-} from '../../slices/usersApiSlice.js';
-
-import { logout } from '../../slices/authSlice.js';
+import { getMongoUser } from '../../slices/usersApiSlice.js';
 
 const ENDPOINT = import.meta.env.VITE_REACT_API_URL;
-
+import { setErrorMessage } from '../../slices/authSlice.js';
 const EmailRegister = () => {
-  const isLoading = useSelector((state) => state.loading.loading);
+  const errorMessage = useSelector((state) => state.auth.ErrorMessage);
+  useLayoutEffect(() => {
+    toast.dismiss(); // Dismiss any lingering toasts when the page loads
+  }, []);
+  useEffect(() => {
+    console.log('errorM', errorMessage);
+    if (errorMessage == 'Firebase: Error (auth/email-already-in-use).') {
+      toast.error('This email is already in use');
+      // Clear the error message after displaying the toast
+    }
 
+    dispatch(setErrorMessage(null));
+  }, []);
   const [displayName, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const [linkSend, setLinkSend] = useState('load');
   const navigate = useNavigate();
-  const { emailid } = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordsMatch, setPasswordsMatch] = useState(false);
   const dispatch = useDispatch();
-  const AuthUser = useSelector((state) => state.auth.AuthUser);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -95,8 +98,16 @@ const EmailRegister = () => {
       const updatedUser = auth.currentUser;
       console.log('Account linking success', updatedUser);
     } catch (error) {
+      setLoading(false);
       console.log(error.message);
-      if (error.message === 'Firebase: Error (auth/requires-recent-login).') {
+
+      if (error.message === 'Firebase: Error (auth/email-already-in-use).') {
+        dispatch(
+          setErrorMessage('Firebase: Error (auth/email-already-in-use).')
+        );
+      } else if (
+        error.message === 'Firebase: Error (auth/requires-recent-login).'
+      ) {
         toast.error('Session Timed out, Please login again,');
 
         setTimeout(() => {
@@ -105,12 +116,7 @@ const EmailRegister = () => {
         }, 3000);
       }
       // g error auth/email-already-in-use
-      else if (
-        error.message === 'Firebase: Error (auth/email-already-in-use).'
-      ) {
-        toast.error('Email already in use, please use another email.');
-        setLoading(false);
-      } else {
+      else {
         console.error('Account linking error', error.code, error.message);
       }
     }
@@ -121,17 +127,19 @@ const EmailRegister = () => {
       .then(() => {
         setLinkSend('sent');
       })
-      .catch((err) => {
-        toast.error(err.message);
-      });
+      .catch((err) => {});
   };
 
   const handleLogin = async (e) => {
     dispatch(setLoading(true));
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     e.preventDefault();
     if (displayName === '' || email === '' || password === '') {
       toast.error('Please Fill up the details');
+      dispatch(setLoading(false));
+    } else if (!emailPattern.test(email)) {
+      toast.error('Please enter a valid email address');
       dispatch(setLoading(false));
     } else if (!passwordsMatch) {
       toast.error("Passwords don't match");
@@ -141,14 +149,17 @@ const EmailRegister = () => {
         await linkEmailWithPhone(email, password);
 
         const user = auth.currentUser;
-
-        await sendEmailLink(user);
+        console.log(user.email);
+        if (user.email) {
+          await sendEmailLink(user);
+        }
 
         setLinkSend('sent');
 
         // Store email in localStorage for reference
         localStorage.setItem('email', email);
       } catch (error) {
+        console.log(error.message);
         toast.error(error.message);
       } finally {
         dispatch(setLoading(false));
@@ -219,17 +230,6 @@ const EmailRegister = () => {
       console.log(error);
     } finally {
       dispatch(setLoading(false));
-    }
-  };
-
-  const checkAndSetMonogosUser = async () => {
-    try {
-      await getMongoUserByEmail(auth.currentUser.email).then((res) => {
-        const user = res.data.existingUser;
-        dispatch(setMongoUser(user));
-      });
-    } catch (error) {
-      console.error(error.message);
     }
   };
 
@@ -320,6 +320,7 @@ const EmailRegister = () => {
                   backgroundColor: '#7CD6AB',
                   color: '#121318',
                   padding: '0.8rem',
+                  width: '100%',
                 }}
                 fullWidth
                 onClick={() => sendEmailLink(auth.currentUser)}
@@ -327,13 +328,12 @@ const EmailRegister = () => {
                 Resend Link
               </CustomButton>
               <CustomButton
+                variant='outlined'
                 onClick={handleLogout}
                 style={{
-                  backgroundColor: '#7CD6AB',
-                  color: '#121318',
                   padding: '0.8rem',
+                  width: '100%',
                 }}
-                fullWidth
               >
                 Not You, Sign in With Different Account
               </CustomButton>
@@ -454,8 +454,6 @@ const EmailRegister = () => {
                 variant='outlined'
                 onClick={handleLogout}
                 style={{
-                  backgroundColor: '#7CD6AB',
-                  color: '#121318',
                   padding: '0.8rem',
                   width: '100%',
                 }}

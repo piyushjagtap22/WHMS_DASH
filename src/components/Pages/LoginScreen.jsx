@@ -3,33 +3,32 @@ import {
   Box,
   Button,
   Container,
+  Dialog,
   IconButton,
   InputAdornment,
-  Modal,
   TextField,
   Typography,
 } from '@mui/material';
 import {
-  GoogleAuthProvider,
-  OAuthProvider,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { auth } from '../../firebase';
-import { setAuthUser, setMongoUser, setToken } from '../../slices/authSlice';
+import {
+  setAuthState,
+  setAuthUser,
+  setMongoUser,
+  setToken,
+} from '../../slices/authSlice';
 import { setLoading } from '../../slices/loadingSlice';
 import { getMongoUser } from '../../slices/usersApiSlice';
+import CustomButton from '../Button';
 import Loader from '../Loader';
-import { setAuthState } from '../../slices/authSlice';
-
-const provider = new GoogleAuthProvider();
-const appleAuthProvider = new OAuthProvider('apple.com');
-
 function LoginScreen() {
   const loading = useSelector((state) => state.loading.loading);
   const dispatch = useDispatch();
@@ -42,16 +41,19 @@ function LoginScreen() {
   const [loginErrorMessage, setLoginErrorMessage] = useState(null);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
-
+  useLayoutEffect(() => {
+    toast.dismiss(); // Dismiss any previous toasts
+  }, []);
   const handleResetPassword = () => {
     sendPasswordResetEmail(auth, email)
       .then(() => {
         toast.success('Password reset email sent. Check your inbox.');
-        setMessage('Password reset email sent. Check your inbox.');
         setError(null);
       })
       .catch((error) => {
-        setError(error.message);
+        if (error.message === 'Firebase: Error (auth/user-not-found).') {
+          toast.error('User not found');
+        }
         setMessage(null);
       });
   };
@@ -148,9 +150,21 @@ function LoginScreen() {
       }
     } catch (err) {
       console.error('Login Error:', err);
-      setLoginErrorMessage('Invalid Credentials');
+      toast.error('Invalid Credentials');
     } finally {
       dispatch(setLoading(false));
+    }
+  };
+  const [isValidMail, setIsValidMail] = useState(false);
+  const validateEmail = (email) => {
+    // Regular expression to check for valid email format
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+
+    // Check if the email matches the regex pattern
+    if (emailRegex.test(email)) {
+      setIsValidMail(true); // If valid, set isValidMail to true
+    } else {
+      setIsValidMail(false); // If invalid, set isValidMail to false
     }
   };
 
@@ -160,6 +174,7 @@ function LoginScreen() {
 
   return (
     <>
+      <Toaster toastOptions={{ duration: 4000 }} />
       {loading ? (
         <Loader />
       ) : (
@@ -181,7 +196,10 @@ function LoginScreen() {
                   type='email'
                   placeholder='Johndoe@gmail.com'
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    validateEmail(e.target.value);
+                  }}
                   style={styles.textField}
                 />
               </div>
@@ -211,19 +229,11 @@ function LoginScreen() {
                   }}
                 />
               </div>
-              <Typography
-                onClick={handleToggleModal}
-                style={styles.forgotButton}
-              >
+              <Button onClick={handleToggleModal} style={styles.forgotButton}>
                 Forgot Password?
-              </Typography>
+              </Button>
 
-              {loginErrorMessage && (
-                <Typography style={styles.errorText}>
-                  {loginErrorMessage}
-                </Typography>
-              )}
-              <Modal
+              <Dialog
                 open={open}
                 onClose={handleToggleModal}
                 style={styles.modal}
@@ -236,33 +246,62 @@ function LoginScreen() {
                     type='email'
                     placeholder='johndoe@gmail.com'
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      validateEmail(e.target.value);
+                    }}
                     fullWidth
                     style={styles.modalTextField}
                   />
-                  <Button
+
+                  <CustomButton
+                    type='submit'
                     variant='contained'
                     color='primary'
+                    width='100%'
                     onClick={handleResetPassword}
-                    style={styles.modalButton}
+                    style={
+                      isValidMail
+                        ? styles.dialogSubmitButton
+                        : styles.dialogDisabledButton
+                    }
                   >
                     Send Link
-                  </Button>
-                  {error && (
-                    <Typography style={styles.errorText}>{error}</Typography>
-                  )}
-                  {message && (
-                    <Typography style={styles.successText}>
-                      {message}
-                    </Typography>
-                  )}
+                  </CustomButton>
+                  {/* <CustomButton
+                    type='submit'
+                    style={
+                      !phoneNumber || !termsChecked || (showOtpScreen && !otp)
+                        ? styles.disabledButton
+                        : styles.submitButton
+                    }
+                    variant='contained'
+                    width='100%'
+                    // fullWidth
+                    onClick={showOtpScreen ? onOtpVerify : onSignup}
+                    disabled={buttonLoader || !termsChecked}
+                  >
+                    {buttonLoader ? (
+                      <Box sx={{ display: 'flex' }}>
+                        <CircularProgress size={22} />
+                      </Box>
+                    ) : showOtpScreen ? (
+                      'Verify OTP'
+                    ) : (
+                      'Send OTP'
+                    )}
+                  </CustomButton> */}
                 </Box>
-              </Modal>
+              </Dialog>
               <Button
                 type='submit'
                 fullWidth
-                style={styles.submitButton}
-                disabled={!isFormValid}
+                style={
+                  !isFormValid || !isValidMail
+                    ? styles.disabledButton
+                    : styles.submitButton
+                }
+                disabled={!isFormValid || !isValidMail}
               >
                 Login
               </Button>
@@ -337,11 +376,14 @@ const styles = {
   },
   forgotButton: {
     color: '#7CD6AB',
-    marginTop: '10px',
-    width: '100%',
+    margin: '10px 0px',
+    padding: '0px',
+    textTransform: 'capitalize',
+
+    // width: '100%',
   },
   forgotText: {
-    margin: '8px 0',
+    margin: '0px 8px',
     color: '#7CD6AB',
   },
   errorText: {
@@ -376,7 +418,7 @@ const styles = {
     border: '1px solid #75777B',
     borderRadius: '5px',
     outline: 'white',
-    height: '52px',
+    // height: '52px',
   },
   modalButton: {
     marginTop: '15px',
@@ -399,6 +441,40 @@ const styles = {
     display: 'block',
     // paddingLeft: '80px',
     //     paddingTop: '12px',
+  },
+  submitButton: {
+    backgroundColor: '#7CD6AB',
+    color: '#121318',
+    marginTop: '101px',
+    marginBottom: '30px',
+    padding: '0.8rem',
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
+    color: '#121318',
+    marginTop: '101px',
+    marginBottom: '30px',
+    padding: '0.8rem',
+    fontWeight: 'bold',
+  },
+  dialogSubmitButton: {
+    backgroundColor: '#7CD6AB',
+    color: '#121318',
+    marginTop: '20px',
+    marginBottom: '20px',
+    padding: '0.8rem',
+    fontWeight: 'bold',
+    borderRadius: '4px',
+  },
+  dialogDisabledButton: {
+    backgroundColor: '#ccc',
+    color: '#121318',
+    marginTop: '20px',
+    marginBottom: '20px',
+    padding: '0.8rem',
+    fontWeight: 'bold',
+    borderRadius: '4px',
   },
 };
 
