@@ -1,21 +1,10 @@
 import { memo } from 'react';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import {
-  Avatar,
-  Box,
-  Divider,
-  Grid,
-  Paper,
-  Tab,
-  Tabs,
-  Typography,
-} from '@mui/material';
+import { Avatar, Box, Divider, Tab, Tabs, Typography } from '@mui/material';
+import { toast } from 'react-hot-toast';
 import { makeStyles } from '@mui/styles';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setAuthState } from '../slices/authSlice';
+import SideBarNewHistoryTab from './SideBarNewHistoryTab';
 const drawerWidth = 280;
 
 const useStyles = makeStyles((theme) => ({
@@ -83,129 +72,133 @@ const SidebarNew = ({
   HandleTabChange,
   setTabValue,
 }) => {
+  console.log('uuser', user);
+
+  const [connected, setConnected] = useState(false);
+  const data2 = useSelector((state) => state.device.sensorData);
+  const MongoUser = useSelector((state) => state.auth.MongoUser);
+  console.log('hhtt');
+  console.log(MongoUser);
+
+  console.log(
+    data2?.heartRateObj?.[data2.heartRateObj.length - 1]?.timestamp.slice(
+      0,
+      19
+    ) ?? '-'
+  );
+
+  useEffect(() => {
+    const getCurrentUnixTime = () => Math.floor(new Date().getTime() / 1000);
+
+    const convertISTDateTimeToUnix = (istDateTime) => {
+      const [date, time] = istDateTime.split(' ');
+      const [year, month, day] = date.split('-');
+      const [hours, minutes, seconds] = time.split(':');
+
+      const istDate = new Date(
+        Date.UTC(year, month - 1, day, hours, minutes, seconds)
+      );
+
+      const utcDate = new Date(istDate.getTime() - 5.5 * 60 * 60 * 1000);
+
+      return Math.floor(utcDate.getTime() / 1000);
+    };
+
+    const getTimeDifference = (timestampStr) => {
+      const currentUnixTime = getCurrentUnixTime();
+      const deviceUnixTime = convertISTDateTimeToUnix(timestampStr);
+      return currentUnixTime - deviceUnixTime;
+    };
+
+    const checkConnectionStatus = () => {
+      const timestampStr =
+        data2?.heartRateObj?.[data2.heartRateObj.length - 1]?.timestamp ?? '';
+
+      if (timestampStr !== '') {
+        const timeDifference = getTimeDifference(timestampStr);
+        setConnected(timeDifference < 9 && timeDifference >= 0);
+      } else {
+        setConnected(false);
+      }
+    };
+
+    const checkDisconnectionStatus = () => {
+      const timestampStr =
+        data2?.heartRateObj?.[data2.heartRateObj.length - 1]?.timestamp ?? '';
+
+      if (timestampStr !== '') {
+        const timeDifference = getTimeDifference(timestampStr);
+        if (timeDifference >= 5) {
+          setConnected(false);
+        }
+      }
+    };
+
+    // Check connection status immediately
+    checkConnectionStatus();
+
+    // Set up the timeout to check disconnection status once after 5 seconds
+    const timeoutId = setTimeout(checkDisconnectionStatus, 5000);
+
+    // Cleanup interval and timeout on component unmount
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [data2]);
+
+  function formatDate(dateString) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    // Split the input date string into components
+    const [year, month, day] = dateString.split('-');
+
+    // Get the month name from the months array
+    const monthName = months[parseInt(month, 10) - 1];
+
+    // Return the formatted date string
+    return `${parseInt(day, 10)} ${monthName}, ${year}`;
+  }
   console.log('Sidebarnew is getting rerendered');
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+
   const classes = useStyles();
 
   const AuthUser = useSelector((state) => state.auth.AuthUser);
+  console.log('AU,', AuthUser);
+  const CurrentUserId = useSelector(
+    (state) => state.device.currentDeviceUserId
+  );
+  console.log(AuthUser);
   const [tabValueSidebar, setTabValueSidebar] = useState(0);
   const handleTabChange = (event, newValue) => {
-    console.log('change');
-    console.log(newValue);
-    setTabValueSidebar(newValue);
-    setTabValue(newValue);
+    event.preventDefault();
+    console.log('change in tab');
 
-    localStorage.setItem('tabhistory', newValue);
-  };
-
-  const sensorDataMappings = [
-    {
-      sensor: 'heartSensor',
-      name: 'Heart Rate',
-      unit: 'bpm',
-    },
-    {
-      sensor: 'BreathRateSensor',
-      name: 'Breath Rate',
-      unit: 'resp/min',
-    },
-    {
-      sensor: 'VentilatonSensor',
-      name: 'Ventilaton',
-      unit: 'L/min',
-    },
-    {
-      sensor: 'ActivitySensor',
-      name: 'Activity',
-      unit: 'g',
-    },
-    {
-      sensor: 'BloodPressureSensor',
-      name: 'Blood Pressure',
-      unit: 'mmHg',
-    },
-    {
-      sensor: 'CadenceSensor',
-      name: 'Cadence',
-      unit: 'step/min ',
-    },
-    {
-      sensor: 'OxygenSaturationSensor',
-      name: 'Oxygen Saturation',
-      unit: '%',
-    },
-    {
-      sensor: 'TemperatureSensor',
-      name: 'Temperature',
-      unit: '°C',
-    },
-    {
-      sensor: 'TidalVolumeSensor',
-      name: 'Tidal Volume',
-      unit: 'L',
-    },
-  ];
-  const getSensorName = (sensor) => {
-    const sensorMapping = sensorDataMappings.find(
-      (mapping) => mapping.sensor === sensor
-    );
-    return sensorMapping ? sensorMapping.name : 'Please select sensor';
-  };
-
-  const [sensorData, setSensorData] = useState({
-    heartSensor: '',
-    BreathRateSensor: '',
-    VentilatonSensor: '',
-    TidalVolumeSensor: '',
-    ActivitySensor: '',
-    CadenceSensor: '',
-    TemperatureSensor: '',
-    OxygenSaturationSensor: '',
-    BloodPressureSensor: '',
-  });
-
-  const { state: xSensorData } = useLocation();
-  const getUnitForKey = (key) => {
-    const sensorMapping = sensorDataMappings.find(
-      (mapping) => mapping.sensor === key
-    );
-    return sensorMapping ? sensorMapping.unit : '';
-  };
-  useEffect(() => {
-    console.log('xSensorData :', xSensorData);
-    if (xSensorData) {
-      console.log('Sensor data received:', xSensorData.data);
-      const {
-        heartSensor,
-        BreathRateSensor,
-        VentilatonSensor,
-        TidalVolumeSensor,
-        ActivitySensor,
-        CadenceSensor,
-        TemperatureSensor,
-        OxygenSaturationSensor,
-        BloodPressureSensor,
-      } = xSensorData.data;
-
-      // Update state with the sensor data
-      setSensorData({
-        heartSensor,
-        BreathRateSensor,
-        VentilatonSensor,
-        TidalVolumeSensor,
-        ActivitySensor,
-        CadenceSensor,
-        TemperatureSensor,
-        OxygenSaturationSensor,
-        BloodPressureSensor,
-      });
+    console.log(CurrentUserId);
+    console.log(AuthUser);
+    if (CurrentUserId == '"' || CurrentUserId == null || CurrentUserId === '') {
+      console.log('ININ');
+      toast.error('No user and its history available for this device');
     } else {
-      console.log('No data');
-      dispatch(setAuthState('/dashboard'));
-      navigate('/dashboard');
+      setTabValueSidebar(newValue);
+
+      setTabValue(newValue);
+
+      localStorage.setItem('tabhistory', newValue);
     }
-  }, [xSensorData]);
+  };
 
   return !isSidebarOpen ? (
     <Box></Box>
@@ -231,6 +224,7 @@ const SidebarNew = ({
       </Tabs>
       <Divider className={classes.divider} />
       <Box sx={{ padding: '0px' }} hidden={tabValueSidebar !== 0} p={2}>
+        {/* <UserProfile />  // TODO*/}
         <Box className={classes.row}>
           <Box className={classes.column}>
             <Avatar
@@ -245,15 +239,9 @@ const SidebarNew = ({
             <Box className={classes.column}>
               <Typography className={classes.title}>Name</Typography>
               <Typography className={classes.value}>
-                {user?.data?.initialUserData?.name}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={classes.row}>
-            <Box className={classes.column}>
-              <Typography className={classes.title}>Device ID</Typography>
-              <Typography className={classes.value}>
-                W-HMS-X {user?.data?.deviceId}
+                {user?.data?.initialUserData?.name
+                  ? `${user?.data?.initialUserData?.name}`
+                  : '--'}
               </Typography>
             </Box>
           </Box>
@@ -261,11 +249,75 @@ const SidebarNew = ({
             <Box className={classes.column}>
               <Typography className={classes.title}>Phone number</Typography>
               <Typography className={classes.value}>
-                {user?.data?.initialUserData?.phone}
+                {user?.data?.initialUserData?.phone
+                  ? `${user?.data?.initialUserData?.phone}`
+                  : '--'}
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={classes.row}>
+            <Box className={classes.column}>
+              <Typography className={classes.title}>Email Id</Typography>
+              <Typography className={classes.value}>
+                {user?.data?.initialUserData?.email
+                  ? `${user?.data?.initialUserData?.email}`
+                  : '--'}
               </Typography>
             </Box>
           </Box>
         </Box>
+        <Divider className={classes.divider} />
+
+        <Box className={classes.section}>
+          <Box className={classes.row}>
+            <Box className={classes.column}>
+              <Typography className={classes.title}>Device ID</Typography>
+              <Typography className={classes.value}>
+                {user?.data?.deviceId}
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={classes.row}>
+            <Box className={classes.column}>
+              <Typography className={classes.title}>Device status</Typography>
+              <Typography className={`${classes.value} ${classes.greenText}`}>
+                {/* TODO */}
+                <span
+                  style={{
+                    color: connected
+                      ? 'rgba(124, 214, 171, 0.9)'
+                      : 'rgba(255, 36, 36, 0.9)',
+                  }}
+                >
+                  {connected ? 'Active' : 'Disconnected'}
+                </span>
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={classes.row}>
+            <Box className={classes.column}>
+              <Typography className={classes.title}>Device Admin</Typography>
+              <Typography className={classes.value}>
+                {AuthUser.displayName}
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={classes.row}>
+            <Box className={classes.column}>
+              <Typography className={classes.title}>Organisation</Typography>
+              <Typography className={classes.value}>
+                {MongoUser?.orgName}
+              </Typography>
+            </Box>
+            <Box className={classes.column}>
+              <Typography className={classes.title}>Department</Typography>
+              <Typography className={classes.value}>
+                {MongoUser?.deptName}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+
         <Divider className={classes.divider} />
         <Box className={classes.section}>
           <Box className={classes.row}>
@@ -281,13 +333,17 @@ const SidebarNew = ({
               <Typography className={classes.title}>DOB</Typography>
               <Typography className={classes.value}>
                 {' '}
-                {user?.data?.profileData?.dob.substring(2, 11)}
+                {user?.data?.profileData?.dob.substring(0, 11)
+                  ? formatDate(user?.data?.profileData?.dob.substring(0, 11))
+                  : '---'}
               </Typography>
             </Box>
             <Box className={classes.column}>
               <Typography className={classes.title}>Weight</Typography>
               <Typography className={classes.value}>
-                {user?.data?.profileData?.weight} Kgs
+                {user?.data?.profileData?.weight
+                  ? `${user.data.profileData.weight} Kgs`
+                  : '--'}
               </Typography>
             </Box>
           </Box>
@@ -295,47 +351,27 @@ const SidebarNew = ({
             <Box className={classes.column}>
               <Typography className={classes.title}>Height</Typography>
               <Typography className={classes.value}>
-                {user?.data?.profileData?.height} cm
+                {user?.data?.profileData?.height
+                  ? `${user.data.profileData.height} cm`
+                  : '--'}
               </Typography>
             </Box>
             <Box className={classes.column}>
               <Typography className={classes.title}>Gender</Typography>
               <Typography className={classes.value}>
-                {user?.data?.profileData?.gender}
+                {user?.data?.profileData?.gender
+                  ? `${user?.data?.profileData?.gender}`
+                  : '--'}
               </Typography>
             </Box>
           </Box>
         </Box>
+
         <Divider className={classes.divider} />
         <Box className={classes.section}>
           <Box className={classes.row}>
             <Box className={classes.column}>
-              <Typography className={classes.title}>Device status</Typography>
-              <Typography className={`${classes.value} ${classes.greenText}`}>
-                Active
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={classes.row}>
-            <Box className={classes.column}>
-              <Typography className={classes.title}>Admin</Typography>
-              <Typography className={classes.value}>
-                {AuthUser.displayName}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={classes.row}>
-            <Box className={classes.column}>
-              <Typography className={classes.title}>Department</Typography>
-              <Typography className={classes.value}>Transmission</Typography>
-            </Box>
-          </Box>
-        </Box>
-        <Divider className={classes.divider} />
-        <Box className={classes.section}>
-          <Box className={classes.row}>
-            <Box className={classes.column}>
-              <Typography className={classes.title}>Problems</Typography>
+              <Typography className={classes.title}>Medical History</Typography>
               <Typography className={classes.value}>
                 Hypertension, High blood Pressure
               </Typography>
@@ -351,98 +387,10 @@ const SidebarNew = ({
               <Typography className={classes.value}>Yes</Typography>
             </Box>
           </Box>
-          <Box className={classes.row}>
-            <Box className={classes.column}>
-              <Typography className={classes.title}>Max heart rate</Typography>
-              <Typography className={classes.value}>150 BPM</Typography>
-            </Box>
-            <Box className={classes.column}>
-              <Typography className={classes.title}>Min heart rate</Typography>
-              <Typography className={classes.value}>60 BPM</Typography>
-            </Box>
-          </Box>
         </Box>
       </Box>
       <Box hidden={tabValueSidebar !== 1} p={2}>
-        {Object.keys(sensorData).map((key, index) => (
-          <React.Fragment key={index}>
-            <Box sx={{}} key={index}>
-              {sensorData[key] ? (
-                <Paper
-                  sx={{
-                    p: 2,
-                    color: '#fff',
-                    background: '#191C23',
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      marginBottom: '2px',
-                      fontSize: '0.9rem',
-                      letterSpacing: '0.4px',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {getSensorName(key)}
-                  </Typography>
-                  <Typography
-                    variant='body2'
-                    sx={{
-                      color: '#888888',
-                      marginBottom: '0px',
-                    }}
-                  >
-                    3:22 pm UTC, Today
-                  </Typography>
-                  <Typography
-                    variant='body2'
-                    sx={{
-                      color: '#888888',
-                      marginBottom: '12px',
-                    }}
-                  >
-                    {/* {sensorData[key]} */}
-                  </Typography>
-                  <Grid container alignItems='center' spacing={1}>
-                    <Grid item>
-                      <FavoriteIcon
-                        style={{ color: '#7CD6AB', fontSize: '1rem' }}
-                      />
-                    </Grid>
-                    <Grid item>
-                      <Typography
-                        variant='body2'
-                        sx={{
-                          fontSize: '0.9rem',
-                          color: '#fff',
-                        }}
-                      >
-                        {sensorData[key]} {getUnitForKey(key)}
-                      </Typography>
-                    </Grid>
-                    {/* <Grid item sx={{ ml: 2 }}>
-                <DirectionsRunIcon style={{ color: '#7CD6AB', fontSize: '1rem' }} />
-              </Grid>
-              <Grid item>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: '0.9rem',
-                    color: '#fff'
-                  }}
-                >
-                  20.1 resp/min
-                </Typography>
-              </Grid> */}
-                  </Grid>
-                </Paper>
-              ) : (
-                <h1>No data for {key}</h1>
-              )}
-            </Box>
-            <Divider className={classes.divider}></Divider>
-          </React.Fragment>
-        ))}
+        <SideBarNewHistoryTab />
       </Box>
     </Box>
   );

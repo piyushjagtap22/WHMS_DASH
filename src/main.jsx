@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
-import NotFoundPage from './components/Pages/NotFoundPage.jsx';
+import PrivacyAndSecurityPage from './components/Pages/PrivacyAndSecurityPage.jsx';
 
 import { PersistGate } from 'redux-persist/integration/react';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -14,9 +14,9 @@ import {
 } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 // import PrivateRoute2 from './components/PrivateRoute2.jsx';
-import DashboardValidator from './components/DashboardValidator.jsx';
-import LoginValidator from './components/LoginValidator.jsx';
-import SuperAdminValidator from './components/SuperAdminValidator.jsx';
+import DashboardValidator from './components/Validators/DashboardValidator.jsx';
+import LoginValidator from './components/Validators/LoginValidator.jsx';
+import SuperAdminValidator from './components/Validators/SuperAdminValidator.jsx';
 
 import LoginScreen from './components/Pages/LoginScreen.jsx';
 // import ImageTesting from './components/Pages/ImageTesting.jsx';
@@ -25,25 +25,26 @@ import Dashboard from './components/Pages/Dashboard.jsx';
 import DefaultPage from './components/Pages/DefaultPage.jsx';
 import DocumentVerificationScreen from './components/Pages/DocumentVerificationScreen.jsx';
 import EmailRegister from './components/Pages/EmailRegister.jsx';
-import Layout from './components/Pages/Layout.jsx';
+import Layout from './components/Layout.jsx';
 import Register from './components/Pages/Register.jsx';
-import SuperAdminScreen from './components/Pages/superAdminScreen.jsx';
+import SAdminScreen from './components/Pages/SAdminScreen.jsx';
 import './index.css';
 import store, { persistor } from './store';
 import { themeSettings } from './theme';
-
-import EmailRegisterValidator from './components/EmailRegisterValidator.jsx';
-import RegisterValidator from './components/RegisterValidator.jsx';
-import VerifyValidator from './components/VerifyValidator.jsx';
-import TempPage from './components/Pages/TempPage.jsx';
-import DefaultPageValidator from './components/DefaultPageValidator.jsx';
+import PrivacyPolicyValidator from './components/Validators/PrivacyPolicyValidator.jsx';
+import EmailRegisterValidator from './components/Validators/EmailRegisterValidator.jsx';
+import RegisterValidator from './components/Validators/RegisterValidator.jsx';
+import VerifyValidator from './components/Validators/VerifyValidator.jsx';
+import LandingPage from './components/Pages/LandingPage.jsx';
 const theme = createTheme(themeSettings('dark'));
+import DefaultPageValidator from './components/Validators/DefaultPageValidator.jsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
-      <Route index element={<Navigate to='/register' />} />{' '}
-      {/* Redirects root path to /register */}
+      <Route index element={<LandingPage />} />
+      <Route path='*' element={<Navigate to='/' replace={true} />} />
+
       <Route
         path='/register'
         element={<RegisterValidator component={Register} />}
@@ -52,22 +53,17 @@ const router = createBrowserRouter(
         path='/verify'
         element={<VerifyValidator component={DocumentVerificationScreen} />}
       />
-      <Route path='/Default' element={<DefaultPage />} />
-      {/* <Route path='' element={<Layout />}>
-        <Route
-          path='/Default'
-          element={<DefaultPageValidator component={DefaultPage} />}
-        />
-      </Route> */}
-      <Route path='' element={<Layout />}>
-        <Route
-          path='/dashboard'
-          element={<DashboardValidator component={Dashboard} />}
-        />
-      </Route>
+      <Route
+        path='/Default'
+        element={<DefaultPageValidator component={DefaultPage} />}
+      />
+      <Route
+        path='/dashboard'
+        element={<DashboardValidator component={Dashboard} />}
+      />
       <Route
         path='/superadmin'
-        element={<SuperAdminValidator component={SuperAdminScreen} />}
+        element={<SuperAdminValidator component={SAdminScreen} />}
       />
       <Route
         path='/emailregister'
@@ -77,8 +73,10 @@ const router = createBrowserRouter(
         path='/login'
         element={<LoginValidator component={LoginScreen} />}
       />
-      <Route path='*' element={<NotFoundPage />} />
-      <Route path='/test' element={<TempPage />} />
+      <Route
+        path='/privacy'
+        element={<PrivacyPolicyValidator component={PrivacyAndSecurityPage} />}
+      />
     </Route>
   )
 );
@@ -86,11 +84,8 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}></PersistGate>
-    {/* <AppInitializer /> */}
-    {/* <React.StrictMode> */}
     <RouterProvider router={router}>
       <App />
     </RouterProvider>
-    {/* </React.StrictMode> */}
   </Provider>
 );

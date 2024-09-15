@@ -1,18 +1,8 @@
-import { signOut } from 'firebase/auth';
-import { setAuthState } from '../../slices/authSlice';
-import { auth } from '../../firebase';
 import React, { useEffect, useState, lazy, Suspense } from 'react';
-import { setAuthUser } from '../../slices/authSlice';
 import FlexBetween from '../FlexBetween';
-import Header from '../Header';
 import * as Realm from 'realm-web';
-import { setLoading } from '../../slices/loadingSlice';
-// import MapComponent from '../MapComponent';
-import { setMongoUser } from '../../slices/authSlice';
-import { onAuthStateChanged } from 'firebase/auth';
-import { Box, useTheme, useMediaQuery } from '@mui/material';
+import { Box } from '@mui/material';
 import Loader from '../Loader';
-// import { useGetUserQuery } from "state/api";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -23,7 +13,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-
+import { Toaster, toast } from 'react-hot-toast';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -33,64 +23,26 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+import { useLayoutEffect } from 'react';
 
-const app = new Realm.App({ id: 'sensor_realtimedb-ujgdc' });
+const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
 import { useDispatch, useSelector } from 'react-redux';
 
 const SensorPage = lazy(() => import('../sensorPage'));
 const Dashboard = () => {
-  const [data, setUsers] = useState([]);
-  const theme = useTheme();
+  useLayoutEffect(() => {
+    toast.dismiss(); // Dismiss any previous toasts
+  }, []);
   const dispatch = useDispatch();
-  const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
   const { userInfo } = useSelector((state) => state.superAdmin);
-  // const token = useSelector(
-  //   (state) => state.auth.AuthUser.stsTokenManager.accessToken
-  // );
-  const [user, setUser] = useState();
-  const [events, setEvents] = useState([]);
   const [realTimeData, setRealTimeData] = useState([]);
   const [newRealTimeData, setNewRealTimeData] = useState([]);
 
-  // const {data } = useGetUserQuery();
   console.log(userInfo + 'userInfo');
   const token = useSelector(
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
 
-  const delay = (milliseconds) =>
-    new Promise((resolve) => {
-      console.log('Delay called ', milliseconds);
-      setTimeout(resolve, milliseconds);
-    });
-  const [initialTable, setinitialTable] = useState({});
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-
-    if (searchTerm.length >= 2) {
-      const filteredData = data.filter((row) => {
-        return (
-          row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) ||
-          row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
-        );
-      });
-      // const filteredData = row?.name?.toUpperCase().includes(searchTerm.toUpperCase()) || row?.email?.toUpperCase().includes(searchTerm.toUpperCase())
-      setUsers(filteredData);
-      console.log('filtered data', filteredData);
-    } else {
-      setUsers(initialTable); // Reset to original data when empty search term
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Backspace') {
-      console.log('keydown working');
-      setSearchTerm('');
-      setUsers(initialTable);
-    }
-  };
   useEffect(() => {
     const login = async () => {
       try {
@@ -206,115 +158,10 @@ const Dashboard = () => {
 
   return (
     <>
+      <Toaster toastOptions={{ duration: 4000 }} />
       <Box m='1.5rem 2.5rem'>
-        <FlexBetween>
-          {/* <Box>
-          <Button
-            sx={{
-              backgroundColor: theme.palette.secondary.light,
-              color: theme.palette.background.alt,
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-            }}
-          >
-            <DownloadOutlined sx={{ mr: "10px" }} />
-            Download Reports
-          </Button>
-        </Box> */}
-        </FlexBetween>
-
-        {/* <Box
-          mt='20px'
-          display='grid'
-          gridTemplateColumns='repeat(12, 1fr)'
-          gridAutoRows='160px'
-          gap='20px'
-          sx={{
-            '& > div': {
-              gridColumn: isNonMediumScreens ? undefined : 'span 12',
-            },
-          }}
-        >
-          {/* ROW 1 */}
-
-        {/* ROW 2 */}
-        {/* <Box
-            gridColumn='span 12'
-            gridRow='span 4'
-            sx={{
-              '& .MuiDataGrid-root': {
-                border: 'none',
-                borderRadius: '5rem',
-              },
-              '& .MuiDataGrid-cell': {
-                borderBottom: 'none',
-              },
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: theme.palette.background.alt,
-                color: theme.palette.secondary[100],
-                borderBottom: 'none',
-              },
-              '& .MuiDataGrid-virtualScroller': {
-                backgroundColor: theme.palette.background.alt,
-              },
-              '& .MuiDataGrid-footerContainer': {
-                backgroundColor: theme.palette.background.alt,
-                color: theme.palette.secondary[100],
-                borderTop: 'none',
-              },
-              '& .MuiDataGrid-toolbarContainer .MuiButton-text': {
-                color: `${theme.palette.secondary[200]} !important`,
-              },
-            }}
-          >
-            <DataGrid
-              rows={data || []}
-              columns={columns}
-              getRowId={(row) => row._id}
-            />
-          </Box> */}
-        {/* </Box> */}
-        {/* <LineChart width={600} height={300} data={data1}>
-      <Line type="monotone" dataKey="react" stroke="#2196F3" strokeWidth={4} />
-
-      <Line type="monotone" dataKey="vue" stroke="#FFCA29" strokeWidth={4} />
-      <CartesianGrid stroke="#ccc" />
-      <XAxis dataKey="name" />
-      <YAxis dataKey="" />
-      <Tooltip />
-      <Legend />
-    </LineChart> */}
-        {/* <input
-          type='text'
-          value={searchTerm}
-          onChange={handleSearchChange}
-          onKeyDown={handleKeyDown}
-          placeholder='Search...'
-        /> */}
-        {/* <DataGrid
-          rows={data || []}
-          columns={columns}
-          checkboxSelection
-          getRowId={(row) => row._id} // Provide a function to generate unique IDs
-          filter={{
-            global: searchTerm,
-          }}
-          initialState={{
-            pinnedColumns: {
-              left: ['_id'],
-            },
-          }}
-        /> */}
-
-        {/* <DataGrid
-                columns={columns}
-                rows={data}
-                filter={{
-                  global: searchTerm,
-                }}
-              /> */}
         <Suspense fallback={<Loader />}>
+          <FlexBetween />
           <SensorPage />
         </Suspense>
       </Box>
