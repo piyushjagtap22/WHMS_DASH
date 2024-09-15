@@ -38,11 +38,13 @@ import VerifyValidator from './components/Validators/VerifyValidator.jsx';
 import LandingPage from './components/Pages/LandingPage.jsx';
 const theme = createTheme(themeSettings('dark'));
 import DefaultPageValidator from './components/Validators/DefaultPageValidator.jsx';
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
-      <Route index element={<Navigate to='/register' />} />{' '}
-      {/* Redirects root path to /register */}
+      <Route index element={<LandingPage />} />
+      <Route path='*' element={<Navigate to='/' replace={true} />} />
+
       <Route
         path='/register'
         element={<RegisterValidator component={Register} />}
@@ -55,13 +57,10 @@ const router = createBrowserRouter(
         path='/Default'
         element={<DefaultPageValidator component={DefaultPage} />}
       />
-      {/* </Route> */}
-      <Route path='' element={<Layout />}>
-        <Route
-          path='/dashboard'
-          element={<DashboardValidator component={Dashboard} />}
-        />
-      </Route>
+      <Route
+        path='/dashboard'
+        element={<DashboardValidator component={Dashboard} />}
+      />
       <Route
         path='/superadmin'
         element={<SuperAdminValidator component={SAdminScreen} />}
@@ -74,11 +73,8 @@ const router = createBrowserRouter(
         path='/login'
         element={<LoginValidator component={LoginScreen} />}
       />
-      <Route path='/landing' element = {<LandingPage/>}/>
-      <Route path='*' element={<RegisterValidator component={Register} />} />
-      PrivacyPolicyValidator
       <Route
-        path='/login'
+        path='/privacy'
         element={<PrivacyPolicyValidator component={PrivacyAndSecurityPage} />}
       />
     </Route>
@@ -88,11 +84,8 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}></PersistGate>
-    {/* <AppInitializer /> */}
-    {/* <React.StrictMode> */}
     <RouterProvider router={router}>
       <App />
     </RouterProvider>
-    {/* </React.StrictMode> */}
   </Provider>
 );
