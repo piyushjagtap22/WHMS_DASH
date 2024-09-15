@@ -34,13 +34,13 @@ const CustomButton = ({
         border: `1px solid ${color}`,
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         '&:hover': {
-          backgroundColor: '#5AAE8A',
+          backgroundColor: '#f3f2f1',
         },
         '&:focus': {
-          backgroundColor: '#68C69B',
+          backgroundColor: '#f3f2f1',
         },
         '&:active': {
-          backgroundColor: '#4A9676',
+          backgroundColor: '#f3f2f1',
         },
       };
     } else if (variant === 'outlined') {
@@ -50,13 +50,13 @@ const CustomButton = ({
         color: color,
         border: `1px solid ${color}`,
         '&:hover': {
-          backgroundColor: 'rgba(124, 214, 171, 0.1)',
+          backgroundColor: '#f3f2f1',
         },
         '&:focus': {
-          backgroundColor: 'rgba(124, 214, 171, 0.2)',
+          backgroundColor: '#f3f2f1',
         },
         '&:active': {
-          backgroundColor: 'rgba(124, 214, 171, 0.3)',
+          backgroundColor: '#f3f2f1',
         },
       };
     } else if (variant === 'text') {
@@ -66,13 +66,13 @@ const CustomButton = ({
         color: color,
         border: 'none',
         '&:hover': {
-          backgroundColor: 'rgba(124, 214, 171, 0.1)',
+          backgroundColor: '#f3f2f1',
         },
         '&:focus': {
-          backgroundColor: 'rgba(124, 214, 171, 0.2)',
+          backgroundColor: '#f3f2f1',
         },
         '&:active': {
-          backgroundColor: 'rgba(124, 214, 171, 0.3)',
+          backgroundColor: '#f3f2f1',
         },
       };
     }

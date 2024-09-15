@@ -36,13 +36,7 @@ const AboutUs = () => {
               situation working in a harsh and rugged environment like Oil & Gas
               Industry, Aerospace, Security and Defence, Health and Safety.
           </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ width: '200px', fontSize: '16px' }}
-          >
-            CONTACT US
-          </Button>
+          
         </Grid>
       </Grid>
     </Box>

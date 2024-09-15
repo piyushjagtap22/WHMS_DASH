@@ -1,7 +1,8 @@
 import React from 'react';
-import { Grid, Typography, Button, Box } from '@mui/material';
+import { Grid, Typography, Box, Button } from '@mui/material';
 import myteam from '../assets/myteam.jpg';
 import useStyles from '../css/styles';
+import CustomButton from './Button';
 
 const Hero = () => {
   const classes = useStyles();
@@ -18,13 +19,10 @@ const Hero = () => {
             previous income. With over 5years experience in Marketing & Business
             strategy, we are your best client.
           </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ width: '200px', fontSize: '16px' }}
-          >
-            DOWNLOAD
-          </Button>
+          
+          <CustomButton variant='contained' width='200px'>
+          Download
+        </CustomButton>
         </Grid>
         <Grid item xs={12} md={5}>
           <img src={myteam} alt="My Team" className={classes.largeImage} />

@@ -9,12 +9,23 @@ import AboutUs from "../AboutUs"
 import CssBaseline from '@mui/material/CssBaseline';
 import { createTheme, ThemeProvider} from '@mui/material/styles';
 const theme = createTheme({
-    typography: {
-      fontFamily: [
-        'Poppins',
-        'sans-serif',
-      ].join(','),
-    },});
+  typography: {
+    
+    fontFamily: [
+      'Poppins',
+      'sans-serif',
+    ].join(','),
+  },
+  palette: {
+    background: {
+      default: '#000000', // Black background
+    },
+    text: {
+      primary: '#ffffff', // White text color
+    },
+  },
+});
+
 
 const LandingPage = () => {
 
@@ -26,7 +37,7 @@ const LandingPage = () => {
       <Hero />
       <Section />
       <AboutUs />
-      <Testimonial />
+      {/* <Testimonial /> */}
       <Footer />
       </ThemeProvider>
     </>

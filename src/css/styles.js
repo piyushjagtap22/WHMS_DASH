@@ -1,3 +1,4 @@
+import { BorderBottom } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 
 const styles = (theme) => {
@@ -7,17 +8,23 @@ const styles = (theme) => {
       display: 'flex',
       justifyContent: 'space-between',
       padding: '20px',
-      backgroundColor: 'white',
+      backgroundColor: 'black',
     },
     logo: {
-      color: 'blue',
+      color: 'white',
       cursor: 'pointer',
+      fontSize : '25px'  
     },
     link: {
       color: "#000"
     },
     menuIcon: {
-      color: '#000',
+      color: '#f3f2f1',
+    },
+    menuItem: {
+      color : "#f3f2f1",
+      padding : "10px 0",
+      fontSize : "20px"
     },
     formContainer: {
       flexGrow: 1,
@@ -58,7 +65,7 @@ const styles = (theme) => {
     aboutUsSubtitle: {
       opacity: '0.7',
       paddingBottom: '30px',
-      fontSize: '18px',
+      fontSize: '15px',
     },
     title: {
       paddingBottom: '15px',
@@ -69,7 +76,7 @@ const styles = (theme) => {
     },
     largeImage: {
       width: '100%',
-    },
+    },  
     sectionGridContainer: {
       display: 'flex',
       alignItems: 'center',
@@ -78,7 +85,7 @@ const styles = (theme) => {
       minHeight: '500px',
     },
     sectionGridItem: {
-      backgroundColor: '#f2f0f1',
+      backgroundColor: '#191C23',
       textAlign: 'center',
       padding: '30px',
       width: '200px',
@@ -100,7 +107,7 @@ const styles = (theme) => {
       miHeight: '10vh',
       padding: '20px',
       justifyContent: 'center',
-      backgroundColor: '#f2f0f1',
+      backgroundColor: '#191C23',
       flexDirection: 'column',
     },
     footerText: {
@@ -110,7 +117,7 @@ const styles = (theme) => {
       opacity: '0.4',
     },
     testimonialCard: {
-      backgroundColor: '#fff',
+      backgroundColor: '#191C23',
       padding: '10px',
       minHeight: '200px',
       display: 'flex',
