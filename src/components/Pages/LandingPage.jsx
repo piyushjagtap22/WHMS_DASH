@@ -14,10 +14,10 @@ const theme = createTheme({
   },
   palette: {
     background: {
-      default: '#000000', // Black background
+      default: '#121318', // Black background
     },
     text: {
-      primary: '#ffffff', // White text color
+      primary: '#75777B', // White text color
     },
   },
 });

@@ -8,12 +8,12 @@ const styles = (theme) => {
       display: 'flex',
       justifyContent: 'space-between',
       padding: '20px',
-      backgroundColor: 'black',
+      backgroundColor: '#121318',
     },
     logo: {
       color: 'white',
       cursor: 'pointer',
-      fontSize : '25px'  
+      fontSize: '25px'
     },
     link: {
       color: "#000"
@@ -22,9 +22,9 @@ const styles = (theme) => {
       color: '#f3f2f1',
     },
     menuItem: {
-      color : "#f3f2f1",
-      padding : "10px 0",
-      fontSize : "20px"
+      color: "#f3f2f1",
+      padding: "10px 0",
+      fontSize: "20px"
     },
     formContainer: {
       flexGrow: 1,
@@ -76,7 +76,7 @@ const styles = (theme) => {
     },
     largeImage: {
       width: '100%',
-    },  
+    },
     sectionGridContainer: {
       display: 'flex',
       alignItems: 'center',
