@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
-import NotFoundPage from './components/Pages/NotFoundPage.jsx';
+import PrivacyAndSecurityPage from './components/Pages/PrivacyAndSecurityPage.jsx';
 
 import { PersistGate } from 'redux-persist/integration/react';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -31,17 +31,20 @@ import SAdminScreen from './components/Pages/SAdminScreen.jsx';
 import './index.css';
 import store, { persistor } from './store';
 import { themeSettings } from './theme';
-
+import PrivacyPolicyValidator from './components/Validators/PrivacyPolicyValidator.jsx';
 import EmailRegisterValidator from './components/Validators/EmailRegisterValidator.jsx';
 import RegisterValidator from './components/Validators/RegisterValidator.jsx';
 import VerifyValidator from './components/Validators/VerifyValidator.jsx';
+import LandingPage from './components/Pages/LandingPage.jsx';
 const theme = createTheme(themeSettings('dark'));
+import DefaultPageValidator from './components/Validators/DefaultPageValidator.jsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />}>
-      <Route index element={<Navigate to='/register' />} />{' '}
-      {/* Redirects root path to /register */}
+      <Route index element={<LandingPage />} />
+      <Route path='*' element={<Navigate to='/' replace={true} />} />
+
       <Route
         path='/register'
         element={<RegisterValidator component={Register} />}
@@ -50,19 +53,14 @@ const router = createBrowserRouter(
         path='/verify'
         element={<VerifyValidator component={DocumentVerificationScreen} />}
       />
-      <Route path='/Default' element={<DefaultPage />} />
-      {/* <Route path='' element={<Layout />}>
-        <Route
-          path='/Default'
-          element={<DefaultPageValidator component={DefaultPage} />}
-        />
-      </Route> */}
-      <Route path='' element={<Layout />}>
-        <Route
-          path='/dashboard'
-          element={<DashboardValidator component={Dashboard} />}
-        />
-      </Route>
+      <Route
+        path='/Default'
+        element={<DefaultPageValidator component={DefaultPage} />}
+      />
+      <Route
+        path='/dashboard'
+        element={<DashboardValidator component={Dashboard} />}
+      />
       <Route
         path='/superadmin'
         element={<SuperAdminValidator component={SAdminScreen} />}
@@ -75,7 +73,10 @@ const router = createBrowserRouter(
         path='/login'
         element={<LoginValidator component={LoginScreen} />}
       />
-      <Route path='*' element={<RegisterValidator component={Register} />} />
+      <Route
+        path='/privacy'
+        element={<PrivacyPolicyValidator component={PrivacyAndSecurityPage} />}
+      />
     </Route>
   )
 );
@@ -83,11 +84,8 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}></PersistGate>
-    {/* <AppInitializer /> */}
-    {/* <React.StrictMode> */}
     <RouterProvider router={router}>
       <App />
     </RouterProvider>
-    {/* </React.StrictMode> */}
   </Provider>
 );

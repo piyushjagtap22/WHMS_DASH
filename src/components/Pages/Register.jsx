@@ -49,6 +49,14 @@ const Register = () => {
     }
   }, []);
 
+  const onChangeNumber = () => {
+    // Reset state values to re-render the form
+    setPhoneNumber(phoneNumber(3, 12));
+    setOtp('');
+    setShowOtpScreen(false); // Hide OTP screen
+    setOtpSent(false); // Reset OTP sent status
+    setTermsChecked(false); // Uncheck terms and conditions
+  };
   const navigate = useNavigate();
   const [otp, setOtp] = useState('');
   const [confirmOtp, setConfirmOtp] = useState('');
@@ -78,26 +86,27 @@ const Register = () => {
   const handleTogglePassword = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
-
+  const [otpSent, setOtpSent] = useState(false);
   const onSignup = async (e) => {
-    e.preventDefault();
-    setButtonLoader(true);
-    // setErrors('');
-    if (phoneNumber === '' || phoneNumber.length !== 12) {
-      setButtonLoader(false);
-      return toast.error(
-        'Please enter a valid phone number with country code.'
-      );
-    }
-
-    if (!termsChecked) {
-      return toast.error('Please agree to terms and conditions');
-    }
-
     try {
+      e.preventDefault();
+      setButtonLoader(true);
+      // setErrors('');
+      if (phoneNumber === '' || phoneNumber.length !== 12) {
+        setButtonLoader(false);
+        return toast.error(
+          'Please enter a valid phone number with country code.'
+        );
+      }
+      if (!termsChecked) {
+        return toast.error('Please agree to terms and conditions');
+      }
+
       console.log(formatPhone);
       const response = await recaptchaVerifier(formatPhone);
       console.log('called');
+
+      setOtpSent(true);
       setConfirmOtp(response);
       toast.success('OTP sent successfully!');
       setShowOtpScreen(true);
@@ -244,6 +253,7 @@ const Register = () => {
                   containerStyle={styles.phoneInputContainer}
                   buttonStyle={styles.phoneButton}
                   dropdownStyle={styles.phoneDropdown}
+                  disabled={otpSent}
                 />
                 <style>
                   {`
@@ -352,9 +362,30 @@ const Register = () => {
                   'Send OTP'
                 )}
               </CustomButton>
-              <Typography component={Link} to='/login' style={styles.loginLink}>
-                Login with Email
-              </Typography>
+              <span
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                }}
+              >
+                <Typography
+                  component={Link}
+                  to='/login'
+                  style={styles.loginLink}
+                >
+                  Login with Email
+                </Typography>
+                <Typography
+                  component={Link}
+                  to='/register'
+                  style={styles.changeNumberLink}
+                  hidden={!otpSent}
+                  onClick={onChangeNumber}
+                >
+                  Change Number
+                </Typography>
+              </span>
             </form>
           </Container>
         </div>
@@ -442,6 +473,13 @@ const styles = {
   loginLink: {
     color: '#7CD6AB',
     textAlign: 'left',
+    variant: 'outlined',
+    width: '100%',
+    display: 'block',
+  },
+  changeNumberLink: {
+    color: '#7CD6AB',
+    textAlign: 'right',
     variant: 'outlined',
     width: '100%',
     display: 'block',

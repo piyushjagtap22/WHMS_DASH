@@ -31,10 +31,12 @@ import profileImage from '../assets/PrayogikLogo.png';
 const navItems = [
   {
     text: 'Dashboard',
+    to: 'Dashboard',
     icon: <HomeOutlined />,
   },
   {
     text: 'Privacy & Security',
+    to: 'privacypolicy',
     icon: <ReceiptLongOutlined />,
   },
 ];
@@ -116,7 +118,7 @@ const Sidebar = ({
                     </FlexBetween>
                   </Box>
                   <List>
-                    {navItems.map(({ text, icon }) => {
+                    {navItems.map(({ text, to, icon }) => {
                       if (!icon) {
                         return (
                           <Typography
@@ -127,7 +129,7 @@ const Sidebar = ({
                           </Typography>
                         );
                       }
-                      const lcText = text.toLowerCase();
+                      const lcText = to.toLowerCase();
 
                       return (
                         <ListItem key={text} disablePadding>

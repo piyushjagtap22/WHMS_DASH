@@ -1,7 +1,4 @@
-import {
-  ArrowBack,
-  ArrowDropDownOutlined
-} from '@mui/icons-material';
+import { ArrowBack, ArrowDropDownOutlined } from '@mui/icons-material';
 import { onAuthStateChanged } from 'firebase/auth';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -22,7 +19,7 @@ import {
   MenuItem,
   Toolbar,
   Typography,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import { signOut } from 'firebase/auth';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -91,19 +88,22 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const navbarTitle = useMemo(() => {
     return location.pathname === '/Default' ? (
       <>
-       <Link
-          to='/dashboard'
-          style={{ textDecoration: 'none', color: 'inherit' }}
-        >
-         <ArrowBack
-                sx={{ color: theme.palette.secondary[800], fontSize: '25px', marginRight: '20px' }}
-
-              /></Link>
         <Link
           to='/dashboard'
           style={{ textDecoration: 'none', color: 'inherit' }}
         >
+          <ArrowBack
+            sx={{
+              color: theme.palette.secondary[800],
+              fontSize: '25px',
+              marginRight: '20px',
+            }}
+          />
         </Link>
+        <Link
+          to='/dashboard'
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        ></Link>
         {/* <span style={{ margin: '0 8px' }}> &gt; </span> */}
         {deviceID}
       </>

@@ -116,7 +116,7 @@ const SidebarNew = ({
 
       if (timestampStr !== '') {
         const timeDifference = getTimeDifference(timestampStr);
-        setConnected(timeDifference < 5 && timeDifference >= 0);
+        setConnected(timeDifference < 9 && timeDifference >= 0);
       } else {
         setConnected(false);
       }

@@ -154,7 +154,7 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
           cssClass: 'apexcharts-xaxis-label',
         },
         rotate: -90,
-        offsetY : 10,
+        offsetY: 10,
       },
       categories: labels,
       tickAmount: 20,
@@ -226,48 +226,61 @@ const ApexGraphPrint = React.forwardRef((props, ref) => {
 
   return (
     <div>
-      {data.length !== 0 ? <><div ref={ref} style={containerStyle}>
-      <header className='print-header' style={headerStyle}>
-        W-HMS Health Report
-        <p>Patient Details:</p>
-        <p> Name - {name}</p>
-        <p>
-          Phone: {phone} | Email: {email}
-        </p>
-      </header>
-      <main>
-        <Box style={boxStyle}>
-          <div style={infoStyle}>
-            <span style={titleStyle}>{sensorType}</span>
+      {data.length !== 0 ? (
+        <>
+          <div ref={ref} style={containerStyle}>
+            <header className='print-header' style={headerStyle}>
+              W-HMS Health Report
+              <p>Patient Details:</p>
+              <p> Name - {name}</p>
+              <p>
+                Phone: {phone} | Email: {email}
+              </p>
+            </header>
+            <main>
+              <Box style={boxStyle}>
+                <div style={infoStyle}>
+                  <span style={titleStyle}>{sensorType}</span>
 
-            <span style={separatorStyle}>|</span>
-            <span style={currentWeekStyle}>
-              <FiberManualRecordIcon
-                style={{
-                  color: isAboveMax
-                    ? theme.palette.error.main
-                    : theme.palette.success.main,
-                  marginRight: '0.2rem',
-                  fontSize: '0.8rem',
-                }}
-              />
-              {startDate !== null &&
-                `Start Date: ${convertUTCToIST(startDate)}`}
-              {endDate !== null && ` | End Date: ${convertUTCToIST(endDate)} `}
-            </span>
+                  <span style={separatorStyle}>|</span>
+                  <span style={currentWeekStyle}>
+                    <FiberManualRecordIcon
+                      style={{
+                        color: isAboveMax
+                          ? theme.palette.error.main
+                          : theme.palette.success.main,
+                        marginRight: '0.2rem',
+                        fontSize: '0.8rem',
+                      }}
+                    />
+                    {startDate !== null &&
+                      `Start Date: ${convertUTCToIST(startDate)}`}
+                    {endDate !== null &&
+                      ` | End Date: ${convertUTCToIST(endDate)} `}
+                  </span>
+                </div>
+                <ReactApexChart options={options} series={series} type='area' />
+              </Box>
+            </main>
+            <footer className='print-footer' style={footerStyle}>
+              <h1>Prodyogik Solutions</h1>
+              <img src={PrayogikFullLogo} height='80rem' alt='Prayogik Logo' />
+
+              <p>Address Line 1, Address Line 2, City, Country</p>
+
+              <p>Company Name - All Rights Reserved</p>
+            </footer>
           </div>
-          <ReactApexChart options={options} series={series} type='area' />
-        </Box>
-      </main>
-      <footer className='print-footer' style={footerStyle}>
-        <h1>Prodyogik Solutions</h1>
-        <img src={PrayogikFullLogo} height='80rem' alt='Prayogik Logo' />
-
-        <p>Address Line 1, Address Line 2, City, Country</p>
-
-        <p>Company Name - All Rights Reserved</p>
-      </footer>
-    </div></> : <><p style={{paddingLeft : '15px'}}>{(startDate === null || endDate === null || sensorType === '' ) ? 'Dates and sensor not selected' : ''}</p></>}
+        </>
+      ) : (
+        <>
+          <p style={{ paddingLeft: '15px' }}>
+            {startDate === null || endDate === null || sensorType === ''
+              ? 'Dates and sensor not selected'
+              : ''}
+          </p>
+        </>
+      )}
     </div>
   );
 });

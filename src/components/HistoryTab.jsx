@@ -131,7 +131,7 @@ const HistoryTab = () => {
       const endUnix = convertDateToUnix(endDate);
 
       const data = await getGraphData(userId, startUnix, endUnix);
-      console.log("shiv" + graphByDateData);
+      console.log('shiv' + graphByDateData);
       if (data && data.length > 0) {
         const values = data.map((item) => item.value);
         const timestamp = data.map((item) => item.timestamp.slice(11, 19));
@@ -223,16 +223,22 @@ const HistoryTab = () => {
               ref={componentRef}
               startDate={startDate}
               endDate={endDate}
-              sensorType={getSensorName(sensorType)}        
+              sensorType={getSensorName(sensorType)}
             />
             <div
               style={{
-               paddingLeft : '10px',
+                paddingLeft: '10px',
                 gap: '50px',
                 marginTop: '20px',
               }}
             >
-              {graphByDateData.length !== 0 ? <CustomButton onClick={handlePrint}>Print this out!</CustomButton> : ''}
+              {graphByDateData.length !== 0 ? (
+                <CustomButton onClick={handlePrint}>
+                  Print this out!
+                </CustomButton>
+              ) : (
+                ''
+              )}
             </div>
           </div>
         </Grid>

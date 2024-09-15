@@ -3,40 +3,27 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-
+import Loader from '../Loader';
 import { useLocation } from 'react-router-dom';
-import DefaultPage from './Pages/DefaultPage';
+import DefaultPage from '../Pages/DefaultPage';
+import Register from '../Pages/Register';
 
-const DefaultPageValidator = ({
-  component: Component,
-  auth: { isAuthenticated, loading },
-}) => {
+const DefaultPageValidator = () => {
   const [isDataPresent, setIsDataPresent] = useState(false);
   const location = useLocation();
-
-  useEffect(() => {
-    console.log('use effect DPV');
-    console.log(location.state);
-    console.log(location.state.rowData);
-    if (location.state) {
-      console.log('updated to true');
-      setIsDataPresent(true);
-    }
-    if (AuthState === '/dashboard' && isDataPresent) {
-      console.log(isDataPresent);
-      console.log(location.state);
-      return <DefaultPage rowData={location.state} />;
-    } else {
-      return <Navigate to={AuthState} />;
-    }
-  }, [location.state]);
+  const AuthState = useSelector((state) => state.auth.AuthState);
 
   console.log('DefaultPageValidator validator');
 
-  const AuthState = useSelector((state) => state.auth.AuthState);
   console.log(AuthState);
 
   console.log(isDataPresent);
+  console.log(location.state);
+  if (AuthState === '/dashboard' && location?.state) {
+    return <DefaultPage rowData={location.state} />;
+  } else {
+    return <Navigate to={'/register'} />;
+  }
 };
 
 DefaultPageValidator.propTypes = {

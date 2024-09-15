@@ -205,23 +205,22 @@ const MapboxMap = () => {
                 {address !== '' && (
                   <>
                     <p
-      style={{
-        maxWidth: '754.5px',
-        padding: '8px',
-        border: '2px solid gray',
-        borderRadius: '0.73rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}
-    >
-      <span>Location: {address}</span>
-      <ContentCopyIcon
-    onClick={copyLocation}
-    style={{ cursor: 'pointer' }}
-  />
-    </p>
-
+                      style={{
+                        maxWidth: '754.5px',
+                        padding: '8px',
+                        border: '2px solid gray',
+                        borderRadius: '0.73rem',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <span>Location: {address}</span>
+                      <ContentCopyIcon
+                        onClick={copyLocation}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </p>
                   </>
                 )}
                 <CustomButton onClick={handleButtonClick}>
