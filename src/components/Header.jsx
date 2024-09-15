@@ -151,15 +151,15 @@ const Header = (props) => {
                 sx={{
                   display: 'flex',
                   justifyContent: 'space-between',
-                  flexGrow: '0.1',
+                  flexGrow: '0',
                 }}
               >
-                <Link href='#' target='_blank' underline='none'>
+                {/* <Link href='#' target='_blank' underline='none'>
                   <Typography sx={{ color: 'white' }}>Home</Typography>
                 </Link>
                 <Link href='#' target='_blank' underline='none'>
                   <Typography sx={{ color: 'white' }}>About Us</Typography>
-                </Link>
+                </Link> */}
                 <Link href='/register' target='_blank' underline='none'>
                   <CustomButton variant='contained'>Go to Console</CustomButton>
                 </Link>

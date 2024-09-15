@@ -13,7 +13,7 @@ const styles = (theme) => {
     logo: {
       color: 'white',
       cursor: 'pointer',
-      fontSize: '25px'
+      fontSize : '25px'  
     },
     link: {
       color: "#000"
@@ -22,9 +22,9 @@ const styles = (theme) => {
       color: '#f3f2f1',
     },
     menuItem: {
-      color: "#f3f2f1",
-      padding: "10px 0",
-      fontSize: "20px"
+      color : "#f3f2f1",
+      padding : "10px 0",
+      fontSize : "20px"
     },
     formContainer: {
       flexGrow: 1,
@@ -44,7 +44,7 @@ const styles = (theme) => {
     heroBox: {
       width: '100%',
       display: 'flex',
-      minHeight: '600px',
+      minHeight: '500px',
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -69,14 +69,15 @@ const styles = (theme) => {
     },
     title: {
       paddingBottom: '15px',
+      color : '#f3f2f1',
     },
     subtitle: {
-      opacity: '0.4',
+      opacity: '0.9',
       paddingBottom: '30px',
     },
     largeImage: {
       width: '100%',
-    },
+    },  
     sectionGridContainer: {
       display: 'flex',
       alignItems: 'center',
