@@ -57,10 +57,12 @@ const router = createBrowserRouter(
         path='/Default'
         element={<DefaultPageValidator component={DefaultPage} />}
       />
-      <Route
-        path='/dashboard'
-        element={<DashboardValidator component={Dashboard} />}
-      />
+      <Route path='/dashboard' element={<Layout />}>
+        <Route
+          path='/dashboard'
+          element={<DashboardValidator component={Dashboard} />}
+        />
+      </Route>
       <Route
         path='/superadmin'
         element={<SuperAdminValidator component={SAdminScreen} />}
@@ -74,7 +76,7 @@ const router = createBrowserRouter(
         element={<LoginValidator component={LoginScreen} />}
       />
       <Route
-        path='/privacy'
+        path='/privacypolicy'
         element={<PrivacyPolicyValidator component={PrivacyAndSecurityPage} />}
       />
     </Route>
