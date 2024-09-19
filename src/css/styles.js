@@ -76,7 +76,7 @@ const styles = (theme) => {
       paddingBottom: '30px',
     },
     largeImage: {
-      width: '100%',
+      width: '80%',
     },  
     sectionGridContainer: {
       display: 'flex',
@@ -115,7 +115,7 @@ const styles = (theme) => {
       paddingBottom: '10px',
     },
     footerDate: {
-      opacity: '0.4',
+      opacity: '0.6',
     },
     testimonialCard: {
       backgroundColor: '#191C23',

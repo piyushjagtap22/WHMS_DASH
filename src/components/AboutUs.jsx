@@ -1,9 +1,8 @@
 import React from 'react';
-import { Grid, Typography, Button, Box } from '@mui/material';
+import { Grid, Typography, Button, Box, Link } from '@mui/material';
 import bestTeams from '../assets/bestTeams.jpg';
 import useStyles from '../css/styles';
 import CustomButton from './Button';
-import { Link } from 'react-router-dom';
 
 const AboutUs = () => {
   const classes = useStyles();
@@ -43,15 +42,15 @@ const AboutUs = () => {
             working in a harsh and rugged environment like Oil & Gas Industry,
             Aerospace, Security and Defence, Health and Safety.
           </Typography>
-          <Link href='/register' target='_blank' underline='none'>
-          <CustomButton
-                          variant='contained'
-                          width='180px'
-                          sx={{ margin: '15px 0 ' }}
-                        >
-                          Know More
-                        </CustomButton> 
-                        </Link>
+          <Link href='https://prayogik.in/wearable-health-monitoring-system' target='_blank' underline='none'>
+            <CustomButton
+              variant='contained'
+              width='180px'
+              sx={{ margin: '15px 0 ' }}
+            >
+              Know More
+            </CustomButton>
+          </Link>
         </Grid>
       </Grid>
     </Box>

@@ -4,7 +4,6 @@ import Header from '../Header';
 import Section from '../Section';
 import Footer from '../Footer';
 import AboutUs from '../AboutUs.jsx';
-
 import CssBaseline from '@mui/material/CssBaseline';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -28,8 +27,6 @@ const LandingPage = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Header />
-
-        {/* Inline CSS for scroll snap behavior */}
         <style jsx="true">{`
           html, body {
             margin: 0;
@@ -49,7 +46,7 @@ const LandingPage = () => {
           }
           .snap-section {
             scroll-snap-align: start;
-            min-height: 100vh; /* Each section takes full screen */
+            min-height: 80vh; /* Each section takes full screen */
           }
           header {
             position: fixed;
@@ -74,8 +71,6 @@ const LandingPage = () => {
           
         </div>
         <Footer />
-
-        {/* Footer is placed below all the content */}
       </ThemeProvider>
     </>
   );
