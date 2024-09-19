@@ -8,6 +8,7 @@ body,
     height : 100%;
     width : 100%;
     font-family: "Inter", sans-serif;
+    overflow-y: scroll;
 }
 a{
   color: #B8D5FF;
@@ -634,4 +635,8 @@ word-wrap: break-word
   margin: 0;
   font-size: 12px;
   color: #95a5a6;
+}
+
+* {
+  scrollbar-width:none;
 }
