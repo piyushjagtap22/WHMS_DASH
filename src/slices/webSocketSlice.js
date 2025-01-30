@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
 
-const SOCKET_URL =  'http://localhost:3000';
+const SOCKET_URL =  'https://whms-isro-sxur.vercel.app';
 
 // Create socket instance
 let socket = null;
