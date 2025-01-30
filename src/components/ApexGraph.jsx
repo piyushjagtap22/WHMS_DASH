@@ -1,14 +1,11 @@
 import { Box, useMediaQuery, useTheme } from '@mui/material';
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 // Define the sensor data mappings outside the component
-const sensorDataMappings = [
+const sensorRanges = [
   {
-    sensor: 'heartSensor',
-    name: 'Heart Rate',
-    unit: 'bpm',
-    ranges: {
+    'Heart Rate':
+    {
       green: [60, 100],
       yellow: [
         [45, 60],
@@ -25,10 +22,7 @@ const sensorDataMappings = [
     },
   },
   {
-    sensor: 'BreathRateSensor',
-    name: 'Breath Rate',
-    unit: 'resp/min',
-    ranges: {
+    'Breath Rate': {
       green: [12, 16],
       yellow: [
         [6, 12],
@@ -45,10 +39,7 @@ const sensorDataMappings = [
     },
   },
   {
-    sensor: 'VentilatonSensor',
-    name: 'Ventilaton',
-    unit: 'L/min',
-    ranges: {
+    'Ventilaton': {
       green: [5, 8],
       yellow: [
         [4, 5],
@@ -65,10 +56,7 @@ const sensorDataMappings = [
     },
   },
   {
-    sensor: 'ActivitySensor',
-    name: 'Activity',
-    unit: 'g',
-    ranges: {
+    'Activity': {
       green: [60, 100],
       yellow: [
         [45, 60],
@@ -85,10 +73,7 @@ const sensorDataMappings = [
     },
   },
   {
-    sensor: 'BloodPressureSensor',
-    name: 'Blood Pressure',
-    unit: 'mmHg',
-    ranges: {
+    'Blood Pressure': {
       green: [110, 130],
       yellow: [
         [100, 110],
@@ -105,10 +90,7 @@ const sensorDataMappings = [
     },
   },
   {
-    sensor: 'CadenceSensor',
-    name: 'Cadence',
-    unit: 'step/min',
-    ranges: {
+   'Cadence': {
       green: [70, 100],
       yellow: [
         [45, 70],
@@ -125,10 +107,7 @@ const sensorDataMappings = [
     },
   },
   {
-    sensor: 'OxygenSaturationSensor',
-    name: 'Oxygen Saturation',
-    unit: '%',
-    ranges: {
+    'Oxygen Saturation': {
       green: [90, 100],
       yellow: [75, 90],
       orange: [50, 75],
@@ -136,10 +115,7 @@ const sensorDataMappings = [
     },
   },
   {
-    sensor: 'TemperatureSensor',
-    name: 'Temperature',
-    unit: '°C',
-    ranges: {
+    'Temperature': {
       green: [35, 37],
       yellow: [34, 35],
       orange: [37, 38],
@@ -150,10 +126,7 @@ const sensorDataMappings = [
     },
   },
   {
-    sensor: 'TidalVolumeSensor',
-    name: 'Tidal Volume',
-    unit: 'L',
-    ranges: {
+  'Tidal Volume': {
       green: [0.5, 0.7],
       yellow: [
         [0.3, 0.5],
@@ -171,75 +144,64 @@ const sensorDataMappings = [
   },
 ];
 
-const ApexGraph = React.memo((props) => {
-  const { timestamp: labels, data, name, unit } = props;
+const ApexGraph = React.memo(({ timestamp, data, name, unit }) => {
   const theme = useTheme();
-  function getUnitByName(sensorName) {
-    const sensor = sensorDataMappings.find(
-      (mapping) => mapping.name === sensorName
-    );
-    return sensor ? sensor.unit : undefined;
-  }
+ 
   const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
 
-  const calculateAverage = useCallback((lastValues) => {
-    console.log('calculate average running');
-    var sum = lastValues.reduce(function (acc, value) {
-      return acc + value;
-    }, 0);
+  const average = useMemo(() => {
+    if (!data.length) return 0;
+    return data.reduce((sum, val) => sum + val, 0) / data.length;
+  }, [data]);
 
-    return sum / lastValues.length;
-  }, []);
-  const average = useMemo(
-    () => calculateAverage(data),
-    [data, calculateAverage]
-  );
-  function getColor(average, ranges) {
+  // Determine graph color based on average value
+  const getColor = useMemo(() => {
+    const ranges = sensorRanges[name];
+    if (!ranges) return '#7CD6AB'; // Default green if no ranges defined
+
     for (const [color, range] of Object.entries(ranges)) {
       if (Array.isArray(range[0])) {
-        for (const subRange of range) {
-          if (average >= subRange[0] && average <= subRange[1]) {
-            return color === 'red'
-              ? '#FF5733'
-              : color === 'green'
-              ? '#7CD6AB'
-              : color;
+        for (const [min, max] of range) {
+          if (average >= min && average <= max) {
+            return color === 'red' ? '#FF5733' : 
+                   color === 'green' ? '#7CD6AB' : 
+                   color === 'yellow' ? '#FFC300' : '#FF851B';
           }
         }
-      } else if (average >= range[0] && average <= range[1]) {
-        return color === 'red'
-          ? '#FF5733'
-          : color === 'green'
-          ? '#7CD6AB'
-          : color;
+      } else {
+        const [min, max] = range;
+        if (average >= min && average <= max) {
+          return color === 'red' ? '#FF5733' : 
+                 color === 'green' ? '#7CD6AB' : 
+                 color === 'yellow' ? '#FFC300' : '#FF851B';
+        }
       }
     }
-    return '#FF5733'; // Default color if no range matches
-  }
-  const sensorMapping = sensorDataMappings.find(
-    (mapping) => mapping.name === name
-  );
-  const color = sensorMapping
-    ? getColor(average, sensorMapping.ranges)
-    : '#FF5733';
-  const zoomEnabled = false;
+    return '#FF5733';
+  }, [average, name]);
 
-  console.log('Apex graph Untis', unit);
+
   const max = 100;
 
   const isAboveMax = useMemo(() => average > max, [average, max]);
 
-  const series = useMemo(() => [{ name, data, unit }], [data, name, unit]);
 
-  const options = useMemo(
+  const chartOptions = useMemo(
     () => ({
       chart: {
         type: 'area',
+        animations: {
+          enabled: true,
+          easing: 'linear',
+          dynamicAnimation: {
+            speed: 1000
+          }
+        },
         stacked: false,
         height: 350,
         zoom: {
           type: 'x',
-          enabled: zoomEnabled,
+          enabled: true,
           autoScaleYaxis: true,
         },
         toolbar: {
@@ -257,7 +219,7 @@ const ApexGraph = React.memo((props) => {
         width: 2,
         dashArray: 0,
       },
-      colors: [color],
+      colors: [getColor],
       dataLabels: {
         enabled: false,
       },
@@ -288,7 +250,7 @@ const ApexGraph = React.memo((props) => {
           },
         },
         title: {
-          text: `${getUnitByName(name)}`,
+          text: unit,
           style: {
             color: '#ffffff',
           },
@@ -296,7 +258,7 @@ const ApexGraph = React.memo((props) => {
         tickAmount: 4,
       },
       xaxis: {
-        type: 'category',
+        type: 'datetime',
         labels: {
           formatter: (val) => {
             const date = new Date(val);
@@ -316,7 +278,7 @@ const ApexGraph = React.memo((props) => {
           rotate: -90,
           offsetY: 10,
         },
-        categories: labels,
+        categories: timestamp,
         tickAmount: 20,
         title: {
           text: 'Time',
@@ -349,8 +311,13 @@ const ApexGraph = React.memo((props) => {
         },
       },
     }),
-    [name, labels, isAboveMax, unit]
+    [getColor, name, unit, timestamp]
   );
+
+  const series = useMemo(() => [{
+    name,
+    data
+  }], [name, data]);
 
   return (
     <Box
@@ -390,7 +357,7 @@ const ApexGraph = React.memo((props) => {
       </div>
       <Box height='100%' width='100%'>
         <ReactApexChart
-          options={options}
+          options={chartOptions}
           series={series}
           type='area'
           height={250}

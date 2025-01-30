@@ -1,10 +1,5 @@
 import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  useTheme,
+  useTheme
 } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Suspense } from 'react';
@@ -17,21 +12,17 @@ import React, { useEffect, useState } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import * as Realm from 'realm-web';
+// import * as Realm from 'realm-web';
 import { getDeviceIds } from '../../src/slices/adminApiSlice';
 import { setCurrentDevice } from '../slices/deviceSlice.js';
-import CustomButton from './Button.jsx';
-const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
+// const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
 
 const SensorPage = () => {
   const [loading, setLoading] = useState(true); // Add this line to manage loading state
-
   const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const token = useSelector(
-    (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
-  );
+  const token = useSelector(  (state) => state.auth.AuthUser?.stsTokenManager?.accessToken);
   const [buttonLoader, setButtonLoader] = useState(false);
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState();
@@ -39,7 +30,8 @@ const SensorPage = () => {
   var devices = [];
   const [events, setEvents] = useState([]);
   const handleClose = () => setOpen(false);
-
+  const [initialTable, setinitialTable] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
   // const handleRowClick = (data) => {
   //   setOpen(true);
   //   setData(data);
@@ -49,31 +41,30 @@ const SensorPage = () => {
     setData(data);
   };
   // Function to handle real-time updates
-  const handleRealTimeUpdate = (updatedObject) => {
-    setData((prevData) => {
-      const updatedData = prevData.map((obj) => {
-        if (obj._id === updatedObject._id) {
-          return {
-            ...obj,
-            BreathRateSensor: {
-              ...obj.BreathRateSensor,
-              value: updatedObject.BreathRateSensor.value,
-            },
-            VentilatonSensor: {
-              ...obj.VentilatonSensor,
-              value: updatedObject.VentilatonSensor.value,
-            },
-          };
-        }
-        return obj;
-      });
+  // const handleRealTimeUpdate = (updatedObject) => {
+  //   setData((prevData) => {
+  //     const updatedData = prevData.map((obj) => {
+  //       if (obj._id === updatedObject._id) {
+  //         return {
+  //           ...obj,
+  //           BreathRateSensor: {
+  //             ...obj.BreathRateSensor,
+  //             value: updatedObject.BreathRateSensor.value,
+  //           },
+  //           VentilatonSensor: {
+  //             ...obj.VentilatonSensor,
+  //             value: updatedObject.VentilatonSensor.value,
+  //           },
+  //         };
+  //       }
+  //       return obj;
+  //     });
 
-      return updatedData;
-    });
-  };
+  //     return updatedData;
+  //   });
+  // };
 
-  const [initialTable, setinitialTable] = useState({});
-  const [searchTerm, setSearchTerm] = useState('');
+
 
   //Table Searching
   const handleSearchChange = (eve) => {
@@ -147,83 +138,105 @@ const SensorPage = () => {
         return { color: 'inherit' };
     }
   };
+  // useEffect(() => {
+  //   console.log('In sensor page');
+  //   const login = async () => {
+  //     try {
+  //       setLoading(true); // Set loading to true when starting async process
+
+  //       if (events.length <= 1) {
+  //         // Use events.length instead of setEvents.length
+  //         console.log('setevents 0');
+
+  //         const response = await getDeviceIds(token);
+  //         if (response.status === 200) {
+  //           console.log(response.data.deviceDocuments);
+  //           setEvents(response.data.deviceDocuments);
+  //           setinitialTable(response.data.deviceDocuments);
+  //           const deviceSet = new Set(response.data.devices.flat());
+  //           const deviceList = [...deviceSet];
+  //           devices = deviceList;
+  //           setLoading(false); // Set loading to false after async process completes
+  //         }
+  //       }
+
+  //       const user = await app.logIn(Realm.Credentials.anonymous());
+  //       setUser(user);
+  //       const mongodb = app.currentUser.mongoClient('mongodb-atlas');
+  //       const collection = mongodb.db('test').collection('devices');
+
+  //       const pipeline = [
+  //         {
+  //           $match: {
+  //             $or: [
+  //               { 'fullDocument.BreathRateSensor.value': 'bunn' },
+  //               { 'fullDocument.VentilatonSensor.value': 'bunn' },
+  //             ],
+  //           },
+  //         },
+  //       ];
+
+  //       events.forEach((update) => handleRealTimeUpdate(update));
+
+  //       const changeStream = collection.watch(pipeline);
+  //       for await (const change of changeStream) {
+  //         console.log('Change detected:', change);
+
+  //         if (devices.includes(change?.fullDocument?.deviceId)) {
+  //           console.log('Device included, updating events');
+  //           setEvents((prevEvents) => {
+  //             const index = prevEvents.findIndex(
+  //               (e) => e._id.toString() === change.documentKey._id.toString()
+  //             );
+
+  //             if (index !== -1) {
+  //               const updatedEvents = [...prevEvents];
+  //               updatedEvents[index].heartSensor =
+  //                 change?.fullDocument.heartSensor;
+  //               updatedEvents[index].OxygenSaturationSensor =
+  //                 change?.fullDocument.OxygenSaturationSensor;
+  //               updatedEvents[index].BloodPressureSensor =
+  //                 change?.fullDocument.BloodPressureSensor;
+
+  //               return updatedEvents;
+  //             } else {
+  //               return [...prevEvents, change.fullDocument];
+  //             }
+  //           });
+  //         }
+  //       }
+  //       setLoading(false); // Set loading to false after async process completes
+  //     } catch (error) {
+  //       console.error('Error:', error);
+  //     } finally {
+  //       setLoading(false); // Set loading to false after async process completes
+  //     }
+  //   };
+
+  //   login();
+  // }, []);
+
+
   useEffect(() => {
-    console.log('In sensor page');
-    const login = async () => {
+    const fetchData = async () => {
       try {
-        setLoading(true); // Set loading to true when starting async process
-
-        if (events.length <= 1) {
-          // Use events.length instead of setEvents.length
-          console.log('setevents 0');
-
-          const response = await getDeviceIds(token);
-          if (response.status === 200) {
-            console.log(response.data.deviceDocuments);
-            setEvents(response.data.deviceDocuments);
-            setinitialTable(response.data.deviceDocuments);
-            const deviceSet = new Set(response.data.devices.flat());
-            const deviceList = [...deviceSet];
-            devices = deviceList;
-            setLoading(false); // Set loading to false after async process completes
-          }
+        setLoading(true);
+        const response = await getDeviceIds(token);
+        if (response.status === 200) {
+          console.log(response.data.deviceDocuments);
+          setEvents(response.data.deviceDocuments);
+          setinitialTable(response.data.deviceDocuments);
         }
-
-        const user = await app.logIn(Realm.Credentials.anonymous());
-        setUser(user);
-        const mongodb = app.currentUser.mongoClient('mongodb-atlas');
-        const collection = mongodb.db('test').collection('devices');
-
-        const pipeline = [
-          {
-            $match: {
-              $or: [
-                { 'fullDocument.BreathRateSensor.value': 'bunn' },
-                { 'fullDocument.VentilatonSensor.value': 'bunn' },
-              ],
-            },
-          },
-        ];
-
-        events.forEach((update) => handleRealTimeUpdate(update));
-
-        const changeStream = collection.watch(pipeline);
-        for await (const change of changeStream) {
-          console.log('Change detected:', change);
-
-          if (devices.includes(change?.fullDocument?.deviceId)) {
-            console.log('Device included, updating events');
-            setEvents((prevEvents) => {
-              const index = prevEvents.findIndex(
-                (e) => e._id.toString() === change.documentKey._id.toString()
-              );
-
-              if (index !== -1) {
-                const updatedEvents = [...prevEvents];
-                updatedEvents[index].heartSensor =
-                  change?.fullDocument.heartSensor;
-                updatedEvents[index].OxygenSaturationSensor =
-                  change?.fullDocument.OxygenSaturationSensor;
-                updatedEvents[index].BloodPressureSensor =
-                  change?.fullDocument.BloodPressureSensor;
-
-                return updatedEvents;
-              } else {
-                return [...prevEvents, change.fullDocument];
-              }
-            });
-          }
-        }
-        setLoading(false); // Set loading to false after async process completes
       } catch (error) {
         console.error('Error:', error);
       } finally {
-        setLoading(false); // Set loading to false after async process completes
+        setLoading(false);
       }
     };
+    fetchData();
+  }, [token]);
 
-    login();
-  }, []);
+  
 
   if (loading) {
     return (
@@ -328,7 +341,7 @@ const SensorPage = () => {
           </DialogActions>
         </Dialog> */}
         <Toaster toastOptions={{ duration: 4000 }} />
-        {!!user && (
+        {/* {!!user && ( */}
           <div className='App-header'>
             <div>
               <table
@@ -475,7 +488,7 @@ const SensorPage = () => {
               </table>
             </div>
           </div>
-        )}
+        {/* )} */}
       </div>
     </Suspense>
   );
