@@ -24,37 +24,37 @@ const Section = () => {
   const sectionItems = [
     {
       id: 1,
-      icon: <BluetoothSearchingIcon sx={{ fontSize: 100 }} color='primary' />,
+      icon: <BluetoothSearchingIcon sx={{ fontSize: 80, color:'#7CD6AB' }}  />,
       sentence:
         'Real-time health tracking via a mobile app with Bluetooth connectivity and family group sharing.',
     },
     {
       id: 2,
-      icon: <WaterIcon sx={{ fontSize: 100 }} color='primary' />,
+      icon: <WaterIcon sx={{ fontSize: 70 , color : "#7CD6AB"}} />,
       sentence:
         'Washable, quick-dry, breathable, lightweight, anti-odor, chlorine-resistant, and UV-protected material',
     },
     {
       id: 3,
-      icon: <LocalHospitalIcon sx={{ fontSize: 100 }} color='primary' />,
+      icon: <LocalHospitalIcon sx={{ fontSize: 70 , color : "#7CD6AB"}} />,
       sentence:
         'Supports virtual hospitals and telemedicine services through continuous monitoring with the W-HMS system',
     },
     {
       id: 4,
-      icon: <FactoryIcon sx={{ fontSize: 100 }} color='primary' />,
+      icon: <FactoryIcon sx={{ fontSize: 90 , color : "#7CD6AB"}} />,
       sentence:
         'Adaptable to various industries with specific health monitoring needs',
     },
     {
       id: 5,
-      icon: <MedicalInformationIcon sx={{ fontSize: 100 }} color='primary' />,
+      icon: <MedicalInformationIcon sx={{ fontSize: 70 , color : "#7CD6AB"}} />,
       sentence:
         'Regular body check-ups to detect health deviations, with data storage and analysis capabilities',
     },
     {
       id: 6,
-      icon: <DeviceThermostatIcon sx={{ fontSize: 100 }} color='primary' />,
+      icon: <DeviceThermostatIcon sx={{ fontSize: 70 , color : "#7CD6AB"}} />,
       sentence:
         'Powered by flexible TEG technology that uses body heat, ensuring no sweating and uninterrupted operation',
     },

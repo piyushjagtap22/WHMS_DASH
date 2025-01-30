@@ -1,239 +1,330 @@
-import React from 'react';
-import { useState } from 'react';
-import ApexGraph from './ApexGraph';
-import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { getSensorDB } from '../slices/adminApiSlice';
-import { Box, useMediaQuery } from '@mui/material';
-import { useDispatch } from 'react-redux';
-import * as Realm from 'realm-web';
+import { Box, useTheme } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import Chart from 'react-apexcharts';
+import { useDispatch, useSelector } from 'react-redux';
+import { disconnectSocket, initializeSocket } from '../slices/webSocketSlice';
+const SENSOR_CONFIG = [
+  {
+    name: 'Heart Rate',
+    unit: 'bpm',
+    ranges: {
+      green: [60, 100],
+      yellow: [[45, 60], [100, 160]],
+      orange: [[30, 45], [160, 220]],
+      red: [[0, 30], [220, Infinity]]
+    }
+  },
+  {
+    name: 'Breath Rate',
+    unit: 'br/min',
+    ranges: {
+      green: [12, 16],
+      yellow: [[6, 12], [16, 60]],
+      orange: [[3, 6], [60, 90]],
+      red: [[0, 3], [90, Infinity]]
+    }
+  },
+  {
+    name: 'Ventilation',
+    unit: 'L/min',
+    ranges: {
+      green: [5, 8],
+      yellow: [[4, 5], [8, 40]],
+      orange: [[3, 4], [40, 90]],
+      red: [[0, 3], [90, Infinity]]
+    }
+  },
+  {
+    name: 'Activity',
+    unit: 'steps/min',
+    ranges: {
+      green: [60, 100],
+      yellow: [[45, 60], [100, 160]],
+      orange: [[30, 45], [160, 220]],
+      red: [[0, 30], [220, Infinity]]
+    }
+  },
+  {
+    name: 'Blood Pressure',
+    unit: 'mmHg',
+    ranges: {
+      green: [110, 130],
+      yellow: [[100, 110], [130, 140]],
+      orange: [[80, 100], [140, 180]],
+      red: [[0, 80], [180, Infinity]]
+    }
+  },
+  {
+    name: 'Cadence',
+    unit: 'spm',
+    ranges: {
+      green: [70, 100],
+      yellow: [[45, 70], [100, 200]],
+      orange: [[30, 45], [200, 240]],
+      red: [[0, 30], [240, Infinity]]
+    }
+  },
+  {
+    name: 'Oxygen Saturation',
+    unit: '%',
+    ranges: {
+      green: [90, 100],
+      yellow: [75, 90],
+      orange: [50, 75],
+      red: [0, 50]
+    }
+  },
+  {
+    name: 'Temperature',
+    unit: '°C',
+    ranges: {
+      green: [35, 37],
+      yellow: [34, 35],
+      orange: [37, 38],
+      red: [[0, 34], [38, Infinity]]
+    }
+  },
+  {
+    name: 'Tidal Volume',
+    unit: 'L',
+    ranges: {
+      green: [0.5, 0.7],
+      yellow: [[0.3, 0.5], [0.7, 0.8]],
+      orange: [[0.1, 0.3], [0.8, 0.9]],
+      red: [[0, 0.1], [0.9, Infinity]]
+    }
+  }
+];
 
-const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
-import { setSensorData } from '../slices/deviceSlice';
+// Helper function to calculate moving average and determine color
+const getColorFromValue = (value, ranges) => {
+  const checkRange = (range, val) => {
+    if (Array.isArray(range[0])) {
+      return range.some(([min, max]) => val >= min && val <= max);
+    }
+    return val >= range[0] && val <= range[1];
+  };
+
+  if (checkRange(ranges.green, value)) return '#7CD6AB';
+  if (checkRange(ranges.yellow, value)) return '#FFC300';
+  if (checkRange(ranges.orange, value)) return '#FF851B';
+  if (checkRange(ranges.red, value)) return '#FF5733';
+  return '#7CD6AB'; // default color
+};
 
 const GraphsComp = () => {
+  const theme = useTheme();
+
   const dispatch = useDispatch();
-  const { state: userData } = useLocation();
-  const token = useSelector(
-    (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
-  );
-  const mapSensorData = (data, mappings) => {
-    dispatch(setSensorData(data));
-    mappings.forEach(({ sensor, setData, setTimeStamp }) => {
-      if (data[sensor]) {
-        const sensorValues = data[sensor].map((item) => item.value).slice(-20);
-        const sensorTimestamps = data[sensor]
-          .map((item) => item.timestamp)
-          .slice(-20); // Slice Code TODO
+  const { sensorData, connectionStatus } = useSelector((state) => state.websocket);
 
-        setData(sensorValues);
-        setTimeStamp(sensorTimestamps);
-      }
-      if (sensor === 'heartSensor') {
-      }
-    });
-  };
-  const [heartRateData, setHeartRateData] = useState([]);
-  const [heartRateTimeStamp, setheartRateTimeStamp] = useState([]);
-  const [BreathRateSensorData, setBreathRateSensorData] = useState([]);
-
-  const [BreathRateSensorTimeStamp, setBreathRateSensorTimeStamp] = useState(
-    []
+  // Initialize series state for all sensors
+  const [series, setSeries] = useState(
+    SENSOR_CONFIG.map(sensor => ({
+      name: sensor.name,
+      data: []
+    }))
   );
 
-  const [VentilatonSensorData, setVentilatonSensorData] = useState([]);
-  const [VentilatonSensorTimeStamp, setVentilatonSensorTimeStamp] = useState(
-    []
-  );
-  const [ActivitySensorData, setActivitySensorData] = useState([]);
-  const [ActivitySensorTimeStamp, setActivitySensorTimeStamp] = useState([]);
-
-  const [BPSensorData, setBPSensorData] = useState([]);
-  const [BPSensorTimeStamp, setBPSensorTimeStamp] = useState([]);
-
-  const [CadenceSensorData, setCadenceSensorData] = useState([]);
-  const [CadenceSensorTimeStamp, setCadenceSensorTimeStamp] = useState([]);
-
-  const [OxygenSaturationSensorData, setOxygenSaturationSensorData] = useState(
-    []
-  );
-  const [OxygenSaturationSensorTimeStamp, setOxygenSaturationSensorTimeStamp] =
-    useState([]);
-
-  const [TemperatureSensorData, setTemperatureSensorData] = useState([]);
-  const [TemperatureSensorTimeStamp, setTemperatureSensorTimeStamp] = useState(
-    []
-  );
-
-  const [TidalVolumeSensorData, setTidalVolumeSensorData] = useState([]);
-  const [TidalVolumeSensorTimeStamp, setTidalVolumeSensorTimeStamp] = useState(
-    []
-  );
-  const stateMapping = {
-    heartRateData,
-    heartRateTimeStamp,
-    BreathRateSensorData,
-    BreathRateSensorTimeStamp,
-    VentilatonSensorData,
-    VentilatonSensorTimeStamp,
-    ActivitySensorData,
-    ActivitySensorTimeStamp,
-    BPSensorData,
-    BPSensorTimeStamp,
-    CadenceSensorData,
-    CadenceSensorTimeStamp,
-    OxygenSaturationSensorData,
-    OxygenSaturationSensorTimeStamp,
-    TemperatureSensorData,
-    TemperatureSensorTimeStamp,
-    TidalVolumeSensorData,
-    TidalVolumeSensorTimeStamp,
-  };
-  const sensorDataMappings = [
-    {
-      sensor: 'heartSensor',
-      setData: setHeartRateData,
-      setTimeStamp: setheartRateTimeStamp,
-      name: 'Heart Rate',
-      data: 'heartRateData',
-      unit: 'bpm',
-    },
-    {
-      sensor: 'BreathRateSensor',
-      setData: setBreathRateSensorData,
-      setTimeStamp: setBreathRateSensorTimeStamp,
-      name: 'Breath Rate',
-      data: 'BreathRateSensorData',
-      unit: 'resp/min',
-    },
-    {
-      sensor: 'VentilatonSensor',
-      setData: setVentilatonSensorData,
-      setTimeStamp: setVentilatonSensorTimeStamp,
-      name: 'Ventilaton',
-      data: 'VentilatonSensorData',
-      unit: 'L/min',
-    },
-    {
-      sensor: 'ActivitySensor',
-      setData: setActivitySensorData,
-      setTimeStamp: setActivitySensorTimeStamp,
-      name: 'Activity',
-      data: 'ActivitySensorData',
-      unit: 'g',
-    },
-    {
-      sensor: 'BloodPressureSensor',
-      setData: setBPSensorData,
-      setTimeStamp: setBPSensorTimeStamp,
-      name: 'Blood Pressure',
-      data: 'BPSensorData',
-      unit: 'mmHg',
-    },
-    {
-      sensor: 'CadenceSensor',
-      setData: setCadenceSensorData,
-      setTimeStamp: setCadenceSensorTimeStamp,
-      name: 'Cadence',
-      data: 'CadenceSensorData',
-      unit: 'step/min ',
-    },
-    {
-      sensor: 'OxygenSaturationSensor',
-      setData: setOxygenSaturationSensorData,
-      setTimeStamp: setOxygenSaturationSensorTimeStamp,
-      name: 'Oxygen Saturation',
-      data: 'OxygenSaturationSensorData',
-      unit: '%',
-    },
-    {
-      sensor: 'TemperatureSensor',
-      setData: setTemperatureSensorData,
-      setTimeStamp: setTemperatureSensorTimeStamp,
-      name: 'Temperature',
-      data: 'TemperatureSensorData',
-      unit: '°C',
-    },
-    {
-      sensor: 'TidalVolumeSensor',
-      setData: setTidalVolumeSensorData,
-      setTimeStamp: setTidalVolumeSensorTimeStamp,
-      name: 'Tidal Volume',
-      data: 'TidalVolumeSensorData',
-      unit: 'L',
-    },
-  ];
-
-  const [events, setEvents] = useState([]);
-  const isNonMediumScreens = useMediaQuery('(min-width: 1200px)');
+  // Calculate moving averages and update series
   useEffect(() => {
-    const login = async () => {
-      try {
-        const id = userData.data.currentUserId;
+    if (sensorData.length > 0) {
+      const latestData = sensorData[sensorData.length - 1];
+      const timestamp = new Date(latestData.timestamp).getTime();
 
-        if (setEvents.length <= 1) {
-          const response = await getSensorDB(token, id);
+      setSeries(prevSeries => 
+        prevSeries.map((sensor, index) => {
+          const newData = [
+            ...sensor.data,
+            { x: timestamp, y: latestData.sensor_data[index] }
+          ].slice(-50);
 
-          if (response.status === 200) {
-            mapSensorData(response.data, sensorDataMappings);
-            setEvents(response.data.deviceDocuments);
-          }
+          // Calculate moving average
+          const movingAverage = newData.reduce((sum, point) => sum + point.y, 0) / newData.length;
+
+          return {
+            ...sensor,
+            data: newData,
+            color: getColorFromValue(movingAverage, SENSOR_CONFIG[index].ranges)
+          };
+        })
+      );
+    }
+  }, [sensorData]);
+
+  // Initialize WebSocket connection
+  useEffect(() => {
+    dispatch(initializeSocket());
+    return () => dispatch(disconnectSocket());
+  }, [dispatch]);
+
+  
+
+  const getChartOptions = (sensorConfig, seriesColor) => ({
+    chart: {
+      background: 'transparent',
+      animations: {
+        enabled: true,
+        easing: 'linear',
+        dynamicAnimation: {
+          speed: 1000
         }
-
-        const mongodb = app.currentUser.mongoClient('mongodb-atlas');
-
-        const collection = mongodb.db('test').collection('sensordbs');
-
-        const changeStream = collection.watch();
-
-        for await (const change of changeStream) {
-          if (userData.data.currentUserId == change?.fullDocument?._id) {
-            mapSensorData(change.fullDocument, sensorDataMappings);
-          } else {
-          }
-        }
-        return () => {
-          changeStream.close();
-        };
-      } catch (error) {
-        console.error('Error:', error);
+      },
+      toolbar: {
+        show: true,
+        tools: {
+          download: false,
+        },
+      },
+      zoom: {
+        type: 'x',
+        enabled: true,
+        autoScaleYaxis: true,
+      },
+    },
+    colors: [seriesColor],
+    dataLabels: {
+      enabled: false,
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shade: 'dark',
+        type: 'vertical',
+        shadeIntensity: 0.5,
+        inverseColors: false,
+        opacityFrom: 0.8,
+        opacityTo: 0.2,
+        stops: [0, 100]
       }
-    };
+    },
+    stroke: {
+      curve: 'smooth',
+      width: 2
+    },
+    markers: {
+      size: 0
+    },
+    xaxis: {
+      type: 'datetime',
+      labels: {
+        formatter: function (value) {
+          return new Date(value).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+          });
+        },
+        style: {
+          colors: '#ffffff'
+        }
+      }
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: '#ffffff'
+        }
+      },
+      title: {
+        text: sensorConfig.unit,
+        style: {
+          color: '#ffffff'
+        }
+      }
+    },
 
-    login();
-  }, []);
+    grid: {
+      borderColor: '#ffffff33'
+    },
+    theme: {
+      mode: 'dark'
+    },
+    // annotations: {
+    //   yaxis: [
+    //     {
+    //       y: sensorConfig.ranges.green[1],
+    //       borderColor: '#7CD6AB',
+    //       label: {
+    //         text: 'High Normal',
+    //         style: { color: '#ffffff' }
+    //       }
+    //     },
+    //     {
+    //       y: sensorConfig.ranges.green[0],
+    //       borderColor: '#7CD6AB',
+    //       label: {
+    //         text: 'Low Normal',
+    //         style: { color: '#ffffff' }
+    //       }
+    //     }
+    //   ]
+    // }
+  });
 
   return (
-    <>
-      <Box
-        margin='2rem 2rem'
-        display='grid'
-        gridTemplateColumns='repeat(12, 1fr)'
-        gridAutoRows='160px'
-        gap='12px'
-        zIndex={2}
-        sx={{
-          '& > div': {
-            gridColumn: isNonMediumScreens ? undefined : 'span 12',
-          },
+    <div
+   
+    >
+      {/* <div
+        style={{
+          padding: '10px',
+          color: connectionStatus.includes('connected') ? 'green' : 'red',
+          marginBottom: '20px'
         }}
-        style={{ marginBottom: '64px' }}
       >
-        {sensorDataMappings.map(
-          ({ sensor, setData, setTimeStamp, name, data }) => (
-            <ApexGraph
-              key={sensor}
-              name={name}
-              data={stateMapping[data]}
-              timestamp={stateMapping[data.replace('Data', 'TimeStamp')]}
-              max={90}
-              zoomEnabled={false}
+        Status: {connectionStatus}
+      </div> */}
+     
+        {series.map((sensorSeries, index) => (
+          <Box
+      
+        >
+          <div
+            style={{
+              marginBottom: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              width: '100%',
+            }}
+          >
+            <span
+          style={{
+            fontWeight: 'bold',
+            marginRight: '1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        > <span
+        style={{
+          marginLeft: '5rem',
+          marginRight: '1rem',
+          color: theme.palette.primary[100],
+        }}
+      ></span>
+              {sensorSeries.name} </span> </div>
+              <Box 
+              height='100%' 
+              width='60%'
+              padding={2}
+              marginLeft={2}
+              borderRadius='1.55rem'
+              backgroundColor={theme.palette.secondary[300]}
+              >
+            <Chart
+        
+              options={getChartOptions(SENSOR_CONFIG[index], sensorSeries.color)}
+              series={[sensorSeries]}
+              type="area"
+              height={350}
+              
             />
-          )
-        )}
-      </Box>
-    </>
+            </Box>
+         
+        </Box>
+        ))}
+     
+    </div>
   );
 };
 

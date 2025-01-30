@@ -1,19 +1,18 @@
-import React, { useEffect, useState, lazy, Suspense } from 'react';
-import FlexBetween from '../FlexBetween';
-import * as Realm from 'realm-web';
 import { Box } from '@mui/material';
-import Loader from '../Loader';
 import {
-  Chart as ChartJS,
   CategoryScale,
+  Chart as ChartJS,
+  Legend,
   LinearScale,
-  PointElement,
   LineElement,
+  PointElement,
   Title,
   Tooltip,
-  Legend,
 } from 'chart.js';
-import { Toaster, toast } from 'react-hot-toast';
+import React, { lazy, Suspense, useLayoutEffect, useState } from 'react';
+import { toast, Toaster } from 'react-hot-toast';
+import FlexBetween from '../FlexBetween';
+import Loader from '../Loader';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -23,9 +22,8 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-import { useLayoutEffect } from 'react';
 
-const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
+// const app = new Realm.App({ id: import.meta.env.VITE_REALM_APP_ID });
 import { useDispatch, useSelector } from 'react-redux';
 
 const SensorPage = lazy(() => import('../sensorPage'));
@@ -43,64 +41,64 @@ const Dashboard = () => {
     (state) => state.auth.AuthUser?.stsTokenManager?.accessToken
   );
 
-  useEffect(() => {
-    const login = async () => {
-      try {
-        // Log in anonymously
-        const user = await app.logIn(Realm.Credentials.anonymous());
+  // useEffect(() => {
+  //   const login = async () => {
+  //     try {
+  //       // Log in anonymously
+  //       const user = await app.logIn(Realm.Credentials.anonymous());
 
-        if (user) {
-          // Successfully logged in, proceed with MongoDB client setup
-          const mongodb = user.mongoClient('mongodb-atlas');
-          const collection = mongodb.db('test').collection('devices');
+  //       if (user) {
+  //         // Successfully logged in, proceed with MongoDB client setup
+  //         const mongodb = user.mongoClient('mongodb-atlas');
+  //         const collection = mongodb.db('test').collection('devices');
 
-          // Set up change stream and handle real-time updates
-          const changeStream = collection.watch();
+  //         // Set up change stream and handle real-time updates
+  //         const changeStream = collection.watch();
 
-          for await (const change of changeStream) {
-            console.log('Change Stream Event:', change);
+  //         for await (const change of changeStream) {
+  //           console.log('Change Stream Event:', change);
 
-            setNewRealTimeData((prevData) => {
-              const index = prevData.findIndex(
-                (item) => item._id === change.documentKey._id.toString()
-              );
+  //           setNewRealTimeData((prevData) => {
+  //             const index = prevData.findIndex(
+  //               (item) => item._id === change.documentKey._id.toString()
+  //             );
 
-              const realTimeUpdate = {
-                _id: change.documentKey._id.toString(),
-                heartSensor: change.fullDocument.heartSensor.value,
-                timeStamp: change.fullDocument.heartSensor.timeStamp,
-              };
+  //             const realTimeUpdate = {
+  //               _id: change.documentKey._id.toString(),
+  //               heartSensor: change.fullDocument.heartSensor.value,
+  //               timeStamp: change.fullDocument.heartSensor.timeStamp,
+  //             };
 
-              setRealTimeData((prevData) => {
-                const index = prevData.findIndex(
-                  (item) => item._id === realTimeUpdate._id
-                );
+  //             setRealTimeData((prevData) => {
+  //               const index = prevData.findIndex(
+  //                 (item) => item._id === realTimeUpdate._id
+  //               );
 
-                if (index !== -1) {
-                  const updatedData = [...prevData];
-                  updatedData[index] = realTimeUpdate;
-                  return updatedData;
-                } else {
-                  return [...prevData, realTimeUpdate];
-                }
-              });
+  //               if (index !== -1) {
+  //                 const updatedData = [...prevData];
+  //                 updatedData[index] = realTimeUpdate;
+  //                 return updatedData;
+  //               } else {
+  //                 return [...prevData, realTimeUpdate];
+  //               }
+  //             });
 
-              // Return the updated events array
-              return [...prevData, realTimeUpdate];
-            });
-          }
-        } else {
-          console.log('User not logged in');
-          // Handle the case when the user is not logged in
-        }
-      } catch (error) {
-        console.log('Error during login:', error);
-        // Handle login errors
-      }
-    };
+  //             // Return the updated events array
+  //             return [...prevData, realTimeUpdate];
+  //           });
+  //         }
+  //       } else {
+  //         console.log('User not logged in');
+  //         // Handle the case when the user is not logged in
+  //       }
+  //     } catch (error) {
+  //       console.log('Error during login:', error);
+  //       // Handle login errors
+  //     }
+  //   };
 
-    login();
-  }, [dispatch, token, realTimeData]); // Add changeStream and realTimeData to the dependency array
+  //   login();
+  // }, [dispatch, token, realTimeData]); // Add changeStream and realTimeData to the dependency array
 
   const columns = [
     {

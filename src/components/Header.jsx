@@ -21,7 +21,6 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import profileImage from '../assets/PrayogikLogo.png';
 import CustomButton from './Button';
 
-
 function ElevationScroll(props) {
   const { children, window } = props;
   // Note that you normally won't need to set the window ref as useScrollTrigger
@@ -50,7 +49,11 @@ ElevationScroll.propTypes = {
 const Header = (props) => {
   const classes = useStyles();
   const links = [
-    { id: 1, route: 'Home', url: 'https://blog.appseed.us/mui-react-coding-landing-page/' },
+    {
+      id: 1,
+      route: 'Home',
+      url: 'https://blog.appseed.us/mui-react-coding-landing-page/',
+    },
     { id: 2, route: 'Go to Console', url: 'https://appseed.us/apps/react' },
   ];
 
@@ -69,7 +72,6 @@ const Header = (props) => {
     setState({ ...state, [anchor]: open });
   };
 
-
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -78,52 +80,65 @@ const Header = (props) => {
       <ElevationScroll {...props}>
         <AppBar sx={{ borderBottom: '1px solid #75777B' }}>
           <Toolbar className={classes.toolBar}>
-            <Link href="#" underline="none">
-              <Box display="flex" alignItems="center">
+            <Link href='#' underline='none'>
+              <Box display='flex' alignItems='center'>
                 <Box
-                  component="img"
-                  alt="profile"
+                  component='img'
+                  alt='profile'
                   src={profileImage}
-                  height="40px"
-                  width="40px"
-                  borderRadius="50%"
+                  height='40px'
+                  width='40px'
+                  borderRadius='50%'
                   sx={{ objectFit: 'cover', marginRight: '10px' }}
                 />
-                <Typography variant="h5" className={classes.logo}>
+                <Typography variant='h5' className={classes.logo}>
                   W-HMS
                 </Typography>
               </Box>
             </Link>
 
-
             {matches ? (
-              <Box >
+              <Box>
                 <IconButton
-                  size="large"
-                  edge="end"
-                  aria-label="menu"
+                  size='large'
+                  edge='end'
+                  aria-label='menu'
                   onClick={toggleDrawer('right', true)}
                 >
-                  <MenuIcon className={classes.menuIcon} fontSize="" />
+                  <MenuIcon className={classes.menuIcon} fontSize='' />
                 </IconButton>
 
                 <Drawer
-                  anchor="right"
+                  anchor='right'
                   open={state['right']}
                   onClose={toggleDrawer('right', false)}
                 >
                   <Box
-                    sx={{ width: 250, height: "100%", padding: "20px 20px", backgroundColor: "#47494F", textAlign: "center" }}
+                    sx={{
+                      width: 250,
+                      height: '100%',
+                      padding: '20px 20px',
+                      backgroundColor: '#121318',
+                      textAlign: 'center',
+                    }}
                   >
                     <List>
-                      <Link href="#" target="_blank" underline="none" >
-                        <Typography className={classes.menuItem}>Home</Typography>
+                      <Link href='#' target='_blank' underline='none'>
+                        <Typography className={classes.menuItem}>
+                          Home
+                        </Typography>
                       </Link>
-                      <Link href="#" target="_blank" underline="none" >
-                        <Typography className={classes.menuItem}>About Us</Typography>
+                      <Link href='#' target='_blank' underline='none'>
+                        <Typography className={classes.menuItem}>
+                          About Us
+                        </Typography>
                       </Link>
-                      <Link href="/register" target="_blank" underline="none" >
-                        <CustomButton variant='contained' width='180px' sx= {{ margin : "15px 0 " }}>
+                      <Link href='/register' target='_blank' underline='none'>
+                        <CustomButton
+                          variant='contained'
+                          width='180px'
+                          sx={{ margin: '15px 0 ' }}
+                        >
                           Go to Console
                         </CustomButton>
                       </Link>
@@ -131,28 +146,25 @@ const Header = (props) => {
                   </Box>
                 </Drawer>
               </Box>
-            ) : <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                flexGrow: '0.1',
-              }}
-            >
-
-              <Link href="#" target="_blank" underline="none" >
-                <Typography sx={{ color: 'white' }}>Home</Typography>
-              </Link>
-              <Link href="#" target="_blank" underline="none" >
-                <Typography sx={{ color: 'white' }}>About Us</Typography>
-              </Link>
-              <Link href="/register" target="_blank" underline="none" >
-              <CustomButton variant='contained'>
-                          Go to Console
-                        </CustomButton>
-              </Link>
-
-            </Box>}
-
+            ) : (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  flexGrow: '0',
+                }}
+              >
+                {/* <Link href='#' target='_blank' underline='none'>
+                  <Typography sx={{ color: 'white' }}>Home</Typography>
+                </Link>
+                <Link href='#' target='_blank' underline='none'>
+                  <Typography sx={{ color: 'white' }}>About Us</Typography>
+                </Link> */}
+                <Link href='/register' target='_blank' underline='none'>
+                  <CustomButton variant='contained'>Go to Console</CustomButton>
+                </Link>
+              </Box>
+            )}
           </Toolbar>
         </AppBar>
       </ElevationScroll>

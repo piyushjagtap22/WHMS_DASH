@@ -1,6 +1,6 @@
 import React from 'react';
-import { Grid, Typography, Box, Button } from '@mui/material';
-import myteam from '../assets/myteam.jpg';
+import { Grid, Typography, Box, Button, Link } from '@mui/material';
+import QRcode from '../assets/QR_code.jpg';
 import useStyles from '../css/styles';
 import CustomButton from './Button';
 
@@ -23,13 +23,14 @@ const Hero = () => {
             <br />
             Remotely Real time physiological parameters tracking system
           </Typography>
-
+          <Link href='https://drive.google.com/file/d/1EThESfp-muX5FM_tbPllFZ9xe0pYZSnF/view?usp=drivesdk' target='_blank' underline='none'>
           <CustomButton variant='contained' width='200px'>
             Download Mobile App
           </CustomButton>
+          </Link>
         </Grid>
         <Grid item xs={12} md={5}>
-          <img src={myteam} alt='My Team' className={classes.largeImage} />
+          <img src={QRcode} alt='My Team' className={classes.largeImage} />
         </Grid>
       </Grid>
     </Box>
