@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
 
-const SOCKET_URL =  'https://whms-isro-sxur.vercel.app';
+const SOCKET_URL =  'https://www.whms-isro-sxur.vercel.app';
 
 // Create socket instance
 let socket = null;
@@ -16,16 +16,14 @@ export const initializeSocket = createAsyncThunk(
     }
 
     // Create new socket connection
-    socket = io(SOCKET_URL, {
+    const socket = io(SOCKET_URL, {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
-      timeout: 10000,
+      timeout: 20000,
       transports: ['websocket', 'polling'],
-  withCredentials: true,
-  extraHeaders: {
-    "Access-Control-Allow-Origin": "https://whms.in"
-  }
+      path: '/socket.io',  // Remove trailing slash
+      withCredentials: true,
     });
 
     // Set up event listeners
