@@ -21,6 +21,11 @@ export const initializeSocket = createAsyncThunk(
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       timeout: 10000,
+      transports: ['websocket', 'polling'],
+  withCredentials: true,
+  extraHeaders: {
+    "Access-Control-Allow-Origin": "https://whms.in"
+  }
     });
 
     // Set up event listeners
