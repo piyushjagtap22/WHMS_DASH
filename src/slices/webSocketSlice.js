@@ -41,6 +41,16 @@ export const initializeSocket = createAsyncThunk(
       dispatch(setConnectionStatus(`error: ${error.message}`));
     });
 
+    socket.on('error', (error) => {
+      console.error('Socket Error:', error);
+      dispatch(setConnectionStatus(`error: ${error.message}`));
+    });
+    
+    // Add this for debugging
+    socket.io.on("error", (error) => {
+      console.error('IO Error:', error);
+    });
+
     socket.on('f9rHIhOQDnfdAljB7jIlF8UjwsW2/sensorData', (data) => {
       dispatch(updateSensorData(data));
     });
