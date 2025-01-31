@@ -17,7 +17,7 @@ export const initializeAbly = createAsyncThunk(
 
       // Initialize Ably
       ably = new Ably.Realtime({
-        key: import.meta.env.VITE_ABLY_API_KEY,
+        key: 'Ud_aPw.Vdo9OQ:sWTIjTqlzL5gZRJz6XUUwfNdXTMNvYvSYF6duiOT75Y',
         clientId: userId
       });
 
