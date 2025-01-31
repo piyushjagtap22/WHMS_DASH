@@ -1,19 +1,18 @@
-import { memo } from 'react';
 import { Avatar, Box, Divider, Tab, Tabs, Typography } from '@mui/material';
-import { toast } from 'react-hot-toast';
 import { makeStyles } from '@mui/styles';
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { useSelector } from 'react-redux';
 import SideBarNewHistoryTab from './SideBarNewHistoryTab';
 const drawerWidth = 280;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   sidebar: {
     width: drawerWidth,
-    marginBottom: theme.spacing(2),
+    marginBottom: '16px',  // theme.spacing(2)
     backgroundColor: '#191C23',
     color: '#FFFFFF',
-    padding: theme.spacing(0),
+    padding: 0,
     margin: '24px 0 0 24px',
     borderRadius: '16px',
     '&::-webkit-scrollbar': {
@@ -21,32 +20,28 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   avatar: {
-    width: '80px', // Adjust size as needed
-    height: '80px', // Adjust size as needed
-    margin: theme.spacing(3, 2), // Add spacing above and below each section
-  },
-  tab: {
-    minWidth: '50%',
-    textTransform: 'capitalize',
+    width: '80px',
+    height: '80px',
+    margin: '24px 16px',  // theme.spacing(3, 2)
   },
   section: {
-    margin: theme.spacing(3, 10, 0, 3), // Add spacing above and below each section
+    margin: '24px 80px 0 24px',  // theme.spacing(3, 10, 0, 3)
   },
   title: {
     fontSize: '12px',
     fontWeight: 'bold',
-    marginBottom: theme.spacing(0.2),
+    marginBottom: '1.6px',  // theme.spacing(0.2)
     color: '#75777B',
   },
   value: {
     fontSize: '14px',
-    marginBottom: theme.spacing(0.5),
+    marginBottom: '4px',  // theme.spacing(0.5)
     color: '#FFFFFF',
   },
   row: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginBottom: theme.spacing(2),
+    marginBottom: '16px',  // theme.spacing(2)
   },
   column: {
     display: 'flex',
@@ -55,10 +50,9 @@ const useStyles = makeStyles((theme) => ({
   greenText: {
     color: '#7CD6AB',
   },
-
   divider: {
-    backgroundColor: '#47494F', // Divider color
-    margin: 0, // Ensure the divider spans the full width
+    backgroundColor: '#47494F',
+    margin: 0,
     padding: 0,
   },
 }));

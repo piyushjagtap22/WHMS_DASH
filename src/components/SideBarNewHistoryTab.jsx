@@ -1,10 +1,8 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { useState } from 'react';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { useEffect } from 'react';
 import { Box, Divider, Grid, Paper, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 function formatTimeString(timeString) {
   const date = new Date(timeString.trim());
 
@@ -79,13 +77,13 @@ const sensorDataMappings = [
     unit: 'L',
   },
 ];
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   sidebar: {
     width: drawerWidth,
-    marginBottom: theme.spacing(2),
+    marginBottom: '16px',  // theme.spacing(2)
     backgroundColor: '#191C23',
     color: '#FFFFFF',
-    padding: theme.spacing(0),
+    padding: 0,  // theme.spacing(0)
     margin: '24px 0 0 24px',
     borderRadius: '16px',
     '&::-webkit-scrollbar': {
@@ -93,32 +91,32 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   avatar: {
-    width: '80px', // Adjust size as needed
-    height: '80px', // Adjust size as needed
-    margin: theme.spacing(3, 2), // Add spacing above and below each section
+    width: '80px',
+    height: '80px',
+    margin: '24px 16px',  // theme.spacing(3, 2)
   },
   tab: {
     minWidth: '50%',
     textTransform: 'capitalize',
   },
   section: {
-    margin: theme.spacing(3, 10, 0, 3), // Add spacing above and below each section
+    margin: '24px 80px 0 24px',  // theme.spacing(3, 10, 0, 3)
   },
   title: {
     fontSize: '12px',
     fontWeight: 'bold',
-    marginBottom: theme.spacing(0.2),
+    marginBottom: '1.6px',  // theme.spacing(0.2)
     color: '#75777B',
   },
   value: {
     fontSize: '14px',
-    marginBottom: theme.spacing(0.5),
+    marginBottom: '4px',  // theme.spacing(0.5)
     color: '#FFFFFF',
   },
   row: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginBottom: theme.spacing(2),
+    marginBottom: '16px',  // theme.spacing(2)
   },
   column: {
     display: 'flex',
@@ -127,13 +125,13 @@ const useStyles = makeStyles((theme) => ({
   greenText: {
     color: '#7CD6AB',
   },
-
   divider: {
-    backgroundColor: '#47494F', // Divider color
-    margin: 0, // Ensure the divider spans the full width
+    backgroundColor: '#47494F',
+    margin: 0,
     padding: 0,
   },
 }));
+
 const SideBarNewHistoryTab = () => {
   const data2 = useSelector((state) => state.device.sensorData);
   const [sensorData, setSensorData] = useState({

@@ -1,12 +1,12 @@
-import React from 'react';
 import { makeStyles } from '@mui/styles';
-const useStyles = makeStyles((theme) => ({
+import React from 'react';
+const useStyles = makeStyles(() => ({  // removed theme parameter
   sidebar: {
     width: drawerWidth,
-    marginBottom: theme.spacing(2),
+    marginBottom: '16px',  // was theme.spacing(2)
     backgroundColor: '#191C23',
     color: '#FFFFFF',
-    padding: theme.spacing(0),
+    padding: 0,  // was theme.spacing(0)
     margin: '24px 0 0 24px',
     borderRadius: '16px',
     '&::-webkit-scrollbar': {
@@ -14,32 +14,32 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   avatar: {
-    width: '80px', // Adjust size as needed
-    height: '80px', // Adjust size as needed
-    margin: theme.spacing(3, 2), // Add spacing above and below each section
+    width: '80px',
+    height: '80px',
+    margin: '24px 16px',  // was theme.spacing(3, 2)
   },
   tab: {
     minWidth: '50%',
     textTransform: 'capitalize',
   },
   section: {
-    margin: theme.spacing(3, 10, 0, 3), // Add spacing above and below each section
+    margin: '24px 80px 0 24px',  // was theme.spacing(3, 10, 0, 3)
   },
   title: {
     fontSize: '12px',
     fontWeight: 'bold',
-    marginBottom: theme.spacing(0.2),
+    marginBottom: '1.6px',  // was theme.spacing(0.2)
     color: '#75777B',
   },
   value: {
     fontSize: '14px',
-    marginBottom: theme.spacing(0.5),
+    marginBottom: '4px',  // was theme.spacing(0.5)
     color: '#FFFFFF',
   },
   row: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginBottom: theme.spacing(2),
+    marginBottom: '16px',  // was theme.spacing(2)
   },
   column: {
     display: 'flex',
@@ -48,10 +48,9 @@ const useStyles = makeStyles((theme) => ({
   greenText: {
     color: '#7CD6AB',
   },
-
   divider: {
-    backgroundColor: '#47494F', // Divider color
-    margin: 0, // Ensure the divider spans the full width
+    backgroundColor: '#47494F',
+    margin: 0,
     padding: 0,
   },
 }));
@@ -62,11 +61,7 @@ import {
   Avatar,
   Box,
   Divider,
-  Grid,
-  Paper,
-  Tab,
-  Tabs,
-  Typography,
+  Typography
 } from '@mui/material';
 
 const UserProfile = () => {

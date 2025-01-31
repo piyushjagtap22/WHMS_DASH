@@ -1,80 +1,78 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { io } from 'socket.io-client';
+import * as Ably from 'ably';
 
-const SOCKET_URL =  'https://whms-isro-sxur.vercel.app';
+// Ably instance
+let ably = null;
+let channel = null;
 
-// Create socket instance
-let socket = null;
-
-// Async thunk for initializing socket connection
-export const initializeSocket = createAsyncThunk(
+// Async thunk for initializing Ably connection
+export const initializeAbly = createAsyncThunk(
   'websocket/initialize',
-  async (_, { dispatch }) => {
-    // If socket exists, disconnect it first
-    if (socket) {
-      socket.disconnect();
+  async (userId, { dispatch }) => {
+    try {
+      // Cleanup existing connection if any
+      if (ably) {
+        ably.close();
+      }
+
+      // Initialize Ably
+      ably = new Ably.Realtime({
+        key: import.meta.env.VITE_ABLY_API_KEY,
+        clientId: userId
+      });
+
+      // Connect to the sensor data channel
+      channel = ably.channels.get('sensor-data');
+
+      // Handle connection state changes
+      ably.connection.on((stateChange) => {
+        dispatch(setConnectionStatus(stateChange.current));
+        
+        if (stateChange.reason) {
+          dispatch(setError(stateChange.reason.toString()));
+        }
+      });
+
+      // Subscribe to sensor data
+      channel.subscribe((message) => {
+        dispatch(updateSensorData(message.data));
+      });
+
+      // Or subscribe to specific user's data
+      channel.subscribe(`user-${userId}`, (message) => {
+        dispatch(updateSensorData(message.data));
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Ably initialization error:', error);
+      throw error;
     }
-
-    // Create new socket connection
-    const socket = io(SOCKET_URL, {
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-      timeout: 20000,
-      transports: ['websocket', 'polling'],
-      path: '/socket.io',  // Remove trailing slash
-      withCredentials: true,
-    });
-
-    // Set up event listeners
-    socket.on('connect', () => {
-      dispatch(setConnectionStatus('connected'));
-    });
-
-    socket.on('disconnect', (reason) => {
-      dispatch(setConnectionStatus(`disconnected: ${reason}`));
-    });
-
-    socket.on('connect_error', (error) => {
-      dispatch(setConnectionStatus(`error: ${error.message}`));
-    });
-
-    socket.on('error', (error) => {
-      console.error('Socket Error:', error);
-      dispatch(setConnectionStatus(`error: ${error.message}`));
-    });
-    
-    // Add this for debugging
-    socket.io.on("error", (error) => {
-      console.error('IO Error:', error);
-    });
-
-    socket.on('f9rHIhOQDnfdAljB7jIlF8UjwsW2/sensorData', (data) => {
-      dispatch(updateSensorData(data));
-    });
-
-    return true;
   }
 );
 
-// Async thunk for disconnecting socket
-export const disconnectSocket = createAsyncThunk(
+// Async thunk for disconnecting
+export const disconnectAbly = createAsyncThunk(
   'websocket/disconnect',
   async () => {
-    if (socket) {
-      socket.disconnect();
-      socket = null;
+    if (channel) {
+      await channel.unsubscribe();
+    }
+    if (ably) {
+      await ably.close();
+      ably = null;
+      channel = null;
     }
     return true;
   }
 );
 
-// Async thunk for emitting events
-export const emitSocketEvent = createAsyncThunk(
-  'websocket/emit',
+// Async thunk for publishing events
+export const publishAblyEvent = createAsyncThunk(
+  'websocket/publish',
   async ({ event, data }) => {
-    if (socket) {
-      socket.emit(event, data);
+    if (channel) {
+      await channel.publish(event, data);
     }
     return true;
   }
@@ -106,14 +104,14 @@ const websocketSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(initializeSocket.pending, (state) => {
+      .addCase(initializeAbly.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(initializeSocket.fulfilled, (state) => {
+      .addCase(initializeAbly.fulfilled, (state) => {
         state.isLoading = false;
         state.error = null;
       })
-      .addCase(initializeSocket.rejected, (state, action) => {
+      .addCase(initializeAbly.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
       });

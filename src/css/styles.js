@@ -1,4 +1,3 @@
-import { BorderBottom } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 
 const styles = (theme) => {
@@ -31,9 +30,7 @@ const styles = (theme) => {
       padding: '10px',
       maxWidth: '700px',
       margin: '30px auto',
-      [theme.breakpoints.between('xs', 'sm')]: {
-        width: '100%',
-      },
+      width: '100%',
     },
     form: {
       marginTop: '30px',

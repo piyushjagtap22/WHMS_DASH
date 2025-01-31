@@ -2,7 +2,10 @@ import { Box, useTheme } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import Chart from 'react-apexcharts';
 import { useDispatch, useSelector } from 'react-redux';
-import { disconnectSocket, initializeSocket } from '../slices/webSocketSlice';
+import {
+  disconnectAbly,
+  initializeAbly
+} from '../slices/webSocketSlice';
 const SENSOR_CONFIG = [
   {
     name: 'Heart Rate',
@@ -116,7 +119,12 @@ const GraphsComp = () => {
   const theme = useTheme();
 
   const dispatch = useDispatch();
-  const { sensorData, connectionStatus } = useSelector((state) => state.websocket);
+  const { 
+    connectionStatus, 
+    sensorData, 
+    isLoading, 
+    error 
+  } = useSelector((state) => state.websocket);
 
   // Initialize series state for all sensors
   const [series, setSeries] = useState(
@@ -152,13 +160,20 @@ const GraphsComp = () => {
     }
   }, [sensorData]);
 
-  // Initialize WebSocket connection
+  // Initialize Ably connection
   useEffect(() => {
-    dispatch(initializeSocket());
-    return () => dispatch(disconnectSocket());
+    const userId = ''; // Get from your auth system
+    dispatch(initializeAbly(userId));
+
+    return () => {
+      dispatch(disconnectAbly());
+    };
   }, [dispatch]);
 
-  
+
+
+
+
 
   const getChartOptions = (sensorConfig, seriesColor) => ({
     chart: {
@@ -261,6 +276,9 @@ const GraphsComp = () => {
     //   ]
     // }
   });
+
+  if (isLoading) return <div>Connecting...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div
